@@ -1,0 +1,150 @@
+#--------------------------------------------------------------#
+#------------------- HDBSCAN explain ---------------------------#
+#--------------------------------------------------------------#
+
+Explanation of HDBSCAN
+
+HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is a density-based clustering algorithm that extends DBSCAN by converting it into a hierarchical clustering algorithm and then extracting a flat clustering based on the stability of clusters. 
+
+Unlike DBSCAN, HDBSCAN does not require the user to specify the cluster density parameter (epsilon) beforehand, making it more robust to varying densities in the data.
+
+Here's a breakdown of the steps involved in HDBSCAN:
+
+1.  **Compute the Core Distance:**
+    For each point p, the k-core distance, denoted as core_dist_k(p), is the distance to its k_th nearest neighbor. 
+    The parameter k_th (minPts in the algorithm) determines the minimum number of points required to form a core point.
+
+    Formula:
+
+	    	core_dist_k(p) = distance(p, the k_th nearest neighbor of p)
+
+2.  **Compute the Reachability Distance:**
+    The reachability distance from a point q to a point p with respect to k(minPts) is defined as the maximum of the core distance of q and the distance between p and q.
+    Measuring how far point p has to "reach" to get to point q, considering how dense the area around q is
+
+    Formula:
+    		reach_dist_k(p, q) = max(core_dist_k(q), distance(p, q))
+
+3.  **Construct the Minimum Spanning Tree (MST):**
+    Using the reachability distances between all pairs of points, a Minimum Spanning Tree is constructed. 
+    The weight of an edge between two points in the MST is their reachability distance.
+
+4.  **Condense the Tree:**
+    The MST is then condensed to form a cluster hierarchy. 
+    This is done by iteratively removing the edges in the MST in increasing order of their weights. 
+    Each time an edge is removed, the MST is broken into two or more connected components, which represent potential clusters.
+
+5.  **Calculate Cluster Stability:**
+    For each cluster in the hierarchy, a stability score is calculated. 
+    The stability of a cluster is a measure of how long the cluster persists across different density levels in the hierarchy. 
+    A higher stability score indicates a more robust cluster. 
+    The stability of a cluster is related to the sum of lambda-values (lambda = 1 / reachability_distance) of the edges that cause the cluster to split.
+
+    Formula for lambda-value of an edge between points p and q:
+    		
+		lambda = 1 / reachability_distance
+
+    The stability of a cluster is roughly the sum of the lambda-values of the edges that belong to the cluster in the MST before it splits.
+
+6.  **Extract the Flat Clustering:**
+    Finally, the algorithm selects the most stable clusters from the hierarchy to form the flat clustering. 
+    This is typically done by traversing the cluster hierarchy and selecting clusters that have a high stability score and persist for a significant range of density levels.
+    Points that do not belong to any stable cluster are labeled as noise.
+
+
+#--------------------------------------------------------------#
+#--------------------- Example --------------------------------#
+#--------------------------------------------------------------#
+
+Let's consider a simple 2D dataset with four points:
+
+P_1 = (1, 1)
+P_2 = (1, 2)
+P_3 = (4, 1)
+P_4 = (4, 2)
+
+Let's set k = minPts = 2. 
+
+We will use the Euclidean distance.
+
+**Step 1: Compute the Core Distance**
+
+* For P_1:
+    Nearest neighbors are P_2 (distance sqrt{(1-1)^2 + (2-1)^2} = 1) and P_3 (distance sqrt{(4-1)^2 + (1-1)^2} = 3).
+    core_dist_2(P_1) = 3 (distance to the 2nd nearest neighbor)
+
+* For P_2:
+    Nearest neighbors are P_1 (distance 1) and P_4 (distance sqrt{(4-1)^2 + (2-2)^2} = 3).
+    core_dist_2(P_2) = 3
+
+* For P_3:
+    Nearest neighbors are P_4 (distance 1) and P_1 (distance 3).
+    core_dist_2(P_3) = 3
+
+* For P_4:
+    Nearest neighbors are P_3 (distance 1) and P_2 (distance 3).
+    core_dist_2(P_4) = 3
+
+**Step 2: Compute the Reachability Distance**
+
+* reach_dist_2(P_1, P_2) = max(core_dist_2(P_2), distance(P_1, P_2)) = max(3, 1) = 3
+* reach_dist_2(P_1, P_3) = max(core_dist_2(P_3), distance(P_1, P_3)) = max(3, 3) = 3
+* reach_dist_2(P_1, P_4) = max(core_dist_2(P_4), distance(P_1, P_4)) = max(3, sqrt{10} ~ 3.16) = 3.16
+* reach_dist_2(P_2, P_3) = max(core_dist_2(P_3), distance(P_2, P_3)) = max(3, sqrt{10} ~ 3.16) = 3.16
+* reach_dist_2(P_2, P_4) = max(core_dist_2(P_4), distance(P_2, P_4)) = max(3, 3) = 3
+* reach_dist_2(P_3, P_4) = max(core_dist_2(P_4), distance(P_3, P_4)) = max(3, 1) = 3
+
+**Step 3: Construct the Minimum Spanning Tree (MST)**
+
+A possible MST connecting all four points with minimum total reachability distance (total weight 9) can be formed 
+by choosing any three of the edges with weight 3 that connect all points. For example:
+
+(weight is reach_dist_2(p,q))
+
+* (P_1, P_2) with weight 3
+* (P_3, P_4) with weight 3
+* (P_1, P_3) with weight 3
+
+Another valid MST would be:
+
+* (P_1, P_2) with weight 3
+* (P_3, P_4) with weight 3
+* (P_2, P_4) with weight 3
+
+**Step 4 & 5: Condense the Tree and Calculate Cluster Stability (Simplified for this example)**
+
+We consider removing edges in increasing order of their weights:
+
+Regardless of the specific MST chosen (as long as it uses the edges with weight 3), 
+the process of removing edges in increasing order of weight (all the initial MST edges have a weight of 3) will lead to the separation of the two intuitive clusters.
+
+For the first MST option:
+
+* Removing (P_1, P_2) (weight 3, lambda = 1/3 = 0.33) separates {P_1, P_2}.
+* Removing (P_3, P_4) (weight 3, lambda = 1/3 = 0.33) separates {P_3, P_4}.
+* Removing (P_1, P_3) (weight 3, lambda = 1/3 = 0.33) connects the components before.
+
+For the second MST option:
+
+* Removing (P_1, P_2) (weight 3, lambda = 1/3 = 0.33) separates {P_1, P_2}.
+* Removing (P_3, P_4) (weight 3, lambda = 1/3 = 0.33) separates {P_3, P_4}.
+* Removing (P_2, P_4) (weight 3, lambda = 1/3 = 0.33) connects the components before.
+
+**Step 6: Extract the Flat Clustering**
+
+Based on the stability (which we've qualitatively assessed here), we can see two distinct groups that were separated by edges with higher lambda-values (lower reachability distances). The connection between these groups has a lower lambda-value (higher reachability distance), suggesting it's a weaker link.
+
+Therefore, HDBSCAN would likely identify two clusters:
+
+* Cluster 1: {P_1, P_2}
+* Cluster 2: {P_3, P_4}
+
+In a more complex scenario, the stability calculation would involve summing the lambda-values over the lifespan of a cluster in the hierarchy. 
+However, for this simple example, we can infer the clustering structure from the MST and the order of edge removal.
+
+---
+
+This manual example demonstrates the basic principles of HDBSCAN: calculating reachability distances, building an MST, 
+and then implicitly considering the hierarchy formed by removing edges to identify stable clusters. 
+
+The formal stability calculation is more involved but relies on the concept of cluster persistence based on the edge weights (reachability distances) in the MST.

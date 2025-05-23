@@ -1,0 +1,68 @@
+Tunning Parameters (or Tunning Hyper-Parameters) is a process to find out the most possible optimal parameters for an algorithm
+
+For example, when building a Random Forest, some questions may come up:
+# How many trees should it have (n_estimators)?
+# What is the maximum number of features (max_features)?
+# What is the minimum split sample size to set (min_samples_split)?
+# What is the depth level to choose (max_depth)?
+
+=> Use Tunning Parameters to find out
+
+There are 2 sklearn modules help in Tunning Parameters
+# GridSearchCV: search through all the given parameters to examine => time-consuming
+# RandomizedSearchCV: pick out random given parameters to examine => faster, but can overlook some more optimized cases
+
+
+#--------------------------------------------------------------------------#
+#------------------------ GridSearchCV ------------------------------------#
+#--------------------------------------------------------------------------#
+
+from sklearn import datasets
+iris = datasets.load_iris()
+
+X=data[['petal length', 'petal width']]  
+y=data['species']
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state = 1)
+
+
+# Dùng Grid Search
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+#parameters to check
+param_grid = { 
+    'n_estimators': [30, 50, 100, 150, 200, 250, 300],    #7 parameters
+    'max_features': ['auto', 'sqrt', 'log2'],             #3 parameters
+    'bootstrap': [True, False],                           #2 parameters
+    'criterion': ["gini", "entropy"]                      #2 parameters
+}
+
+#So, there will be 7*3*2*2 = 84 versions of this model to check
+
+from datetime import datetime
+from datetime import timedelta
+
+start_time = datetime.now()
+
+#GridSeachCV class
+CV_rfc = GridSearchCV(estimator=RandomForestClassifier(), param_grid=param_grid, cv= 5)
+CV_rfc.fit(X_train, y_train)
+
+#Each of 84 versions will go through 5-fold cross validation, returning 84 means of accuracy scores
+
+end_time = datetime.now()
+
+
+dt = end_time - start_time
+seconds_1 = (dt.days * 24 * 60 * 60 + dt.seconds) 
+print(seconds_1)
+
+print(CV_rfc.best_params_)
+
+
+# After the GridSearchCV, the resulted model will also be the best model, so can use it to predict
+y_pred_1=CV_rfc.predict(X_test)
+

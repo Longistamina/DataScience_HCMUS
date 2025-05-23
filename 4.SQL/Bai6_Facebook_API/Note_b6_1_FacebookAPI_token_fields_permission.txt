@@ -1,0 +1,68 @@
+API = Application Programming Interface
+
+Facebook API is a library provided by Facebook that helps user interact with information on FB like image, posts, comments...
+
+
+#------------------------------------------------------#
+#---------- Register the app and get Token ------------#
+#------------------------------------------------------#
+
+Go to developers.facebook.com to register or log in
+
+Then, go to developers.facebook.com/apps/ with your account logged in and create an App
+
+Next, go to developers.facebook.com/tools/explorer to get the Token
+(Can also do this by clicking the Tools, then choose Graph API Explorer)
+
+In this Graph API window, click the "User or Page", and choose "Get User Access Token",
+and click "Generate Access Token"
+
+Copy the Token, for example: EAAQCqYLe0CcBO6LVdOmYmpaZAXCTvWwYKpIx1smfezQmfgJaqMWPa6xaXaLZAIogewxaum4RgkyPrDtwdymc02gjZAyVWiHphTxgxL1nzNAvdqDsPE1ZBx2XLprc4a8S14JkpSIZBkybH4qZCp6U6OtLzvueZB5BwY2gm8nhphlXmylBLsxjMPE1LZCmfRi8TWyWIWchu1QZBy5xizEkufQdUIX4wQPZBSJ4F7dxrVPbM5jsQfjTIRNyhdnWlb3QuiIxYZD
+
+Click the "Submit" to check if the Token correspond to the right id and username
+
+{
+  "id": "4064440890459767",
+  "name": "Đỗ Phạm Thế Long"
+}
+
+
+#------------------------------------------------------#
+#---------- Search for a field, Permission ------------#
+#------------------------------------------------------#
+
+On the left side, try type "email" into the box "Search for a field", then click "Submit"
+
+It will raise an error stating that only User can get this information
+
+To fix this, on the right side, click "Add a Permission", choose "User Data Permissions",
+then find and choose "email"
+
+After granting that permission, click "Generate Access Token" to generate a new token with updated permission,
+use that token to submit again.
+
+Then, type "email" into the box "Search for a field", then click "Submit", now can access this information.
+
+{
+"id": "4064440890459767",
+  "name": "Đỗ Phạm Thế Long",
+  "email": "dophamthelong03@gmail.com"
+}
+
+
+Do the same for other information in "Search for a field"
+
+
+
+#-----------------------------------------#
+#---------- Extend Token date ------------#
+#-----------------------------------------#
+
+Copy the Token string
+
+Click "Tools", choose "Access Token Debugger"
+
+Paste the Token string into the box, and click "Debug", it will show all information related to the token,
+for example the expired date of a normal access token is 1 hour.
+
+Scroll down, click the "Extend Access Token" button, it will generate a new token string with longer expired day (2-3 months)

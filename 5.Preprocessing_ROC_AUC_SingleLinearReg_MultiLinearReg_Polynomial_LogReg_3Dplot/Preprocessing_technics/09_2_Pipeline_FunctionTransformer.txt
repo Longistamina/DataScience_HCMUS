@@ -1,0 +1,61 @@
+#----------------------------------------------------------#
+#----------------- FunctionTransformer --------------------#
+#----------------------------------------------------------#
+
+import numpy as np
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import RobustScaler
+from imblearn.pipeline import Pipeline
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import FunctionTransformer
+
++++++ Method 1: +++++
+#Create a transformer based on np.log() function using FunctionTransformer() (inverse with np.exp())
+log_scaler = FunctionTransformer(func = np.log, inverse_func = np.exp,  validate = True) 
+
+numeric_cols = [... names of numerical continuous features ....]
+
+hierclust_pipe = Pipeline([
+    ('LogScaler', make_column_transformer((log_scaler, numeric_cols), remainder='passthrough')),
+    ('HierachichalClustering', AgglomerativeClustering(n_clusters = 2, compute_distances = True))
+])
+
+hierclust_pipe.fit(data)
+
++++++ Method 2: +++++++
+log_scaler = FunctionTransformer(func = np.log, inverse_func = np.exp,  validate = True)
+
+hierclust_pipe = Pipeline([
+    ('LogScaler', log_scaler), #Not log_scaler() because it's not callable
+    ('HierachichalClustering', AgglomerativeClustering(n_clusters = 2, compute_distances = True))
+])
+
+hierclust_pipe.fit(data)
+
+#--------------------------------------------------------#
+#----------------- ColumnTransformer --------------------#
+#--------------------------------------------------------#
+
+sklearn.compose.ColumnTransformer(transformers, *, remainder='drop', sparse_threshold=0.3, n_jobs=None, transformer_weights=None, verbose=False, verbose_feature_names_out=True, force_int_remainder_cols=True)
+
+
+import numpy as np
+from sklearn.compose import ColumnTransformer
+from imblearn.pipeline import Pipeline
+from sklearn.preprocessing import FunctionTransformer
+
+numeric_cols = [... names of numerical continuous features ....]
+
+LogScaler = ColumnTransformer(
+    transformers=[('log_transform', FunctionTransformer(func=np.log, inverse_func=np.exp, validate=True), numeric_cols)],
+    remainder='passthrough'
+)
+
+nbBer_pipe = Pipeline([
+    ('LogScaler', LogScaler),
+    ('Bernoulli_Naive_Bayes', BernoulliNB())
+])
+
+nbBer_pipe.fit(x,y)
+
+print(f'BernoulliNB accuracy score on train set: {nbBer_pipe.score(x, y)}')

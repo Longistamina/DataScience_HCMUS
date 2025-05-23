@@ -1,0 +1,29 @@
+#----------------------------------------------------------------------------------------#
+#--------------------- Hierachical Clustering and Pipeline ------------------------------#
+#----------------------------------------------------------------------------------------#
+
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+from imblearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer
+import math
+
+k_nums = range(2,10)
+
+for k in k_nums:
+    hierclust_pipe = Pipeline([
+        ('OneHotEncoder', make_column_transformer((OneHotEncoder(drop='first', handle_unknown='ignore'), [categ_feats]), remainder='passthrough')),
+        ('MinMaxScaler', MinMaxScaler()),
+        ('HierachichalClustering', AgglomerativeClustering(n_clusters = k))
+    ])
+    hierclust_pipe.fit(data)
+    data_scaled = (
+        pd.DataFrame(hierclust_pipe[:-1].transform(data)) #Transform original data with onehotencoder and MinMaxScaler
+        .pipe(lambda df: df.set_axis(hierclust_pipe.named_steps['OneHotEncoder'].get_feature_names_out(), axis =1))
+    )
+    labels = hierclust_pipe.named_steps['HierachichalClustering'].labels_
+    print(f'Silhouette score for k = {k}: {silhouette_score(data_scaled, labels)}')
+
+
+print('\nChoose K = ....')

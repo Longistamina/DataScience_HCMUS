@@ -1,0 +1,7 @@
+Cho các dữ liệu year, pop, gdp_cap, life_exp, pop2, col từ tập tin data_year_pop_cap_life.txt
+
+Hãy hoàn tất file đính kèm cùng các yêu cầu liên quan đến phân tích dữ liệu thế giới.
+
+
+https://drive.google.com/file/d/1oml6dfBlSrH7J_0UQkaTi2TMkND5cukN/view
+https://drive.google.com/file/d/16fvdrdfOypjgTUK-tDpoMV6oHIJfLL2A/view

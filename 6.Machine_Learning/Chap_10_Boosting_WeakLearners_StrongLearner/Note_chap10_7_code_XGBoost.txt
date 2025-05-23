@@ -1,0 +1,87 @@
+https://www.youtube.com/watch?v=GrJP9FLV3FE&t=12s
+
+The xgboost package is written in C++ => fast performance
+This package also allows parallel computing => can utilize GPU to enhance training time
+
+# !pip install xgboost #install xgboost package
+
+#---------------------------------------------------------------------------------#
+#----------------- XGBoost - Extreme Gradient Boost Classifier -------------------#
+#---------------------------------------------------------------------------------#
+
+
+x = data[['col1', 'col2', ...]]
+
+from sklearn.preprocessing import LabelEncoder
+label_encd = LabelEncoder()
+y = label_encd.fit_transform(data['output'])
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+import xgboost as xgb
+xgb_clf = xgb.XGBClassifier(objective = 'binary:logistic', missing = None, seed = 1, num_class = 2, eta = ...)
+# objective = 'binary:logistic' => logistic regression for binary classification, output probability
+            = 'multi:softmax' => set XGBoost to do multiclass classification using the softmax objective
+# num_class = the number of classes
+# missing = None (to tell xgboost that there is no missing values, otherwise tell xgboost which character is used to represent missing values like np.na)
+# eta = learning rate (ranging from 0.01 ~ 0.3)
+
+xgb_clf.fit(x_train, y_train,
+	    verbose = True,                  # This will print progress messages during training (like evaluation scores at each boosting round
+	    eval_set = [(x_test, y_test)])
+
+
+XGBoostClassifier parameters
+# Parameter           Description
+# n_estimators        Number of trees to build (default: 100)
+# learning_rate       Step size shrinkage to prevent overfitting. Typical range: 0.01–0.3
+# max_depth           Maximum tree depth (controls model complexity)
+# subsample           Fraction of samples used for each tree (for randomness and preventing overfitting)
+# colsample_bytree    Fraction of features used per tree
+# reg_alpha           L1 regularization term (Lasso)
+# reg_lambda          L2 regularization term (Ridge)
+# objective           Loss function, e.g., 'binary:logistic' for binary classification, 'multi:softmax' for multiclass classification
+# booster             Which booster to use: gbtree, gblinear, or dart
+# use_label_encoder   Whether to use the label encoder (default: True, often set to False for warnings)
+# eval_metric         Evaluation metric to use (e.g., 'logloss', 'error', 'auc')
+# random_state        Random seed for reproducibility
+# n_jobs              Number of parallel threads
+
+# min_child_weight    Also known as "Cover", controls the minimum sum of instance weight (or the total Hessian, depending on the implementation) in a child node
+                      If the sum of the instance weights in a leaf is less than this value, the algorithm will stop splitting and will not create a new child node.
+                      So, higher min_child_weight means less child nodes
+
+#--------------------------------------------------------------------------------#
+#----------------- XGBoost - Extreme Gradient Boost Regressor -------------------#
+#--------------------------------------------------------------------------------#
+
+
+x = data[['col1', 'col2', ...]]
+y = data['output']
+
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+import xgboost as xgb
+xgb_rg = xgb.XGBoostRegressor(random_state = 1)
+xgb_rg.fit(x_train, y_train)
+
+XGBoostRegressor parameters
+# Parameter            Description
+# n_estimators        Number of trees to build (default: 100)
+# learning_rate       Step size shrinkage to prevent overfitting. Typical range: 0.01–0.3
+# max_depth           Maximum tree depth (controls model complexity)
+# subsample           Fraction of samples used for each tree (for randomness and preventing overfitting)
+# colsample_bytree    Fraction of features used per tree
+# reg_alpha           L1 regularization term (Lasso)
+# reg_lambda          L2 regularization term (Ridge)
+# objective           Loss function, e.g., 'reg:squarederror' for standard regression
+# booster             Which booster to use: gbtree, gblinear, or dart
+# random_state        Random seed for reproducibility
+# n_jobs              Number of parallel threads
+
+# min_child_weight    Also known as "Cover", controls the minimum sum of instance weight (or the total Hessian, depending on the implementation) in a child node
+                      If the sum of the instance weights in a leaf is less than this value, the algorithm will stop splitting and will not create a new child node.
+                      So, higher min_child_weight means less child nodes

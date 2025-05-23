@@ -1,0 +1,102 @@
+Constraint is a set of principles applied onto table's columns
+
+It is used to limit the datatype being inserted into the column,
+to ensure the righteousness and reliability of the data
+
+2 levels of Constraint:
+	+Column level: applied only onto specific columns
+	+Table level: applied onto the whole table (meaning onto all columns of that table)
+
+
+Can set up a Constraint while creating table (CREATE TABLE) or while modifying table (ALTER TABLE)
+
+
+Some types of popular constraint:
+	+NOT NULL: not accept NULL values as input
+	+DEFAULT: provide a default value for that position if it is NULL
+	+UNIQUE: all values in the column/table must be unique (no overlap)
+	+PRIMARY KEY: to set a column as primary key (generally ID column), other columns must be NOT NULL
+
+	+FOREIGN KEY: if primary key is applied for "father" table, then foreign key is applied for "daughter" table
+
+
+#-----------------------------------------------------------------------#
+#-------------- Create table with constraint ---------------------------#
+#-----------------------------------------------------------------------#
+
+
+*********** Example: ***********
+CREATE TABLE pets(
+	ID integer primary key autoincrement,
+	NAME varchar(30) NOT NULL,
+	AGE int NOT NULL
+)
+
+
+
+*********** use PRIMARY KEY(col_name) ***********
+CREATE TABLE pets(
+	ID integer,
+	NAME varchar(30) NOT NULL,
+	AGE int NOT NULL,
+	PRIMARY KEY (ID)
+)
+
+
+
+*********** use DEFAULT ***********
+create table dat_hang(
+	id int primary key autoincrement,
+	ngay_dat date not null DEFAULT(current_date),
+	ngay_giao_du_kien date not null
+) engine=innodb;
+
+-- with DEFAULT(current_date), if ngay_dat is null, it will fill it with current_date function's result
+
+
+*********** use CHECK(condition) ***********
+create table Vay_tien(
+	Ma_vay int primary key autoincrement,
+	So_tien_vay float CHECK(So_tien_vay > 0)
+
+);
+
+-- Use CHECK() to force the So_tien_vay values to be greater than 0 (if no, raise error)
+
+
+*********** use CONSTRAINT name_of_constraint CHECK(condition) ***********
+create table dat_hang(
+	id int primary key autoincrement,
+	ngay_dat date not null DEFAULT(current_date),
+	ngay_giao_du_kien date not null,
+	
+	CONSTRAINT check_ngaydat_ngaygiao CHECK(ngay_giao_du_kien >= ngay_dat)
+
+) engine=innodb;
+
+-- Create a CONSTRAINT to apply a condition where ngay_giao_du_kien > =ngay_dat (if no, raise error)
+
+
+*********** Set FOREIGN KEY REFERENCES ***********
+create table Medals(
+	ID int primary key,
+	Athlete varchar(60),
+	CountryID int FOREIGN KEY REFERENCES Country(ID),
+	CountryCode varchar(3)
+)
+
+-- with the FOREIGN KEY REFERENCES Country(ID), 
+the values of CountryID column in Medals table must correspond to those of the ID column of Country table
+
+-- In other words, CountryID column in the Medals table must correspond to an existing ID value in the Country table.
+
+
+
+#-----------------------------------------------------------------------------#
+#-------------- Add Constraint to an existed table ---------------------------#
+#-----------------------------------------------------------------------------#
+
+alter table COUNTRY
+	Add Constraint primary_key_id PRIMARY KEY (ID);
+
+-- Add a new constraint into ID column, to set it as primary key

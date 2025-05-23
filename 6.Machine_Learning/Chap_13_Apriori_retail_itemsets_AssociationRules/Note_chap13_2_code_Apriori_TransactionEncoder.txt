@@ -1,0 +1,51 @@
+# !pip3 install mlxtend
+
+
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+
+
+#Must create a transactions_lst like below first before passing into TransactionEncoder
+transactions_lst = [['Eggs', 'Milk', 'Onion', 'Nutmeg', 'Kidney Beans', 'Yogurt'],
+           	['Dill', 'Onion', 'Nutmeg', 'Eggs', 'Yogurt'],
+           	['Milk', 'Apple', 'Kidney Beans', 'Eggs'],
+           	['Milk', 'Unicorn', 'Corn', 'Kidney Beans', 'Yogurt'],
+           	['Corn', 'Onion', 'Kidney Beans', 'Ice cream', 'Eggs'],
+           	['Orange', 'Corn', 'Eggs', 'Yogurt'],
+           	['Milk', 'Apple', 'Orange', 'Eggs'], 
+           	['Corn', 'Coke', 'Kidney Beans', 'Ice cream'],
+           	['Dill', 'Onion', 'Nutmeg'],
+           	['Coke', 'Apple', 'Ice cream']
+          	]
+
+
+trans_encode = TransactionEncoder()
+arr_transactions = trans_encode.fit_transform(transactions_lst)
+
+df_transactions = pd.DataFrame(arr_transactions, columns = trans_encode.columns_)
+
+
+## Find frequent itemsets
+frequent_itemsets = apriori(df_transactions, min_support = 0.3, use_colnames = True) #Run with minimum support threshold = 0.3
+print(frequent_itemsets)
+
+
+## Find association rules within itemsets
+asc_rules = association_rules(frequent_items, metric='confidence', min_threshold=0.3, #Run with minimum confidence threshold = 0.3
+                             return_metrics=['support', 'confidence', 'lift', 'leverage', 'conviction'])
+print(asc_rules)
+
+
+#Run with lift
+asc_rules = association_rules(frequent_items, metric='lift', min_threshold=1.1, asc_rules #Run with minimum lift threshold = 1.1
+                              return_metrics=['support', 'confidence', 'lift', 'leverage', 'conviction'])
+print(asc_rules)
+
+
+for row in asc_rules.iterrows():
+	if "Milk" in row[1][0]:
+		print(row)
+
+support = asc_rules['support'].values
+confidence = asc_rules['confidence'].values
+lift = asc_rules['lift'].values

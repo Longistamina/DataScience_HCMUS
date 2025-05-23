@@ -1,0 +1,178 @@
+# !pip3 install pmdarima
+
+import pmdarima as pm
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load/split your data
+y = pm.datasets.load_wineind()
+train_set, test_set = train_test_split(y, train_size=int(0.8*y.shape[0]))
+
+#or:
+min_temp = (
+    pd.read_csv('data/daily_min_temperatures.csv')
+    .assign(Date=lambda df: pd.to_datetime(df['Date'], yearfirst=True, dayfirst=False))
+    .set_index('Date')
+    .asfreq('D')  # Change 'D' to 'M', 'W', etc. if needed
+    .assign(Temp=lambda df: df['Temp'].fillna(df['Temp'].interpolate()))
+)
+
+#########################
+### Seasonality check ###
+#########################
+
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+seasonal_check = seasonal_decompose(
+    min_temp+0.05, #Add 0.05 to avoid zero value (or negative value)
+    model='multiplicative', #Watch Observed data, if seasonal swings grow/shrink with the trend, use "multiplicative". If they stay constant, use "additive".
+    period=365
+)
+
+attr = ['observed', 'trend', 'seasonal', 'resid']
+
+#Draw all plots
+sbn.set_theme(style='darkgrid')
+plt.figure(figsize = (20,10))
+plt.subplots_adjust(hspace=1)
+for i in range(len(attr)):
+    plt.subplot(4,1,i+1)
+    sbn.lineplot(data=getattr(seasonal_check, attr[i]))
+    plt.title(attr[i].upper(), size = 15, color = 'green')
+plt.show()
+
+plt.plot(seasonal_check.trend) #Draw trend only
+plt.plot(seasonal_check.seasonal) #Draw seasonal only
+plt.plot(seasonal_check.resid) #Draw resid only
+
+###############################
+### Build HoltWinters model ###
+###############################
+
+train_set, test_set = pm.model_selection.train_test_split(min_temp, train_size=int(0.8*min_temp.shape[0]))
+
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+holtwinters_model = ExponentialSmoothing(
+                endog = train_set,
+                seasonal = 'mul',
+                seasonal_periods = 12).fit()
+
+##################
+### Forecast ###
+##################
+
+forecasts_test = holtwinters_model.predict(start = test_set.index[0],
+                                           end = test_set.index[-1])
+
+####
+s = datetime.datetime(2019, 1, 1)
+e = datetime.datetime(2019, 12, 1)
+
+predict_next_12_months =  holtwinters_model.predict(start = s,
+                                                    end = e)
+
+# Visualize the forecasts (blue=train, green=forecasts)
+plt.figure(figsize=(20, 10))
+sbn.lineplot(x=train_set.index, y=train_set.values.ravel(), color='blue', label='Train')
+sbn.lineplot(x=forecasts_test.index, y=forecasts_test.values.ravel(), color='green', label='Forecast')
+plt.legend()
+plt.show()
+
+##################
+### Evaluation ###
+##################
+
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+forecasts_train = holtwinters_model.predict(start = train_set.index[0],
+                                           end = train_set.index[-1])
+
+print(f'Accuracy on train set: {r2_score(train_set.values, forecasts_train.values)}')
+print(f'Accuracy on test set: {r2_score(test_set.values, forecasts_test.values)}')
+print()
+
+print(f'Mean squared error test set: {mean_squared_error(test_set.values, forecasts_test.values)}')
+print(f'Mean absolute error test set: {mean_absolute_error(test_set.values, forecasts_test.values)}')
+print()
+
+sbn.set_theme(style='darkgrid')
+plt.figure(figsize=(20,6))
+plt.subplot(1,2,1)
+sbn.kdeplot(test_set.values,  label = "Test_true", color = 'green')
+sbn.kdeplot(forecasts_test.values, label = "Test_forecast", color = 'brown')
+plt.legend()
+
+plt.subplot(1,2,2)
+sbn.lineplot(x = [test_set.values.min(), test_set.values.max()], 
+             y = [test_set.values.min(), test_set.values.max()], 
+             label = 'Reference line', color = 'green')
+sbn.scatterplot(x = test_set.values.ravel(), y = forecasts_test.values.ravel())
+plt.xlabel("Test_true", size=15)
+plt.ylabel("Test_forecast", size=15)
+plt.show()
+
+
+#-----------------------------------------------------------------------------------------#
+#------------------ HoltWinters ExponentialSmoothing PARAMETERS --------------------------#
+#-----------------------------------------------------------------------------------------#
+
+Function from: statsmodels.tsa.holtwinters
+
+This function fits exponential smoothing models including simple, double (Holt’s), and triple (Holt-Winters) smoothing.
+
+Function signature:
+ExponentialSmoothing(
+    endog,
+    trend=None,
+    damped_trend=False,
+    seasonal=None,
+    seasonal_periods=None,
+    initialization_method='estimated',
+    initial_level=None,
+    initial_trend=None,
+    initial_seasonal=None,
+    use_boxcox=False,
+    bounds=None,
+    dates=None,
+    freq=None,
+    missing='none',
+    validate_specification=True
+)
+
+PARAMETERS:
+-----------
+
+1. endog:
+   The time series data (list, NumPy array, or Pandas Series). This is the observed data.
+
+2. trend:
+   Specifies the trend component.
+   Options:
+     'add' – additive trend
+     'mul' – multiplicative trend
+     None  – no trend
+
+3. damped_trend:
+   Boolean (True or False). If True, the trend component is damped (i.e., gradually flattens over time).
+
+4. seasonal:
+   Specifies the seasonal component.
+   Options:
+     'add' – additive seasonality
+     'mul' – multiplicative seasonality
+     None  – no seasonality
+
+5. seasonal_periods:
+   Integer. The number of time steps in a full seasonal cycle.
+   Example: 12 for monthly data with yearly seasonality.
+
+6. initialization_method:
+   How to initialize the level, trend, and seasonal values.
+   Options:
+     'estimated'           – (default) estimates initial values
+     'heuristic'           – uses simple heuristic rules
+     'legacy-heuristic'    – older heuristic method (for compatibility)
+     'known'               – user supplies initial values
+     'concentrated'        – advanced optimization method

@@ -1,0 +1,29 @@
+#------------------------------------------------------------------------------#
+#------------- Execute() - Pass values into parameters ------------------------#
+#------------------------------------------------------------------------------#
+
+server ='localhost'
+db = 'salesdb'
+username = 'root'
+pwd = ''
+conn = connect(host=server, database=db, user=username, password=pwd)
+
+# tao cursor de thuc hien cau truy van
+sql = 'select * from customers where City = %s limit %s' 
+#the %s represents the parameter to be passed in
+
+data=('London', 4)
+#Create a data tuple
+
+cur = conn.cursor()
+cur.execute(sql, data)
+#Fetch the 'London' value into the first parameter 'City = %s' => City = 'London'
+#Fetch the 4 value into the seconde parameter 'limit %s' => limit 4
+#Final command: "select * from customers where City = 'London' limit 4"
+
+for row in cur: # fetch one
+    print(row)
+
+
+curs.close()
+conn.close()

@@ -1,0 +1,65 @@
+#----------------------------------------------------------------------------------------------------------------------#
+#------------- Multi Table Query_INNER JOIN ON _ LEFT OUTER JOIN ON _ RIGHT OUTER JOIN ON _ CROSS JOIN ----------------#
+#----------------------------------------------------------------------------------------------------------------------#
+
+-- cach 1: dung WHERE de ghep hai bang
+SELECT emp.EMPLOYEE_ID, emp.FIRST_NAME, emp.SALARY, emp.DEPARTMENT_ID, dep.DEPARTMENT_NAME
+FROM employees emp, departments dep
+WHERE emp.DEPARTMENT_ID = dep.DEPARTMENT_ID -- cau lenh dung de ghep hai bang
+
+
+-- cach 2: dung INNER JOIN de ghep hai bang bang cot co chung gia tri
+SELECT emp.EMPLOYEE_ID, emp.FIRST_NAME, emp.SALARY, emp.DEPARTMENT_ID, dep.DEPARTMENT_NAME
+FROM employees emp INNER JOIN departments dep ON emp.DEPARTMENT_ID = dep.DEPARTMENT_ID;
+
+
+-- Join mot table voi chinh no (bang tu ket)
+SELECT emp.EMPLOYEE_ID, emp.FIRST_NAME, emp.SALARY, emp.DEPARTMENT_ID, emp.MANAGER_ID, mnag.FIRST_NAME as Manager_name
+FROM employees emp INNER JOIN employees mnag ON emp.MANAGER_ID = mnag.EMPLOYEE_ID
+ORDER BY emp.EMPLOYEE_ID;
+-- hien ra ten cua quan ly nhan vien do
+-- INNER JOIN chi hien ra cac gia tri ma hai bang deu co
+
+
+-- Left Outer Join de so khop uu tien bang ben trai
+SELECT emp.EMPLOYEE_ID, emp.FIRST_NAME, emp.SALARY, emp.DEPARTMENT_ID, emp.MANAGER_ID, mnag.FIRST_NAME as Manager_name
+FROM employees emp LEFT OUTER JOIN employees mnag ON emp.MANAGER_ID = mnag.EMPLOYEE_ID
+ORDER BY emp.EMPLOYEE_ID;
+-- Se hien ra them cac nhan vien cua bang ben trai la emp khong khop duoc voi ben phai (null)
+
+
+-- Right Outer Join de so khop uu tien bang ben phai
+SELECT emp.EMPLOYEE_ID, emp.FIRST_NAME, emp.SALARY, emp.DEPARTMENT_ID, emp.MANAGER_ID, mnag.FIRST_NAME as Manager_name
+FROM employees emp RIGHT OUTER JOIN employees mnag ON emp.MANAGER_ID = mnag.EMPLOYEE_ID
+ORDER BY emp.EMPLOYEE_ID;
+-- Se hien ra them cac nhan vien cua bang ben phai la mnag khong khop duoc voi ben trai (null)
+
+
+-- Cross Join la ghep theo kieu nhan vao tat ca
+SELECT emp.FIRST_NAME, dep.DEPARTMENT_NAME
+FROM employees emp CROSS JOIN departments dep; -- 107 x 27 = 2889 dong
+
+
+
+-- JOIN ... ON ... JOIN ... ON ...
+-- ket hop nhieu hon 2 bang voi JOIN ON, liet ke cac thong tin sau tu cac bang sau
+-- customers: ma khach hang (Id), ten khach hang (FirstName), ho khach hang (LastName)
+-- orders: ma don hang (Id), ngay dat hang (OrderDate)
+-- orderitems: ma san pham (ProductId), Total_price(UnitPrice*Quantity) 
+-- products: ten san pham (ProductName)
+-- Noi cac bang: 
+	-- customers.Id = orders.CustomerId  
+	-- orders.Id = orderitems.OrderId 
+	-- orderitems.ProductId = products.Id
+
+SELECT ord.Id as order_id, 
+       ord.OrderDate as order_date,
+       cust.id as customer_id,
+       concat(cust.FirstName, ' ', cust.LastName) as first_last_name,
+       ite.ProductId as product_id, 
+       prod.ProductName as product_name,
+       (ite.UnitPrice * ite.Quantity) as total_price
+FROM customers cust JOIN orders ord ON cust.Id=ord.CustomerId
+					JOIN orderitems ite ON ord.Id=ite.OrderId
+                    JOIN products prod ON ite.ProductId=prod.Id
+ORDER BY ord.Id; 

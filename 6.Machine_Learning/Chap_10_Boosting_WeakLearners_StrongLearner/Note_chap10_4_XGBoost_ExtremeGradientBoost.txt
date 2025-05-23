@@ -1,0 +1,154 @@
+Regularization part 1 (Ridge L2 Regression):    https://www.youtube.com/watch?v=Q81RR3yKn30&t=100s
+Regularization part 2 (Lasso L1 Regression):    https://www.youtube.com/watch?v=NGf0voTMlcs
+Regularization part 3 (Elastic Net Regression): https://www.youtube.com/watch?v=1dKRdX9bfIo
+
+XGBoost part 1 (Regression):      https://www.youtube.com/watch?v=OtD8wVaFm6E&t=90s
+XGBoost part 2 (Classification):  https://www.youtube.com/watch?v=8b1JEDvenQU
+XGBoost part 3 (Math details):    https://www.youtube.com/watch?v=ZVFeW798-2I
+XGBoost part 4 (Optimization):    https://www.youtube.com/watch?v=oRrKeUCEbq8
+
+Extreme Gradient Boosting (XGBoost) is an optimized gradient boosting algorithm designed for speed and performance. 
+It builds decision trees sequentially, where each new tree corrects the errors of the previous ones using a gradient descent optimization process.
+
+#---------------------------------------------------------#
+#---------- XGBoost - Extreme Gradient Boost -------------#
+#---------------------------------------------------------#
+
+
+Extreme Gradient Boosting (XGBoost)
+===================================
+
+1. XGBoost for Regression
+-------------------------
+
+Objective Function:
+L = ΣL(y_i, ŷ_i) + ΣΩ(f_t)
+
+where:
+- L(y_i, ŷ_i) is the loss function (Mean Squared Error for regression)
+- Ω(f_t) is the regularization term for tree complexity
+
+For squared loss:
+L(y_i, ŷ_i) = (1/2) * (y_i - ŷ_i)^2
+
+Regularization:
+Ω(f_t) = γT + (1/2)*λ*Σw_j^2
+
+where:
+- γ controls the number of leaves (higher γ will result in smaller number of leaves, it will prune the tree stronger)
+- λ controls L2 regularization on leaf weights (higher λ will result in smaller leaf weights)
+- w_j are the leaf weights
+
+Gradient and Hessian:
+For Mean Squared Error:
+g_i = ∂l(y_i, ŷ_i) / ∂ŷ_i = ŷ_i - y_i
+h_i = ∂²l(y_i, ŷ_i) / ∂ŷ_i² = 1
+
+Leaf Weight Calculation:
+Optimal leaf weight:
+w_j* = -Σg_i / (Σh_i + λ)
+
+Split Gain:
+Gain = (1/2) * [(Σg_L)² / (Σh_L + λ) + (Σg_R)² / (Σh_R + λ) - (Σg)² / (Σh + λ)] - γ
+(if Gain > 0, then keep this split, otherwise remove this split)
+
+where L and R refer to the left and right split groups.
+
+Regression Example:
+-------------------
+
+Given Data:
+ID  | Feature x | Target y
+---------------------------------
+1   | 1.2       | 2.1
+2   | 2.3       | 2.9
+3   | 3.1       | 3.2
+4   | 4.0       | 4.5
+
+Step 1: Initial Prediction
+Assume ŷ_i^(0) = mean(y) = 3
+
+Step 2: Compute Gradients and Hessians:
+g_i = ŷ_i - y_i
+h_i = 1
+
+ID  | g_i    | h_i
+-------------------
+1   |  0.9   |  1
+2   |  0.1   |  1
+3   | -0.2   |  1
+4   | -1.5   |  1
+
+Step 3: Split the Data (e.g., x < 3 and x ≥ 3)
+Left Node (ID 1, 2): g_L = 0.9 + 0.1 = 1.0, h_L = 2
+Right Node (ID 3, 4): g_R = -0.2 - 1.5 = -1.7, h_R = 2
+
+Step 4: Compute Gain:
+Gain = (1/2) * [(1.0² / (2 + λ)) + ((-1.7)² / (2 + λ)) - ((0.9 + 0.1 - 0.2 - 1.5)² / (4 + λ))] - γ
+
+Assume λ = 1, γ = 0.1:
+
+Gain = (1/2) * [(1.0 / 3) + (2.89 / 3) - (0.25 / 5)] - 0.1
+(if Gain > 0, then keep this split, otherwise remove this split)
+
+Step 5: Compute Leaf Weights:
+w_L = - g_L / (h_L + λ) = -1.0 / (2 + 1) = -1/3
+w_R = - g_R / (h_R + λ) = -(-1.7) / (2 + 1) = 1.7/3
+
+Step 6: Update Predictions:
+New predictions:
+ŷ_L = ŷ^(0) + η * w_L
+ŷ_R = ŷ^(0) + η * w_R
+where η is the learning rate.
+
+----------------------------------------------------
+
+2. XGBoost for Multi-Class Classification
+-----------------------------------------
+
+For classification with K classes, we use Softmax Loss:
+
+p_ik = exp(ŷ_ik) / Σexp(ŷ_ij)
+
+Loss function:
+L(y_i, ŷ_i) = - Σy_ik*log(p_ik)
+
+Gradient and Hessian:
+g_i = p_ik - y_ik
+h_i = p_ik * (1 - p_ik)
+
+Classification Example (3 classes):
+-----------------------------------
+
+Given Data:
+ID  | Feature x | Class Label
+---------------------------------
+1   | 1.2       | 0
+2   | 2.3       | 1
+3   | 3.1       | 2
+
+Step 1: Initial Probabilities (Softmax)
+Assume initial predictions ŷ_i^(0) = 0 for all classes:
+
+p_ik = exp(0) / (3 * exp(0)) = 1/3
+
+Step 2: Compute Gradients and Hessians:
+
+For class 0:
+g_1 = (1/3) - 1, h_1 = (1/3) * (2/3)
+
+For class 1:
+g_2 = (1/3) - 1, h_2 = (1/3) * (2/3)
+
+For class 2:
+g_3 = (1/3) - 1, h_3 = (1/3) * (2/3)
+
+Step 3: Compute Gain for Split:
+Gain = (1/2) * [(Σg_L)² / (Σh_L + λ) + (Σg_R)² / (Σh_R + λ) - (Σg)² / (Σh + λ)] - γ
+(if Gain > 0, then keep this split, otherwise remove this split)
+
+Step 4: Compute Leaf Weights:
+w_j* = -Σg_i / (Σh_i + λ)
+
+Step 5: Update Predictions:
+ŷ_new = ŷ^(0) + η * w_j

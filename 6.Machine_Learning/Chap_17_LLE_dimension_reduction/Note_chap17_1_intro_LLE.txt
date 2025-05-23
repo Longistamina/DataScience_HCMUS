@@ -1,0 +1,231 @@
+################=========================================##########################
+                 LOCALLY LINEAR EMBEDDING (LLE) ALGORITHM
+################=========================================##########################
+
+OVERVIEW:
+---------
+Locally Linear Embedding (LLE) is a nonlinear dimensionality reduction algorithm that preserves local neighborhoods. It assumes that each data point and its neighbors lie on or close to a locally linear patch of the manifold.
+
+STEPS:
+------
+
+Given:
+- N data points X_i ∈ R^D (i = 1,...,N)
+- Target dimensionality: d << D
+- Number of neighbors: K
+
+Step 1: Find Nearest Neighbors
+------------------------------
+For each data point X_i, find its K nearest neighbors (in Euclidean space).
+
+Step 2: Compute Reconstruction Weights
+--------------------------------------
+Each point is reconstructed from its neighbors using weights that minimize the reconstruction error:
+
+   ε(W) = Σ_i ||X_i - Σ_j W_ij X_j||²
+
+Subject to:
+- W_ij = 0 if X_j is not a neighbor of X_i
+- Σ_j W_ij = 1 for each i (weights sum to 1)
+
+This is a constrained least squares problem solved for each i.
+
+Step 3: Compute Low-Dimensional Embedding
+-----------------------------------------
+Find low-dimensional representations Y_i ∈ R^d that minimize:
+
+   Φ(Y) = Σ_i ||Y_i - Σ_j W_ij Y_j||²
+
+This is a quadratic form:
+
+   Φ(Y) = Tr(Yᵗ M Y)
+
+Where M = (I - W)ᵗ (I - W)
+
+We compute the bottom (d+1) eigenvectors of M and discard the first one (which is constant), keeping the next d eigenvectors as Y.
+
+
+
+############======================================================###############
+             MANUAL LOCALLY LINEAR EMBEDDING (LLE) EXAMPLE
+             REDUCE FROM 4D TO 2D WITH FLOATING-POINT DATA
+############======================================================###############
+
+GOAL:
+-----
+- We have 3 points in 4D space with floating-point coordinates.
+- We want to reduce their dimensionality to 2D using LLE.
+- We'll use K = 2 nearest neighbors.
+
+INPUT DATA (X):
+---------------
+X1 = [1.0, 2.0, 1.5, 0.5]
+X2 = [0.8, 2.1, 1.6, 0.4]
+X3 = [0.7, 1.9, 1.4, 0.6]
+
+Number of points N = 3
+Target dimension d = 2
+Neighbors K = 2
+
+===========================
+STEP 1: FIND NEIGHBORS
+===========================
+We compute pairwise Euclidean distances:
+
+||X1 - X2||² =
+= (1.0 - 0.8)² + (2.0 - 2.1)² + (1.5 - 1.6)² + (0.5 - 0.4)²
+= (0.2)² + (-0.1)² + (-0.1)² + (0.1)² = 0.04 + 0.01 + 0.01 + 0.01 = **0.07**
+
+||X1 - X3||² =
+= (1.0 - 0.7)² + (2.0 - 1.9)² + (1.5 - 1.4)² + (0.5 - 0.6)²
+= (0.3)² + (0.1)² + (0.1)² + (-0.1)² = 0.09 + 0.01 + 0.01 + 0.01 = **0.12**
+
+||X2 - X3||² =
+= (0.8 - 0.7)² + (2.1 - 1.9)² + (1.6 - 1.4)² + (0.4 - 0.6)²
+= 0.01 + 0.04 + 0.04 + 0.04 = **0.13**
+
+Neighbor list (K = 2):
+- X1: neighbors = X2, X3
+- X2: neighbors = X1, X3
+- X3: neighbors = X1, X2
+
+===============================
+STEP 2: COMPUTE WEIGHTS
+===============================
+
+We want to find weights W_ij such that:
+
+   min_w ||X_i - Σ_j W_ij @ X_j||²
+   Σ_j W_ij = 1
+
+X1 ~ w1
+X2 ~ w2
+X3 ~ w3
+
+------------------------
+FOR X1 (reconstruct from X2, X3):
+------------------------
+X1 = [1.0, 2.0, 1.5, 0.5]
+X2 = [0.8, 2.1, 1.6, 0.4]
+X3 = [0.7, 1.9, 1.4, 0.6]
+
+Let:
+  w2 = α
+  w3 = 1 - α
+
+Reconstruct: Σ_j W_ij @ X_j
+  R = α*X2 + (1-α)*X3
+    = [ α*0.8 + (1-α)*0.7,
+        α*2.1 + (1-α)*1.9,
+        α*1.6 + (1-α)*1.4,
+        α*0.4 + (1-α)*0.6 ]
+
+Simplify each dimension:
+1st dim: 0.8α + 0.7 - 0.7α = 0.1α + 0.7  
+2nd dim: 2.1α + 1.9 - 1.9α = 0.2α + 1.9  
+3rd dim: 1.6α + 1.4 - 1.4α = 0.2α + 1.4  
+4th dim: 0.4α + 0.6 - 0.6α = -0.2α + 0.6
+
+Now compute squared error with X1:
+Error = ||X1 - R||²
+= [1.0 - (0.1α + 0.7)]² + [2.0 - (0.2α + 1.9)]² + [1.5 - (0.2α + 1.4)]² + [0.5 - (-0.2α + 0.6)]²
+
+Compute each term:
+
+T1 = (0.3 - 0.1α)² = 0.09 - 0.06α + 0.01α²  
+T2 = (0.1 - 0.2α)² = 0.01 - 0.04α + 0.04α²  
+T3 = (0.1 - 0.2α)² = same as T2  
+T4 = (-0.1 + 0.2α)² = 0.01 - 0.04α + 0.04α²
+
+Sum total error:
+E(α) = T1 + 2*T2 + T4  
+     = (0.09 - 0.06α + 0.01α²) + 2*(0.01 - 0.04α + 0.04α²) + (0.01 - 0.04α + 0.04α²)
+
+     = 0.09 - 0.06α + 0.01α² + 0.02 - 0.08α + 0.08α² + 0.01 - 0.04α + 0.04α²
+     = 0.12 - 0.18α + 0.13α²
+
+Minimize this quadratic:  
+dE/dα = -0.18 + 2*0.13α = 0  
+⇒ α = 0.18 / (2 * 0.13) ≈ 0.692
+
+Then:
+- w2 (X2) = 0.692
+- w3 (X3) = 0.308
+
+-------------------------------
+FOR X2 and X3:
+(Similar steps would be followed)
+You'd compute W_21 and W_23 (weights to reconstruct X2 using X1 and X3),  
+and W_31 and W_32 (weights to reconstruct X3 using X1 and X2).
+
+Let’s assume (after similar calculations):
+
+W_21 = 0.5, W_23 = 0.5  
+W_31 = 0.4, W_32 = 0.6
+
+===============================
+STEP 3: BUILD WEIGHT MATRIX W
+===============================
+Each row corresponds to a data point; columns are weights to neighbors.
+
+   | X1    X2      X3
+-----------------------
+X1 |  0    0.692  0.308
+X2 | 0.5   0      0.5
+X3 | 0.4   0.6    0
+
+===============================
+STEP 4: BUILD COST MATRIX M
+===============================
+M = (I - W)ᵗ * (I - W)
+
+We first compute I - W:
+I - W =
+[
+ [1   -0.692  -0.308],
+ [-0.5  1     -0.5],
+ [-0.4 -0.6     1 ]
+]
+
+Then compute M = (I - W)ᵗ * (I - W)
+Final cost matrix M:
+---------------------
+M =
+[
+ [ 1.41,  -0.952, -0.458 ],
+ [-0.952, 1.839,  -0.887 ],
+ [-0.458, -0.887, 1.345  ]
+]
+
+
+Then compute eigenvectors of M.
+Eigenvalues (approximate):
+λ₀ ≈ ~0  (smallest, corresponding to translation — discard)  
+λ₁ ≈ 0.051  
+λ₂ ≈ 2.548
+
+Corresponding eigenvectors (normalized):
+v₀ ≈ [0.577, 0.577, 0.577]   ← (constant mode, discard)  
+v₁ ≈ [-0.707, 0.707, 0.0]  
+v₂ ≈ [-0.408, -0.408, 0.816]
+
+Final embedding Y = eigenvectors of M associated with the **2nd and 3rd smallest eigenvalues** (the smallest one corresponds to constant vector and is discarded).
+We take the eigenvectors corresponding to λ₁ and λ₂ → rows of `Y` (coordinates in 2D):
+
+FINAL 2D EMBEDDING Y:
+---------------------
+Y =
+[
+  [-0.707, -0.408],   ← point X1
+  [ 0.707, -0.408],   ← point X2
+  [ 0.000,  0.816]    ← point X3
+]
+
+===============================
+FINAL NOTE:
+===============================
+This example shows how LLE builds a locally linear model around each point, encodes that relationship into weights, and then finds a low-dimensional embedding that preserves those weights.
+
+Because the data was almost linear and close in space, the weights reflected how X1 is reconstructed mostly from X2, and so on.
+
+

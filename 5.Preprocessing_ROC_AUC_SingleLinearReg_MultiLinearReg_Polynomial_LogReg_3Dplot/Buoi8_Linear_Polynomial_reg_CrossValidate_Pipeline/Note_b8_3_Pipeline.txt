@@ -1,0 +1,70 @@
+Pipeline is to built a data processing "pipe", to process step by step from input to output
+
+It helps make the codes more compact (not eliminate steps)
+
+The pipeline contains many steps. The output of previous step is the input of next step.
+
+Input -> .... -> .... -> ..... -> Output
+
+#---------------------------------------------------------------------------------#
+#----------------------------- sklearn pipeline ----------------------------------#
+#---------------------------------------------------------------------------------#
+
+If the steps' method has only fit_transform() => use sklearn pipeline
+
+**********************************
+
+x = df[['input1', 'input2', 'input3', 'input4',...]]
+y = df['output']
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+#List of steps in the pipeline
+my_step = [
+	('scale', StandardScalder()),
+	('polynomial_2_degree', PolynomialFeatures(degree=2)),
+	('buildLR', LinearRegression())
+]
+
+pipe = Pipeline(my_step)
+pipe.fit(x_train, y_train)
+
+y_pred_pipe = pipe.predict(x_test)
+
+pipe.intercept_
+pipe.coef_
+pipe.score()
+.....
+
+#---------------------------------------------------------------------------------#
+#----------------------------- imblearn pipeline ---------------------------------#
+#---------------------------------------------------------------------------------#
+
+Use imblearn pipeline if the transformers have fit_resample() / fit_transform()
+(for example SMOTE() or something imported from imblearn library)
+
+**********************************
+
+x = df[['input1', 'input2', 'input3', 'input4',...]]
+y = df['output']
+
+from imblearn.pipeline import Pipeline
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+#List of steps in the pipeline
+my_step = [
+	('OverSampling SMOTE', SMOTE()),
+	('scale', StandardScalder()),
+	('buildLR', LinearRegression())
+]
+
+pipe = Pipeline(my_step).fit(x_train, y_train)
+
+#the rests are the same as sklearn pipeline

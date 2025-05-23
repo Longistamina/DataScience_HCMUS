@@ -1,0 +1,1 @@
+Dựa trên file đính kèm (hello.py), Học viên hoàn chỉnh mã lệnh để xuất ra màn hình shell chữ “HELLO” bằng những dấu "*" như Hình 1.1

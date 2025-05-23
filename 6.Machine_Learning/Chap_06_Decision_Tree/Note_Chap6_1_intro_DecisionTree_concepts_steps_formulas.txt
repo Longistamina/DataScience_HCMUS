@@ -1,0 +1,92 @@
+Classification Tree: https://www.youtube.com/watch?v=_L39rN6gz7Y
+
+Feature selection and Missing data in Tree: https://www.youtube.com/watch?v=wpNl-JwwplA
+
+Regression Tree: https://www.youtube.com/watch?v=g9c66TUylZ4
+
+#-----------------------------------------------------------------------#
+#----------------------- Decision Tree ---------------------------------#
+#-----------------------------------------------------------------------#
+
+Decision trees are intuitive classification and regression models that work by recursively partitioning data based on feature values.
+
+A decision tree is a flowchart-like structure where:
+# Internal nodes represent tests on features (each feature is a split node)
+# Branches represent the outcomes of those tests
+# Leaf nodes represent class labels or predicted values
+
+If the Tree have too many branches and leaf nodes, the number of datapoints in each branch and notch will be very small
+=> Cause overfitting
+
+Therefore, must set a threshold, for exampl: only split if the number of data in that branch >= 1000 data points
+
+#-------------------------------------------------------------------#
+#----------------- Steps of DT algorithm ---------------------------#
+#-------------------------------------------------------------------#
+
+Decision Tree Algorithm Steps
+
+# 1.Start with all data at the root node
+
+# 2.Calculate the impurity measure for the current node (Impurity(t) or Impurity(root))
+
+# 3.For each feature:
+For each possible split point:
+    + Calculate the impurity after the split
+    + Calculate the information gain or reduction in error
+Select the feature and split point with the highest gain/reduction (or lowest impurity)
+
+# 4. Split the node according to the selected feature
+
+# 5. Repeat recursively for each child node until a stopping criterion is met (e.g., max depth, min samples, no improvement)
+
+
+#-------------------------------------------#
+#------------ Some key formulas ------------#
+#-------------------------------------------#
+
+Key Mathematical Formulas
+Decision trees use various metrics to determine the best splits. The most common are:
+
+*********** 1. For Classification Trees: *********************
+Gini Impurity - Measures the probability of misclassifying a randomly chosen element:
+
+  Impurity(t) = Gini(t) = 1 − sum[P(i|t)^2]
+
+  Impurity(root) = Gini(root) = 1 - sum[P(i)^2]
+
+Where:
+# P(i|t) is the proportion of samples belonging to class i at node t (or feature t)
+# P(i) is the proportion of samples belonging to class i on the whole dataset (regardless of any feature/node)
+-----------------
+
+Entropy - Measures the information disorder or uncertainty:
+
+  Entropy(t) = −sum[P(i|t) * ln(P(i|t))]
+
+Where:
+# P(i|t) is the proportion of samples belonging to class i at node t (or feature t)
+-----------------
+
+Information Gain - Quantifies the reduction in entropy or impurity after a split:
+
+  Gain(t) = Impurity(root) − sum[ |tv|/|tt| * Impurity(tv) ]
+                             (this sum is called WeightedGini)
+
+Where:
+# t is the feature being considered for splitting => |tt| is the total number of samples (sample size)
+# v are the posible values of feature t           => |tv| is the number of samples belong to value "v" of feature "t"
+#                                                     tv​ is also the child nodes resulting from the split
+
+
+***************** 2. For Regression Trees ******************
+---------------
+Mean Squared Error (MSE)
+  MSE(t) = 1/Nt * sum[(y_t_i - mean(y_t))^2]
+  MSE(root) = 1/N * sum[(y_i - mean(y))^2]
+
+Where:
+#  Nt is the number of samples belong to node/feature "t"
+#  N is the sample size of the whole training data
+#  y_t_i is the target values of node/feature "t"
+#  y_i is the target values of the whole training data

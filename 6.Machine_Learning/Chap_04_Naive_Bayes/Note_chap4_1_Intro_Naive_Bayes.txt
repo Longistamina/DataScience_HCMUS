@@ -1,0 +1,93 @@
+Reference link:
+
+BernoulliNB & MultinomialNB: https://www.youtube.com/watch?v=O2L2Uv9pdDA
+GaussianNB: https://www.youtube.com/watch?v=H3EjCKtlVog
+
+#--------------------------------------------------------------#
+#------------------- Naive Bayesian (NB) ----------------------#
+#--------------------------------------------------------------#
+
+Is a classification algorithm based on Bayes theorem about independent assumptions of predictive factors
+(i.e in NB, the features are all considered independent to each other)
+
+(classifier = classification model = classification algorithm)
+
+NB is also a supervised learning classifier
+
+
+NB model is very simple, easy to build, fast training, and can even perform better than some more complicated classifiers.
+The trade off is sometimes, the overall performance of NB is lower than Logistic Regression or LinearSVC
+
+
+Application of NB:
+	+Realtime Prediction: due to its fast training time
+	+Multiclass Prediction
+	+Text classification / Spam filtering / Sentiment analysis (phan tich trang thai nguoi dung)
+	+Recommendation system
+
+
+3 main distributions are used to build NB:
+	+GaussianNB
+	+BernoulliNB
+	+MultinomialNB
+
+
+GaussianNB:
+	+Used when the features are continuous and numerical
+	+It stores the mean and std of each feature, for each class/label
+	+Usually applied for high-dimension data
+
+
+BernoulliNB:
+	+Used for binary data (0/1) (ONLY 0 and 1)
+	+Usually applied for sparse count data (like text data), where we can form a sparse matrix
+	+Example of convert text data into sparse matrix:
+		
+	Id	Text				banhbo    banhgio    buncha    chaolong    hanoi     hutiu    omai    pho   saigon      Array       
+	1	"hanoi pho chaolong"     	   0	     0	       0           1         1         0        0      1      0         [0,0,0,1,1,0,0,1,0]
+	2	"hanoi buncha pho omai"		   0	     0         1           0         1         0        1      1      0         [0,0,1,0,1,0,1,1,0]
+	3	"pho banhgio omai"                 0         1         0           0         0         0        1      1      0         [0,0,0,0,0,0,1,1,0] 
+	4	"saigon hutiu banhbo pho"          1         0         0           0         0         1        0      1      1         [1,0,0,0,0,1,0,1,1]
+
+
+
+MultinomialNB:
+	+Like BernoulliNB, but used when the sparse matrix have values different from 0 and 1 (not binary)
+	+It will calculate the mean of each feature for each class
+	+MultinomialNB usually performs better than BernouliNB, especially on datasets containing many nonzero features
+	+For example, the texts below, the "hanoi" column has one value = 2
+	
+	Id	Text				banhbo    banhgio    buncha    chaolong    hanoi     hutiu    omai    pho   saigon      Array       
+	1	"hanoi pho chaolong hanoi"     	   0	     0	       0           1         2         0        0      1      0         [0,0,0,1,2,0,0,1,0]
+	2	"hanoi buncha pho omai"		   0	     0         1           0         1         0        1      1      0         [0,0,1,0,1,0,1,1,0]
+	3	"pho banhgio omai"                 0         1         0           0         0         0        1      1      0         [0,0,0,0,0,0,1,1,0] 
+	4	"saigon hutiu banhbo pho"          1         0         0           0         0         1        0      1      1         [1,0,0,0,0,1,0,1,1]
+
+
+
+#-----------------------------------------------------------#
+#------------------- Weak-point of NB ----------------------#
+#-----------------------------------------------------------#
+
+Some features may be co-dependent each other, for example:
+	+"happy"
+	+"very happy"
+	+"not happy"
+=> All these 3 words do not have the same meaning
+
+But, Naive Bayes will ignore this co-dependency, and treat each one as independent words
+=> "happy", "not", "very"
+
+Hence, the probability P(class."word") will not be really accurate
+
+
+#------------------------------------------------#
+#------------------- Steps ----------------------#
+#------------------------------------------------#
+
+1) Choose model: Naive Bayes
+2) Create X as inputs, and Y as class output
+3) Choose the right type of sub-model: BernoulliNB, MultinomialNB, or GaussianNB
+4) Training the model (fitting)
+5) Use trained/fitted model to predict test data
+6) Evaluate the accuracy

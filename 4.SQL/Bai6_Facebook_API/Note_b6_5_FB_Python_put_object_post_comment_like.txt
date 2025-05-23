@@ -1,0 +1,30 @@
+#----------------------------------------------------------------------------------#
+#-------------- Put object - create a post - add comment - add like ---------------#
+#----------------------------------------------------------------------------------#
+import facebook
+
+access_token = '...'
+graph = facebook.GraphAPI(access_token)
+
+# Write 'Hello, world' to the active user's wall.
+# cấp pages_read_engagement, pages_manage_posts, pages_read_user_content
+graph.put_object(parent_object='me', connection_name='feed',
+                  message='Hello, world')
+                  
+
+# Add a link and write a message about it.
+data = graph.put_object(
+   parent_object="me",
+   connection_name="feed",
+   message="This is a great website. Everyone should visit it.",
+   link="https://www.facebook.com")
+data
+
+
+# Write a comment on a post.
+graph.put_object(parent_object=data['id'], connection_name='comments', message='First!')
+comment = graph.put_comment(object_id=data['id'], message='Great post...')
+comment
+
+graph.put_like(object_id=comment['id'])
+graph.delete_object(id=data['id'])

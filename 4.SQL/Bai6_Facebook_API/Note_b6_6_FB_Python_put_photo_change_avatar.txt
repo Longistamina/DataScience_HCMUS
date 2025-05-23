@@ -1,0 +1,27 @@
+#------------------------------------------#
+#-------------- Put a photo ---------------#
+#------------------------------------------#
+
+import facebook
+
+access_token = '...'
+graph = facebook.GraphAPI(access_token)
+
+data = graph.get_object(id='me')
+data
+
+# Upload an image with a caption. (ảnh trên dòng thời gian - photo on the timeline)
+graph.put_photo(image=open('tiger.jpg', 'rb'),
+                message='Look at this cool photo!')
+                
+# Upload a profile photo for a Page. (ảnh đại diện - avatar)
+# quyền pages_manage_metadata
+page_id = data['id']
+try:
+    graph.put_photo(image=open("cat.jpg", 'rb'), album_path=page_id + "/picture")
+except:
+    pass
+    
+# Upload a photo to an album.('Ảnh trên dòng thời gian')
+album_id = albums['data'][1]['id']
+graph.put_photo(image=open("panda.jpg", 'rb'), album_path=album_id + "/photos")

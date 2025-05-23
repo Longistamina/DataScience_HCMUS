@@ -1,0 +1,125 @@
+Part 1- SES (Simple Exponential Smoothing) - no trend, no seasonality: https://www.youtube.com/watch?v=Fqge2HDH2Co
+	
+	Ft = Lt (forecast = level)
+	
+	L_t = α*y_t + (1-α)*L_{t-1}
+	    = α*y_t + α*(1-α)*y_{t-1} + α*(1-α)^2*y_{t-2} + α*(1-α)^3*y_{t-3} + .... + + α*(1-α)^n*y_{t-n}
+	    
+Part 2 - Holt's Exponential Smoothing - with trend, but no seasonality: https://www.youtube.com/watch?v=DUyZl-abnNM
+
+	Ft = Lt + k*Tt (additive trend)
+	Ft = Lt*(Tt)^k (multiplicative trend)
+	
+	L_t = α*y_t + (1-α)*(L_{t-1} + + T_{t-1})
+	
+	T_t = β*(L_t - L_{t-1}) + (1 - β)*T_{t-1} (update trend overtime)
+	
+Part 3 - Winters' Exponential Smoothing (HoltWinters) - with trend and with seasonality: https://www.youtube.com/watch?v=mrLiC1biciY&t=73s
+	(formula below)
+
+##########################################################
+HOLT-WINTERS ADDITIVE METHOD (TRIPLE EXPONENTIAL SMOOTHING)
+------------------------------------------------------------
+
+COMPONENTS:
+-----------
+Let:
+ - L_t = Level at time t
+ - T_t = Trend at time t
+ - S_t = Seasonal component at time t
+ - y_t = Actual value at time t
+ - F_{t+m} = Forecast for m periods ahead from time t
+ 
+SMOOTHING PARAMETERS:
+---------------------
+ - α (alpha): level smoothing coefficient (0 < α < 1)
+ - β (beta): trend smoothing coefficient (0 < β < 1)
+ - γ (gamma): seasonal smoothing coefficient (0 < γ < 1)
+ - p: length of the season (e.g., 4 for quarterly, 12 for monthly data with yearly seasonality)
+
+FORMULAS:
+---------
+1. LEVEL:
+   L_t = α * (y_t - S_{t-p}) + (1 - α) * (L_{t-1} + T_{t-1}) (additive)
+
+2. TREND:
+   T_t = β * (L_t - L_{t-1}) + (1 - β) * T_{t-1}
+
+3. SEASONAL:
+   S_t = γ * (y_t - L_t) + (1 - γ) * S_{t-p}
+
+4. FORECAST:
+   F_{t+m} = L_t + m * T_t + S_{t + m - p} (additive)
+   F_{t+m} = (L_t + m * T_t) * S_{t + m - p} (multiplicative)
+
+#-----------------------------------------------------#
+#--------------- Example -----------------------------#
+#-----------------------------------------------------#
+
+Assume seasonal period p = 4 (quarterly data).
+We are given the following observations:
+
+Time (t):   1    2    3    4    5    6
+y_t      : 120  130  140  150  160  170
+
+We’ll assume these initial values:
+L_4 = 130 (average of first 4 values: (120+130+140+150)/4 = 135, minus avg seasonal = 130)
+T_4 = 10  (assumed from the consistent increase)
+S_1 = -10
+S_2 =  0
+S_3 = 10
+S_4 = 20
+
+Parameters:
+α = 0.5
+β = 0.4
+γ = 0.3
+
+We now calculate for t = 5 and t = 6
+
+--- t = 5 ---
+y_5 = 160
+
+LEVEL:
+L_5 = 0.5 * (160 - S_1) + 0.5 * (L_4 + T_4)
+    = 0.5 * (160 - (-10)) + 0.5 * (130 + 10)
+    = 0.5 * 170 + 0.5 * 140
+    = 85 + 70 = 155.0
+
+TREND:
+T_5 = 0.4 * (L_5 - L_4) + 0.6 * T_4
+    = 0.4 * (155 - 130) + 0.6 * 10
+    = 0.4 * 25 + 6 = 10 + 6 = 16.0
+
+SEASONAL:
+S_5 = S_1 (since p = 4, S_5 updates S_1)
+     = 0.3 * (160 - 155) + 0.7 * (-10)
+     = 0.3 * 5 + (-7) = 1.5 - 7 = -5.5
+
+--- t = 6 ---
+y_6 = 170
+
+LEVEL:
+L_6 = 0.5 * (170 - S_2) + 0.5 * (L_5 + T_5)
+    = 0.5 * (170 - 0) + 0.5 * (155 + 16)
+    = 0.5 * 170 + 0.5 * 171
+    = 85 + 85.5 = 170.5
+
+TREND:
+T_6 = 0.4 * (L_6 - L_5) + 0.6 * T_5
+    = 0.4 * (170.5 - 155) + 0.6 * 16
+    = 0.4 * 15.5 + 9.6 = 6.2 + 9.6 = 15.8
+
+SEASONAL:
+S_6 = S_2 = 0.3 * (170 - 170.5) + 0.7 * 0
+     = 0.3 * (-0.5) + 0 = -0.15
+
+--- FORECAST t = 7 ---
+F_7 = L_6 + 1 * T_6 + S_3
+    = 170.5 + 15.8 + 10 = 196.3
+
+--- FORECAST t = 8 ---
+F_8 = L_6 + 2 * T_6 + S_4
+    = 170.5 + 2 * 15.8 + 20 = 170.5 + 31.6 + 20 = 222.1
+
+------------------------------------------------------------

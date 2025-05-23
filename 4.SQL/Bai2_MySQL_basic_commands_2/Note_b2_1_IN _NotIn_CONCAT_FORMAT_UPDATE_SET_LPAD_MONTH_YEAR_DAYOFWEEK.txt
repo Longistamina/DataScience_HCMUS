@@ -1,0 +1,86 @@
+#---------------------------------------------------------------#
+#------------- IN - NOT IN -------------------------------------#
+#---------------------------------------------------------------#
+
+SELECT * FROM `employees` 
+WHERE DEPARTMENT_ID=80 OR DEPARTMENT_ID=90
+ORDER BY DEPARTMENT_ID ASC;
+-- Cho biet cac nhan vien phong 80 va phong 90, xep tang dan theo ma phong
+
+
+
+SELECT * FROM `employees` 
+WHERE DEPARTMENT_ID IN (80,90)
+ORDER BY DEPARTMENT_ID ASC;
+-- Cho biet cac nhan vien phong 80 va phong 90, xep tang dan theo ma phong
+-- Dung IN de tao danh sach
+
+SELECT * FROM `employees` 
+WHERE DEPARTMENT_ID NOT IN (80,90)
+ORDER BY DEPARTMENT_ID ASC;
+-- Dung NOT IN de phu dinh
+
+#------------------------------------------------------------------------------------#
+#------------- CONCAT, FORMAT, UPDATE, SET, LPAD ------------------------------------#
+#------------------------------------------------------------------------------------#
+
+
+SELECT `EMPLOYEE_ID`, 
+CONCAT(`FIRST_NAME`, '_' ,`LAST_NAME`) as NAME, 
+DATE_FORMAT(`HIRE_DATE`, '%d/%m/%Y') as HIRE_DATE, 
+CONCAT('$', FORMAT(`SALARY`,2)) as SALARY
+FROM `hr`.employees
+ORDER BY SALARY DESC;
+-- Dinh dang du lieu hien thi
+-- Gop first name va last name: concat(first_name + '_' + last_name)
+-- Dinh dang Hiredate thanh dd/mm/yy
+-- Dinh dang Salary $23,456.00: concat de cong '$' vao, format(salary,2) de lay hai so sau dau phay
+-- Phai co "as column_name" de dam bao ten cot khong bi thay doi
+-- Vidu nam 2024, '%y' se hien 24, con '%Y' la 2024
+
+
+
+SELECT `EMPLOYEE_ID`, 
+CONCAT(`FIRST_NAME`, '_' ,`LAST_NAME`) as NAME, 
+DATE_FORMAT(`HIRE_DATE`, '%d/%m/%Y') as HIRE_DATE, 
+CONCAT('$', FORMAT(`SALARY`,2)) as SALARY,
+SALARY+500 as BONUS
+FROM `hr`.employees
+ORDER BY SALARY DESC;
+-- Them cot BONUS = SALARY + 500
+
+UPDATE employees
+SET FIRST_NAME=UPPER(FIRST_NAME), LAST_NAME=UPPER(LAST_NAME);
+-- Cap nhat bang employees, cho ho va ten thanh chu hoa
+
+SELECT `Products`.`productid`, 
+LPAD(`productid`, 10, '0') AS New_ID FROM `Products`;
+-- LPAD la Left_Pad de them vao 10 ky tu '0' ben trai ma ID
+
+
+
+#--------------------------------------------------------------------------#
+#------------- COMPARISON, MONTH, YEAR, DAYOFWEEK -------------------------#
+#--------------------------------------------------------------------------#
+
+SELECT * FROM `employees` WHERE SALARY>=5000 AND SALARY<=7000;
+SELECT * FROM `employees` WHERE SALARY BETWEEN 5000 AND 7000;
+-- Hien thi nhan vien co SALRY tu 5000 den 7000
+
+SELECT * FROM `oreders`
+WHERE MONTH(OrderDate)=8 AND YEAR(OrderDate)=2012
+ORDER BY OrderDate DESC;
+-- Hien thi cac don hang cua thang 8 nam 2012
+-- Ham MONTH() de lay thang
+-- Ham YEAR() de lay nam
+
+SELECT `empid` as `Ma_nhan_vien`, 
+CONCAT(`firstname`, `lastname`) as `Ho_ten`, 
+`title` as `Chuc_danh`, 
+DATE_FORMAT(`hiredate`, '%d/%m/%Y') as `Ngay_vao_lam`
+FROM Employees WHERE DAYOFWEEK(hiredate)=2;
+-- DAYOFWEEK(date) tra ve ngay trong tuan, 1=Sunday, 2=Monday...
+-- Nhu tren tra ve nhung nhan vien duoc nhan vao lam ngay thu 2
+
+
+

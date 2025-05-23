@@ -1,0 +1,154 @@
+# !pip3 install hdbscan
+
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import hdbscan #or sklearn.cluster.HDBSCAN
+from sklearn.datasets import make_blobs
+
+# Generate some sample data with varying densities
+n_samples = 300
+random_state = 42
+centers = [[2, 2], [7, 7], [3, 8], [8, 3]]
+cluster_std = [0.8, 1.2, 0.5, 1.5]
+X, _ = make_blobs(n_samples=n_samples,
+                  centers=centers,
+                  cluster_std=cluster_std,
+                  random_state=random_state)
+
+# Add some noise points
+rng = np.random.RandomState(random_state)
+noise = rng.uniform(low=-5, high=15, size=(50, 2))
+X = np.vstack((X, noise))
+
+
+
+# Initialize and fit the HDBSCAN model
+clusterer = hdbscan.HDBSCAN(min_cluster_size=5, min_samples=3)
+cluster_labels = clusterer.fit_predict(X)
+
+
+
+
+# Get cluster probabilities
+cluster_probabilities = clusterer.probabilities_
+
+# Get outlier scores (lower values indicate higher likelihood of being an outlier)
+outlier_scores = clusterer.outlier_scores_
+
+# Number of clusters found (excluding noise, which is labeled -1)
+n_clusters = len(set(cluster_labels)) - (1 if -1 in cluster_labels else 0)
+print(f"Number of clusters found: {n_clusters}")
+
+
+
+# Visualize the condensed tree
+clusterer.condensed_tree_.plot(select_clusters=True, cmap='viridis')
+plt.title("HDBSCAN Condensed Tree")
+plt.show()
+
+
+
+# Visualize the results
+plt.figure(figsize=(10, 8))
+
+# Scatter plot of all points colored by cluster label
+cmap = sns.color_palette("viridis", n_clusters + 1) # +1 for noise
+scatter = plt.scatter(X[:, 0], X[:, 1], c=[cmap[i] if i >= 0 else 'gray' for i in cluster_labels], s=50, alpha=0.8)
+
+# Add legend for clusters
+legend_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=cmap[i], markersize=8, label=f'Cluster {i}')
+                  for i in range(n_clusters)]
+if -1 in cluster_labels:
+    legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=8, label='Noise'))
+plt.legend(handles=legend_handles)
+
+plt.title("HDBSCAN Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.grid(True)
+plt.show()
+
+
+
+
+# Optional: Visualize cluster probabilities
+plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 0], X[:, 1], s=50, c=cluster_probabilities, cmap='viridis')
+plt.colorbar(label='Cluster Probability')
+plt.title("HDBSCAN Cluster Probabilities")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.grid(True)
+plt.show()
+
+# Optional: Visualize outlier scores
+plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 0], X[:, 1], s=50, c=outlier_scores, cmap='plasma_r') # Use reversed colormap for better intuition
+plt.colorbar(label='Outlier Score')
+plt.title("HDBSCAN Outlier Scores")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.grid(True)
+plt.show()
+
+
+#---------------------------------------------------------#
+#---------------- Parameters -----------------------------#
+#---------------------------------------------------------#
+
+HDBSCAN Parameters Explanation
+==============================
+
+1. min_cluster_size (int, default=5)
+   ---------------------------------
+   - The minimum size of clusters.
+   - Smaller values allow the algorithm to find smaller clusters.
+   - Larger values produce larger, more general clusters.
+
+2. min_samples (int or None, default=None)
+   ----------------------------------------
+   - Influences the sensitivity to noise and the density threshold.
+   - If set to None, defaults to the value of min_cluster_size.
+   - Higher values make the algorithm more conservative (more points considered as noise).
+
+3. metric (string or callable, default='euclidean')
+   -------------------------------------------------
+   - Distance metric to use when calculating distance between points.
+   - Common options: 'euclidean', 'manhattan', 'cosine', etc.
+   - Can also provide a custom distance function.
+
+4. cluster_selection_method (str, default='eom')
+   ----------------------------------------------
+   - Determines how clusters are extracted from the condensed tree.
+   - 'eom' (Excess of Mass): More robust to noise.
+   - 'leaf': Finds the most fine-grained stable clusters.
+
+5. allow_single_cluster (bool, default=False)
+   -------------------------------------------
+   - If True, allows the algorithm to return a single cluster.
+   - If False, it requires at least 2 clusters or labels all as noise.
+
+6. gen_min_span_tree (bool, default=False)
+   ----------------------------------------
+   - If True, the algorithm generates the minimum spanning tree of the mutual reachability graph.
+   - Useful for visualization or analysis.
+
+7. prediction_data (bool, default=False)
+   --------------------------------------
+   - If True, enables prediction of cluster membership for new data using `approximate_predict`.
+
+8. core_dist_n_jobs (int, default=1)
+   ----------------------------------
+   - Number of parallel jobs to compute core distances.
+   - Set to -1 to use all processors.
+
+9. memory (str or object with the joblib memory interface, optional)
+   ------------------------------------------------------------------
+   - Used to cache intermediate results for efficiency.
+
+10. approx_min_span_tree (bool, default=True)
+    ------------------------------------------
+    - If True, the algorithm uses an approximation to construct the minimum spanning tree.
+    - Speeds up the algorithm for large datasets.
+

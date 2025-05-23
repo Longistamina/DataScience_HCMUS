@@ -1,0 +1,1 @@
+Học viên hoàn chỉnh file đính kèm (tinh_toan_don_gian.py) để tính tổng, hiệu, tích, thương của 2 giá trị x,y cho trước.

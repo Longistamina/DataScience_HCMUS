@@ -1,0 +1,122 @@
+There are 5 steps in Data Exploration:
+
+1) Variable identification (xac dinh cac bien, hay cac thuoc tinh)
+
+2) Univariate analysis (phan tich don bien, phan tich du lieu tung cot hay tung bien trong dataset)
+
+3) Bi-variate analysis (phan tich hai bien, phoi hop tung cap bien voi nhau roi phan tich, ex: height~weight, sex~degree,...)
+
+4) Process missing values (xu ly gia tri bi thieu)
+
+5) Process outlier values (xu ly gia tri ngoai le)
+
+#--------------------------------------------------------------------------------------------------------#
+#--------------------------------1) Variable identification----------------------------------------------#
+#--------------------------------------------------------------------------------------------------------#
+Determine the input variable(s) and output variable(s) for the problem (bai toan)
+Then, identify the data type of each variable:
+	+Numerical data: Continuous or Discrete
+	+Categorical data: Nominal or Ordinal
+	+Time series data (data that changes through time like stock price, gold price,...)
+	+Text (string type)
+
+If the problem asks to predict height from weight
+=> Input: weight
+=> Output: height
+
+Can use print(dataframe) or dataframe.head() to display the dataframe, then see the data of each column (variable).
+Or can use dataframe.info()
+(or combine 2 methods)
+
+Use dataframe['col_name'].unique() to see the unique values in the column (not repeated)
+#If the number of unique values is small => that can be categorical data
+
+Use len(dataframe['col_name'].unique()), if the number of unique values is large => That can be continuous variable
+
+
+Due to some reasons like missing values, a numerical column (variable) can have dtype="object"
+=> have to process these values
+
+#----------------------------------------------------------------------------------------------------#
+#--------------------------------2) Univariate analysis----------------------------------------------#
+#----------------------------------------------------------------------------------------------------#
+
+For Continuous data:
+	+calculate Central Tendency: mean, median, mode, min, max
+	+calculate Dispersion: range, quartile, IQR, variance, std, skewnees, kurtosis
+	+visualize: histogram, boxplot (check outliers), distplot,...
+
+For Categorical data: use frequency table to count the frequency of each value
+	+Use dataframe['col_name'].value_counts() or dataframe.groupby('col_name').count()
+	+And visualize with bar chart (barplot), for example:  dataframe['col_name'].value_counts().plot.bar()
+
+#----------------------------------------------------------------------------------------------------#
+#--------------------------------3) Bi-variate analysis----------------------------------------------#
+#----------------------------------------------------------------------------------------------------#
+Evaluate the association (lien ket) and disassociation (khong lien ket) of each copule of variables
+
+For Continuous & Continuous (ex: height ~ weight):
+	+Draw scatterplot, pairplot, diagonal plot to check the correlation
+	+Or calculate correlation coefficients
+
+
+For Categorical & Categorical (ex: sex ~ education degree):
+	+Establish two-way frequency table: use pandas.crosstab(dataframe.variable1, dataframe.variable2)
+	+Visualize with stacked bar chart: assign table = pandas.crosstab(dataframe.variable1, dataframe.variable2)
+					   then table.plot.bar() or table.plot(kind="bar", stacked=True)	
+	+Use Chi-Square to test for dependency or independency: stat, p, DoF, expected = scipy.stats.chi2_contingency(two-way table)
+
+
+For Categorical & Continuous:
+	+Use boxplot to visualize
+	+Use t-test, mann-whitney U test or signed test if there are only categorical variable have values
+	+Use Anova-1-way or Kruskal-Wallis test if only one categorical variable but more than 2 values
+	+Use Anova-2-way-crossed if have 2 crossed categorical variables
+
+#----------------------------------------------------------------------------------------------------#
+#--------------------------------4) Missing values---------------------------------------------------#
+#----------------------------------------------------------------------------------------------------#
+Training data MUST NOT contain missing values (though the testing can)
+
+Have many ways to process the missing values:
+	+Drop: it's the easiest way, but least favorable (use .dropna() )
+	+dropna(how='any'), wherever an NaN value is detected, it will remove that row
+	+dropna(how='all'), remove the row if only all its values are NaN
+	
+	+For example, if the "gender" is missing at some rows, can use the name to guess (Miss... => Female)
+	
+	+For continuous variables: can replace the missing values with mean, median or mode
+	(median and mode are more preferred cause they are less influenced by outliers)
+	+Can calculate mean, median and mode based on groups, or calculate them overall then replace
+
+	+Or can build a machine learning model to interpolate the missing values 
+	+For example, can use data.interpolate() with linear method
+
+#----------------------------------------------------------------------------------------------------#
+#--------------------------------5) Outlier values---------------------------------------------------#
+#----------------------------------------------------------------------------------------------------#
+Many reasons can lead to outliers:
+	+Data entry error (loi nhap du lieu)
+	+Measurement error (loi do dac)
+	+Experimental error (loi thi nghiem)
+	+Intentional error (loi co y)
+	+Data processing error (loi trong qua trinh xu ly du lieu)
+	+Sampling error (loi trong qua trinh lay mau)
+
+Examine if the existed outliers are valid or not
+
+For univariate:
+	+Use boxplot to visualize outliers
+	+Then use Q1-1.5*iqr, Q3+1.5*iqr or 3-sigma-rule to find the exact outliers
+
+For bi-variate:
+	+In some cases, the boxplot of univarite do not show the outliers
+	+But then, if use scatterplot to draw 2 variables, there can be outliers of the two
+
+Can transform data for example using log, ln to reduce the outlier
+
+*Some models are not affected by outliers (random forest, decision tree,.., therefore sometimes don't need to remove outliers
+
+If there are so many outliers and they are all valid
+	=> separate the datasets into two part: normal part and outlier part
+	=> build separate models for these parts

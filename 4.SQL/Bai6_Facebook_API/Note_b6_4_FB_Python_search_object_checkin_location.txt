@@ -1,0 +1,54 @@
+#---------------------------------------------------------------#
+#---------------------- Get check-in information ---------------#
+#---------------------------------------------------------------#
+
+import facebook
+
+access_token = '.....' #Get from above isntructions
+
+graph = facebook.GraphAPI(access_token)
+
+check_in = graph.get_all_connections(id='me', connection_name='posts', fields='place', **{'with':'location'})
+
+for result in check_in:
+	print(result)
+	
+	
+lst_checkin = []
+for result in check_in:
+	try:
+		if 'location' in result['place'].keys():
+			if 'latitude' in result['place']['location'].keys():
+				lst_checkin.append({
+					'id':result['place']['id'],
+					'name':result['place']['name'],
+					'location':result['place']['location']
+				})
+	except: pass
+
+df_checkin = pd.DataFrame(lst_checkin)
+print(df_checkin)
+
+##drop duplicate values
+df_checkin.drop_duplicates(subset=['id', 'place'], keep='first', inplace=True)
+
+
+##Create latitude and longitude columns:
+
+df_checkin['lat'] = [dict(loc)['latitude'] for loc in df_checkin['location']]
+df_checkin['longi'] = [dict(loc)['longitude'] for loc in df_checkin['location']]
+df_checkin.head()
+
+
+##draw hcm map
+import folium
+hcm_lat = 10.762622
+hcm_longi = 106.660172
+hcm_map = folium.Map(location=[hcm_lat, hcm_longi], zoom_start=12)
+hcm_map #show the map
+
+
+#Add checkin places
+for lat, longi, label in zip(df_checkin.lat, df_checkin.longi, df_checkin.name):
+	folium.Marker(location=[lat, longi], popup=label).add_to(hcm_map)
+hcm_map #show the map again

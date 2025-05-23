@@ -1,0 +1,62 @@
+#To compare two normally distributed samples knowing their standard deviation population (sigma) => Use Z-test
+
+#If the two samples are normally distributed, but do not know the sd of population => Use T-test
+
+#If they are not normally distributed, and don't know the sigma either => use Wilcoxon rank sum test
+
+#--------------------------------------------------------------------------#
+#----------------Independent t-test __ Mann-Whitney U test-----------------#
+#--------------------------------------------------------------------------#
+
+The independent samples t-test is used to compare two sample means from unrelated groups. 
+This means that there are different people providing scores for each group. 
+The purpose of this test is to determine if the samples are different from each other.
+
+batt1 = np.array(f1.read().replace('\n','\t').strip('\t').split('\t'))
+batt2 = np.array(f2.read().replace('\n','\t').strip('\t').split('\t'))
+
+#Draw notch boxplot to see the difference
+box = plt.boxplot([batt1,batt2], tick_labels=['Battery_1','Battery_2'], notch=True, patch_artist=True)
+
+# Set box colors
+colors = ['lightblue', 'lightgreen']
+for patch, color in zip(box['boxes'], colors):
+    patch.set_facecolor(color)
+
+plt.show()
+
+#Check shapiro-wilk test for normality
+print('\nShapiro-wilk test of batteries_1:',stats.shapiro(batt1))
+print('\nShapiro-wilk test of batteries_2:',stats.shapiro(batt2))
+
+###T-test independent
+alpha            = .05
+confidence_level = 1 - alpha
+t, p = stats.ttest_ind(batt1, batt2)
+
+###Mann-Whitney U test
+stats.mannwhitneyu(batt1, batt2, alternative='two-sided'))
+
+#--------------------------------------------------------------------------#
+#----------------Dependent t-test __ Wilcoxon signed-rank test-----------------#
+#--------------------------------------------------------------------------#
+
+Dependent t-test is used for testing two samples coming from the same object
+ example: compare the blood sugar of the same patients before and after a treatment...
+
+np.random.seed(11)
+before = stats.norm.rvs(scale=30, loc=250, size=100)
+after  = before + stats.norm.rvs(scale=5, loc=-1.25, size=100)
+change = after - before
+
+#Check shapiro-wilk test for normality
+print('\nShapiro-wilk test of change:',stats.shapiro(change))
+
+alpha            = .05
+confidence_level = 1 - alpha
+
+##Dependent T-test
+t, p = stats.ttest_rel(before, after)
+
+## Perform Wilcoxon Signed-Rank Test (if "change" is not normally distributed)
+statistic, p_value = wilcoxon(before, after)

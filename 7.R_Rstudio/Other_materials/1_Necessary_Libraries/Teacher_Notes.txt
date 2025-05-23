@@ -1,0 +1,26 @@
+Cài đặt môi trường làm việc:- R-3.4.3 for Windows (32/64 bit) trở lên (download tại https://cran.r-project.org/bin/windows/base/)
+- Rstudio (Editor dành cho R): Download tại https://www.rstudio.com/ , sau đó cài
+*** Jupyter notebook
+
+
+●Cài jupyter notebook (dùng chung với Python)
+
+
+●Đưa R vào jupyter notebook (sau khi đã cài R)
+
+
+pip install zmq
+
+
+Ở command line của R console, gõ lệnh: 
+install.packages(c('repr',
+'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'devtools', 'uuid', 'digest'))
+
+
+devtools::install_github('IRkernel/IRkernel')
+
+
+IRkernel::installspec()
+
+
+Cài đặt các thư viện: trong tập tin LDS7_libs_R.txt

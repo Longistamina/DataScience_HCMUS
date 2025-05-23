@@ -1,0 +1,79 @@
+Sometimes, it is necessary to combine many datasets into one.
+
+#----------------------------------------------------------------------------------------#
+#------------Combine many dataframes -> 1 data frame ------------------------------------#
+#----------------------------------------------------------------------------------------#
+
+Can use pd.concat()
+
+Combine by adding columns:
+	pd.concat([dataframe1, dataframe2,...],
+                  axis=1) => by setting axis=1, it will add columns from dataframe2 to into dataframe1, create new dataframe
+
+Combine by rows:
+	pd.concat([dataframe1, dataframe2,...],
+                  axis=1, => by setting axis=1, it will add rows from dataframe2 to into dataframe1, create new dataframe (can cause NaN)
+                  ignore_index=True) => this is to ignore the index of both dataframes, and set new index for the new one
+
+#----------------------------------------------------------------------------------#
+#------------Combine many files -> 1 data file ------------------------------------#
+#----------------------------------------------------------------------------------#
+Use "glob" library to find a file based on a given pattern
+
+*: matches any single character, many times, even empty string
+example ds*.csv => ds1.csv, ds12.csv, ds45335.csv,...
+
+?: matches any single character, but only 1 time
+example ds?.csv => ds1.csv, ds2.csv, dsa.csv,... (but not ds12.csv cause ? only matches one time)
+
+-----
+import glob as gl
+lst_files = gl.glob("data/ds*.csv")
+print(lst_files) => 
+
+lst_data=[]
+for file in lst_files:
+	df_temp=pd.read_csv(file)
+	lst_data.append(df_temp)
+
+df_all=pd.concat(lst_data, axis=..., ignore_index=...)
+-----
+
+#------------------------------------------------------------------#
+#------------ Using pd.merge() ------------------------------------#
+#------------------------------------------------------------------#
+
+pd.merge() to merge two tables that share at least 1 common column
+
+pd.merge(left: name of table to be on the left side,
+	  right: name of table to be on the left side,
+	  how: "inner" use only the intersection of keys from both tables
+		"left" preserve the keys of left table
+		"right" preserve the keys of right table
+		"outer" use the union of keys of both tables
+		"cross": creates the cartesian product from both frames, preserves the order of the left keys,
+	  
+	  on: Column or index level names to join on (the column that two tables share),
+	  
+	  left_on: Column or index level names to join on in the left DataFrame,
+	  right_on: Column or index level names to join on in the right DataFrame,
+	  left_index: Use the index from the left DataFrame as the join key(s),
+	  right_index: Use the index from the right DataFrame as the join key(s),
+	  sort: sort the join keys lexicographically in the result DataFrame. If False, the order of the join keys depends on the join type (how keyword).
+)
+
+One important thing is to define which table should be on the left, which one should be on the right.
+
+In case the two tables share a common column, the both columns share the same name
+=> use pd.merge(left, right, on="share_column_name")
+
+In case the two tables have a column sharing identical values, but the columns' name is different
+=> use pd.merge(left, right, left_on="left_column_name", right_on="right_column_name")
+(lef_column_name and right_column_name must have the same values row-by-row)
+
+In case the left table index values and the right table column_x values are the same
+=> use pd.merge(left, right, left_index=True, right_on="column_x"), so it will use these column and index to merge
+(same for right_index and left_on)
+
+Turn on "sort=True" to sort the merged dataframe based on the "joint on" column (the share column of 2 tables)
+

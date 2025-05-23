@@ -1,0 +1,42 @@
+#--------------------------------------#
+#-------- Install library -------------#
+#--------------------------------------#
+
+In Linux terminal or Conda Prompt, run these commands:
+
+pip3 install mysql-connector-python
+pip3 install ipython-sql
+pip3 install pymysql
+
+
+
+#-------------------------------------------#
+#-------- Connect python-mysql -------------#
+#-------------------------------------------#
+
+***************************** Using magic SQL *********************************
+
+user='root'
+password=''
+hostname='localhost:8888' #Get from the jupyter lab tab
+database='salesdb'
+
+connection_string = f"mysql+pymysql://{user}:{password}@{hostname}/{database}?charset=utf8"
+#Create a connection string
+
+%sql $connection_string #Run this command to connect python to sql
+
+
+
+
+******************** Using .connection() method ********************
+
+from mysql.connector import connect
+
+username='longsql'
+pwd='Longsql123#'
+server='192.168.1.13/phpmyadmin/' #Get from local PHPMyAdmin, without https
+db='salesdb'
+
+#Create connection object with these parameters
+conn1 = connection(host=server, database=db, user=username, password=pwd, port=3306) 

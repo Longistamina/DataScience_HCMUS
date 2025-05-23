@@ -1,0 +1,129 @@
+Hierachical Clustering: https://www.youtube.com/watch?v=7xHsRkOdVwo
+
+#--------------------------------------------------------#
+#------ Hierachical Clustering introduction -------------#
+#--------------------------------------------------------#
+
+Hierarchical clustering is a type of unsupervised machine learning algorithm that groups similar data points into clusters. 
+
+It builds a hierarchy of clusters, represented as a tree-like structure called a dendrogram. There are two main approaches:
+1.  **Agglomerative (Bottom-up):**
+    * Starts with each data point as a single cluster.
+    * Repeatedly merges the closest pairs of clusters until all points belong to a single cluster or a stopping criterion is met.
+2.  **Divisive (Top-down):**
+    * Starts with all data points in one cluster.
+    * Repeatedly splits clusters into smaller clusters until each point forms its own cluster or a stopping criterion is met.
+
+We'll focus on the agglomerative approach, which is more commonly used.
+
+**Steps of Agglomerative Hierarchical Clustering:**
+
+1.  **Calculate the distance matrix:** Compute the pairwise distances between all data points. Common distance metrics include Euclidean distance, Manhattan distance, and cosine similarity.
+2.  **Initialize clusters:** Each data point is considered a separate cluster.
+3.  **Merge the closest clusters:** Find the two clusters with the smallest distance between them and merge them into a single cluster.
+4.  **Update the distance matrix:** Recalculate the distances between the new cluster and the remaining clusters.
+5.  **Repeat steps 3 and 4:** Continue merging clusters until all data points belong to a single cluster or a stopping criterion is met.
+6.  **Create the dendrogram:** Visualize the hierarchy of clusters as a dendrogram.
+
+**Distance Metrics:**
+
+* **Euclidean distance:** d(p, q) = sqrt(sum(p_i - q_i)^2)
+* **Manhattan distance:** d(p, q) = sum(abs(p_i - q_i))
+
+**Linkage Methods (for calculating distances between clusters):**
+
+* **Single linkage (minimum linkage):** The distance between two clusters is the minimum distance between any two points in the clusters.
+* **Complete linkage (maximum linkage):** The distance between two clusters is the maximum distance between any two points in the clusters.
+* **Average linkage:** The distance between two clusters is the average distance between all pairs of points in the clusters.
+* **Ward's linkage:** Minimizes the variance within clusters.
+
+
+#--------------------------------------------------#
+#-------------- Example ---------------------------#
+#--------------------------------------------------#
+
+Let's consider four data points: A(1, 2), B(1, 4), C(4, 2), and D(4, 5).
+
+1.  **Calculate the distance matrix:**
+
+    * $d(A, B) = sqrt{(1-1)^2 + (2-4)^2} = sqrt{0 + 4} = 2
+    * $d(A, C) = sqrt{(1-4)^2 + (2-2)^2} = sqrt{9 + 0} = 3
+    * $d(A, D) = sqrt{(1-4)^2 + (2-5)^2} = sqrt{9 + 9} = sqrt{18} ~ 4.24
+    * $d(B, C) = sqrt{(1-4)^2 + (4-2)^2} = sqrt{9 + 4} = sqrt{13} ~ 3.61
+    * $d(B, D) = sqrt{(1-4)^2 + (4-5)^2} = sqrt{9 + 1} = sqrt{10} ~ 3.16
+    * $d(C, D) = sqrt{(4-4)^2 + (2-5)^2} = sqrt{0 + 9} = 3
+
+    Distance Matrix:
+
+    ```
+        A     B     C     D
+    A   0     2     3     4.24
+    B   2     0     3.61  3.16
+    C   3     3.61  0     3
+    D   4.24  3.16  3     0
+    ```
+
+2.  **Initialize clusters:** Clusters are {A}, {B}, {C}, {D}.
+
+3.  **Merge the closest clusters:** The smallest distance is 2, between A and B. Merge {A} and {B} to form {AB}.
+
+4.  **Update the distance matrix (using single linkage):**
+
+    * $d({AB}, C) = min(d(A, C), d(B, C)) = min(3, 3.61) = 3
+    * $d({AB}, D) = min(d(A, D), d(B, D)) = min(4.24, 3.16) = 3.16
+    * $d(C, D) = 3
+
+    Updated Distance Matrix:
+
+    ```
+        AB    C     D
+    AB  0     3     3.16
+    C   3     0     3
+    D   3.16  3     0
+    ```
+
+5.  **Merge the closest clusters:** The smallest distance is 3, between {AB} and {C}, and also between {C} and {D}. Arbitrarily merge {AB} and {C} to form {ABC}.
+
+6.  **Update the distance matrix:**
+
+    * $d({ABC}, D) = min(d({AB}, D), d(C, D)) = min(3.16, 3) = 3
+
+    Updated Distance Matrix:
+
+    ```
+        ABC   D
+    ABC 0     3
+    D   3     0
+    ```
+
+7.  **Merge the closest clusters:** The smallest distance is 3, between {ABC} and {D}. Merge {ABC} and {D} to form {ABCD}.
+
+8.  **Final cluster:** {ABCD}
+
+**Dendrogram (Conceptual):**
+
+     _____ABCD_______
+    /                \
+ __ABC___             D
+/        \
+AB        C
+/ \    
+A  B
+
+
+
+#-----------------------------------------#
+#-------------- Pros----------------------#
+#-----------------------------------------#
+Easy to deploy
+Don't have to define optimal number of clusters (like in KMeans)
+Dendrogram is very useful for extracting insights of the data
+Very convenient for non-labeled data
+
+
+#-----------------------------------------#
+#-------------- Cons----------------------#
+#-----------------------------------------#
+Cannot undo any steps once run
+Can result in long clustering time
+Hard to identify the exact number of dendograms

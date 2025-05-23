@@ -1,0 +1,205 @@
+#---------------------------------------------------------------------------------------------------#
+#--------------------------Uniform distribution X~uniform(a, b, n)----------------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+n = 30 #Sample size (number of people)
+a = 0 #Lower limit
+b = 25 #Upper limit
+
+np.random.seed(1)
+
+ans_time = np.random.uniform(a, b+1, n) #b+1 to get the b cause the function will exclude b
+ans_time.astype(int) #convert the data array into integer
+
+print(f'Answer times (second) of 30 candidates:\n{ans_time}')
+
+#Calculate P(X<=6):
+N_6 = np.extract(ans_time <= 6, ans_time).size
+P_6 = N_6/ans_time.size
+
+print(f'\nProbability of 1 person answering within 6 seconds: {P_6} ')
+print(f'The number of people answering within 6 seconds: {N_6}')
+
+#-------------------------------------------------------------------------------
+#  Hàm tính tổ hợp n chập k
+#  Vơi Python 3.8 thì dùng math.comb(n, k)
+#-------------------------------------------------------------------------------
+def combination(n, k):
+    # n!/(k!)(n-k)!
+    numerator   = math.factorial(n) #Giai thừa
+    denominator = math.factorial(k) * math.factorial(n - k)
+
+    return (numerator / denominator)
+
+import math
+math.comb(n,k)
+
+#---------------------------------------------------------------------------------------------------#
+#-----------------------Binominal distribution X~binominal(n, p, size)------------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+Probability of X wanted cases out of N experiments within Size trials
+ X~binom(n, p, size)
+
+n = 10 #number of experiments
+p = 0.6 #probability of wanted observations
+size = 1000 #number of trials (repetition of experiment)
+
+sbn.histplot(sport_10_06men_1000, kde=True)
+
+sport_10_06men_1000 = stats.binom.rvs(n=n, p=p, size=size)
+print('sport_10_06men_1000 = stats.binom.rvs(n=10, p=0.6, size=1000)'
+
+
+#---------------------------------------------------------------------------------------------------#
+#-----------------------Bernouli distribution X~bernouli(n=1, p, size)------------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+Probability of K sucessful cases out of 1 experiment within Size trials
+ X~bernouli(p, size)
+
+(So bernouli distribution is also binominal distribution but with n=1)
+ X~binom(1,p,size)
+
+#Choose bernouli distribution X~bernouli(p=0.001, size=365)
+# Or X~binom(n=1, p=0.001, size=365)
+
+q=0.001
+p=(1-q)
+size = 365
+
+ber_365 = stats.bernoulli.rvs(p=p, size=365)
+
+P_success_all = math.pow(p, 365)
+print(f'\nProbability of success P(x=1) in all 365 days (no fail day) = p**365 = (1-0.001)**365 = {P_success_all}')
+
+print(f'\nProbability of fail P(x=0) in at least 1 day = 1 - {P_success_all} = {1 - P_success_all}')
+
+
+#------------------------------------------------------------------------------------------------------------------------#
+#-----------------------Normal distribution X~norm(loc=mean, scale=std, size = sample_size)------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+
+mean = 164 #loc
+std = 6 #scale
+n = 1000 #size
+
+height_norm_1000 = stats.norm.rvs(size=n, scale = std, loc = mean)
+
+print('Create a normal distribution sample of height with stats.norm.rvs(size=1000, scale=6, loc=164)')
+
+sbn.histplot(height_norm_1000, kde=True)
+
+z_174 = (174 - height_norm_1000.mean())/height_norm_1000.std() #z-score = (x - mean)/std
+print(f'Z-score of 174 (cm) = {z_174}')
+
+#File q-th percentile of 174 cm by calculating P(X<=174)*100
+per_174 = int(100*(np.extract(height_norm_1000 <= 174, height_norm_1000).size / height_norm_1000.size))
+print('Q-th percentile of value 174 cm =',per_174)
+#So 96% of observations in the sample are equal or below 174 cm
+
+
+#-------------------------------------------------------------------------------------#
+#--------------------------------------- Z distribution ------------------------------#
+#-------------------------------------------------------------------------------------#
+
+'''-----------------------------------------------------------------------------
+   Hàm tính xác suất theo phân phối Z (tra XUÔI bảng Z)
+-----------------------------------------------------------------------------'''
+def zDistribution(side, lower, upper):
+    import scipy.stats as st
+
+    side = side.lower()
+    
+    if (side == 'left'): #Z < z
+        p = st.norm.cdf(lower) #this to get the probability of P(Z < z). Meaning find P(Z<z) from z-point
+    elif (side == 'right'): #Z > z
+        p = 1 - st.norm.cdf(upper)
+    else: #a < Z < b
+        p = st.norm.cdf(upper) - st.norm.cdf(lower)       
+    return (p)
+
+'''-----------------------------------------------------------------------------
+   Hàm tìm z-score khi biết xác suất (tra NGƯỢC bảng Z)
+-----------------------------------------------------------------------------'''
+def p2z(side, p):
+    import scipy.stats as st
+
+    side = side.lower()
+    
+    if (side == 'left'):
+        z = st.norm.ppf(p) #To calculate the z-point of specific P(Z < z). Meaning, find z-point from P(Z<z)
+    elif (side == 'right'):
+        z = p2z('left', 1 - p)
+    else:
+        z = p2z('left', 0.5 + (p / 2))
+    return (z)
+
+#------------------------------------------------------------------------------------------#
+#--------------------------------------- Law of Large Number ------------------------------#
+#------------------------------------------------------------------------------------------#
+
+Assume we have a population whose size is 10^6
+If we want to calculate its mean, it's impossible cause very hard to collect data of all 10^6 observations
+
+Instead, if we choose randomly about 50 observations out of 10^6, 
+then calculate mean1 = (x1+x2+..+x50) / 50
+
+then repeat again, choose randomly new 50 observations out of 10^6, 
+then calculate mean2 = (x1+x2+...+x50) / 50
+
+keep repeating until we want to stop....
+
+Then we calculate the mean of all means: 
+                mean_all = (mean1 + mean2 + .... + meanN) / N
+If the number of sampling times is large enough, i.e the N is large enough,
+====> the mean_all will approximately equal the mean of the population
+
+This is Law of Large Number
+
+'''-----------------------------------------------------------------------------
+   Hàm tính các trung bình mẫu
+-----------------------------------------------------------------------------'''
+def sampleMeans(data, n, sS, Mu):
+    import numpy as np
+    
+    result = np.zeros((len(n), 3))
+    for t in range(len(n)):
+        sampleMeans = []
+        for i in range(n[t]):
+            # Lấy mẫu S(i) gồm sS cá thể từ quần thể
+            sample = random.choices(data, k = sS)
+            sampleMeans.append(np.mean(sample))
+    
+        x_bar = np.mean(sampleMeans)
+        result[t, 0] = n[t]
+        result[t, 1] = x_bar
+        result[t, 2] = abs(Mu - x_bar)
+    return result
+
+print('\n-----------------------------------------------------------------------')
+print('2) BINOMIAL')
+print('-----------------------------------------------------------------------')
+# Tạo quần thể từ thí nghiệm n phép thử Bernoulli
+trials = 10
+p      = 0.3
+data   = np.random.binomial(n = trials, p = p, size = sP)
+Mu     = (10 * 0.3)
+print('Kỳ vọng Mu = %.4f' %Mu)
+
+# Phân tích kết quả theo số lần lấy mẫu n 
+means = sampleMeans(data, n, sS, Mu).tolist()
+means = sorted(means, key = itemgetter(2))
+
+for i in range(len(n)):
+    print('Lấy mẫu %5d' %means[i][0], 'lần --> trung bình mẫu = %.4f' %means[i][1], 
+             '(epsilon = %.4f)' %abs(means[i][2]))
+
+-----------------------------------------------------------------------
+2) BINOMIAL
+-----------------------------------------------------------------------
+Kỳ vọng Mu = 3.0000
+Lấy mẫu 10000 lần --> trung bình mẫu = 2.9987 (epsilon = 0.0013)
+Lấy mẫu  1000 lần --> trung bình mẫu = 3.0070 (epsilon = 0.0070)
+Lấy mẫu   100 lần --> trung bình mẫu = 2.9340 (epsilon = 0.0660)
+Lấy mẫu     1 lần --> trung bình mẫu = 3.1500 (epsilon = 0.1500)

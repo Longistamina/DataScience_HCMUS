@@ -1,0 +1,178 @@
+SVM part 1 - Main ideas: https://www.youtube.com/watch?v=efR1C6CvhmE
+SVM part 2 - Polynomial kernel: https://www.youtube.com/watch?v=Toet3EiSFcM
+SVM part 3 - The Radial (RBF) kernel: https://www.youtube.com/watch?v=Qc5IyLW_hns
+
+#---------------------------------------------------------------#
+#------------------ Example SVM classification -----------------#
+#---------------------------------------------------------------#
+
+SVM for Classification
+In classification, SVM finds a hyperplane that separates data points of different classes with the maximum margin. 
+The data points that lie closest to this hyperplane are called "support vectors" because they support or define the position of the hyperplane.
+
+
+Suppose we have the following data points:
+#	Class A: (1,2), (2,3), (3,3)
+#	Class B: (3,1), (4,2), (5,2)
+
+
+#--------------------------------------------#
+         Step 1: Define the hyperplane
+#--------------------------------------------#
+In 2D, our hyperplane is a line defined by:
+	w₁x₁ + w₂x₂ + b = 0
+
+
+#--------------------------------------------#
+	Step 2: Define the constraints
+#--------------------------------------------#
+For class A (label +1): w₁x₁ + w₂x₂ + b ≥ +1
+For class B (label -1): w₁x₁ + w₂x₂ + b ≤ -1
+
+
+#-----------------------------------------------------------#
+	Step 3: Find the optimal weights and bias
+#-----------------------------------------------------------#
+
+We need to minimize ||w|| (or 1/2 * ||w||^2) subject to these constraints.
+
+Let's try w₁ = 1, w₂ = 1, and b = -4:
+# For class A:
+	(1,2): 1(1) + 1(2) - 4 = -1 ≥ -1 ✓
+	(2,3): 1(2) + 1(3) - 4 = 1 ≥ 1 ✓
+	(3,3): 1(3) + 1(3) - 4 = 2 ≥ 1 ✓
+
+# For class B:
+	(3,1): 1(3) + 1(1) - 4 = 0 ≤ -1 ✗ (constraint violated)
+
+Since the constraints aren't satisfied, let's adjust our parameters.
+
+Let's try w₁ = 2, w₂ = -1, and b = -2:
+# For class A:
+	(1,2): 2(1) - 1(2) - 2 = -2 ≥ 1 ✗
+
+This doesn't work either. After several iterations (which I'm abbreviating), we might find:
+		w₁ = 1, w₂ = -1, and b = -1
+Checking:
+# For class A:
+	(1,2): 1(1) - 1(2) - 1 = -2 < 1 ✗
+After more iterations, we could find the optimal solution, but this is computationally intensive by hand. 
+In practice, we use quadratic programming techniques or sequential minimal optimization.
+
+
+
+
+#-------------------------------------------------------------------------#
+#------------- SVM multiple-class classification -------------------------#
+#-------------------------------------------------------------------------#
+
+
+SVM is naturally a binary classifier, but it can be extended to handle multi-class problems using two main approaches:
+
+#----------------------------------------------------#
+	     One-vs-Rest (OVR) Approach
+#----------------------------------------------------#
+
+Let's work through a manual example using the One-vs-Rest approach for a 3-class problem.
+
+Suppose we have the following 2D data points:
+	Class 1: (1,1), (2,2), (1,2)
+	Class 2: (4,4), (5,5), (4,5)
+	Class 3: (1,5), (2,4), (1,4)
+
+
+******** Step 1: Create 3 Binary Classifiers
+We'll train 3 separate binary classifiers:
+
+Classifier 1: Class 1 vs. (Class 2 and Class 3)
+Classifier 2: Class 2 vs. (Class 1 and Class 3)
+Classifier 3: Class 3 vs. (Class 1 and Class 2)
+
+
+******** Step 2: Train Classifier 1 (Class 1 vs. Rest)
+We'll find a hyperplane w₁x₁ + w₂x₂ + b = 0 that separates Class 1 from others.
+
+After calculations (which would be quite lengthy to do fully by hand), we might get:
+	w₁ = 1, w₂ = 1, b = -3.5
+
+This gives:
+	Class 1 points → positive values
+	Class 2 and 3 points → negative values
+
+For verification, let's check some points:
+	(1,1): 1(1) + 1(1) - 3.5 = -1.5 < 0 (misclassified)
+	(2,2): 1(2) + 1(2) - 3.5 = 0.5 > 0 (correct)
+	(4,4): 1(4) + 1(4) - 3.5 = 4.5 > 0 (misclassified)
+	(1,5): 1(1) + 1(5) - 3.5 = 2.5 > 0 (misclassified)
+
+Our simple approximation isn't perfect. In practice, we'd optimize more carefully or use a kernel. Let's adjust to:
+	w₁ = 1, w₂ = -0.5, b = -1
+
+Checking again:
+	(1,1): 1(1) - 0.5(1) - 1 = -0.5 < 0 (misclassified)
+	(2,2): 1(2) - 0.5(2) - 1 = 0 = 0 (boundary)
+	(4,4): 1(4) - 0.5(4) - 1 = 1 > 0 (misclassified)
+	(1,5): 1(1) - 0.5(5) - 1 = -2.5 < 0 (correct)
+
+Still not perfect, but this illustrates the process.
+
+
+******** Step 3: Train Classifier 2 (Class 2 vs. Rest)
+Similarly, we'd find a hyperplane for Classifier 2.
+
+After calculations, we might get:
+	w₁ = 1, w₂ = 1, b = -8
+
+Checking:
+	(1,1): 1(1) + 1(1) - 8 = -6 < 0 (correct)
+	(4,4): 1(4) + 1(4) - 8 = 0 = 0 (boundary)
+	(1,5): 1(1) + 1(5) - 8 = -2 < 0 (correct)
+
+
+******* Step 4: Train Classifier 3 (Class 3 vs. Rest)
+Finally, for Classifier 3:
+	w₁ = -1, w₂ = 1, b = 3
+
+Checking:
+	(1,1): -1(1) + 1(1) + 3 = 3 > 0 (misclassified)
+	(4,4): -1(4) + 1(4) + 3 = 3 > 0 (misclassified)
+	(1,5): -1(1) + 1(5) + 3 = 7 > 0 (correct)
+
+
+
+******* Step 5: Prediction
+To classify a new point, we evaluate it with all three classifiers and assign it to the class whose classifier gives the highest score.
+
+For example, let's classify point (3,3):
+	Classifier 1: 1(3) - 0.5(3) - 1 = 0.5
+	Classifier 2: 1(3) + 1(3) - 8 = -2
+	Classifier 3: -1(3) + 1(3) + 3 = 3
+
+The highest score is from Classifier 3, so we classify (3,3) as Class 3.
+
+
+#----------------------------------------------------#
+		One-vs-One (OVO) Approach
+#----------------------------------------------------#
+
+The One-vs-One approach would require training 3 binary classifiers for our 3-class problem:
+	Class 1 vs. Class 2
+	Class 1 vs. Class 3
+	Class 2 vs. Class 3
+
+For each new point, all classifiers vote, and the class with the most votes wins. This approach requires more classifiers but each is trained on less data.
+
+
+#----------------------------------------------------#
+	Key Points for Multi-class SVM
+#----------------------------------------------------#
+
+Computational Complexity: OVR requires N classifiers for N classes, while OVO requires N(N-1)/2 classifiers.
+
+Decision Function: In OVR, the class with the highest decision function value wins. In OVO, the class with the most votes wins.
+
+Implementation Efficiency: For large numbers of classes, OVR is generally more computationally efficient.
+
+Class Imbalance: OVR can suffer from class imbalance issues, as each classifier deals with all samples from one class versus all others combined.
+
+SVMs remain powerful for multi-class problems, though deep learning approaches have become more common for complex multi-class tasks in recent years.

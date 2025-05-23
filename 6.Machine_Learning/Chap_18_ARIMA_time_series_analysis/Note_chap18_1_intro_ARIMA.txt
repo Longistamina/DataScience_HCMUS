@@ -1,0 +1,124 @@
+https://www.youtube.com/watch?v=3UmyHed0iYE
+
+ARIMA ALGORITHM EXPLAINED (Plain Text Format)
+=============================================
+
+1. INTRODUCTION
+---------------
+ARIMA stands for AutoRegressive Integrated Moving Average.
+
+It is a popular statistical method for time series forecasting, especially for non-stationary data.
+
+It has three parameters: ARIMA(p, d, q)
+- p: number of autoregressive (AR) terms
+- d: number of differencing steps to make the data stationary
+- q: number of moving average (MA) terms
+
+The general idea:
+- First make the data stationary (with differencing d)
+- Then apply AR and MA modeling to capture the structure
+
+
+2. MODEL COMPONENTS & FORMULAS
+------------------------------
+
+A. DIFFERENCING (The "I" in ARIMA)
+----------------------------------
+Used to make the time series stationary.
+
+First-order difference:
+    Y'_t = Y_t - Y_{t-1}
+
+Second-order difference:
+    Y''_t = Y'_t - Y'_{t-1}
+         = Y_t - 2Y_{t-1} + Y_{t-2}
+
+We usually choose d = 1 or 2.
+
+B. AUTOREGRESSIVE (AR) COMPONENT
+--------------------------------
+In AR(p), we model the current value as a linear combination of past values.
+
+General AR(p) model:
+    Y_t = c + φ₁Y_{t-1} + φ₂Y_{t-2} + ... + φ_pY_{t-p} + ε_t
+
+Where:
+- φᵢ are coefficients
+- c is a constant
+- ε_t is white noise (random error)
+
+C. MOVING AVERAGE (MA) COMPONENT
+--------------------------------
+In MA(q), we model the current value as a linear combination of past errors.
+
+General MA(q) model:
+    Y_t = μ + ε_t + θ₁*ε_{t-1} + θ₂*ε_{t-2} + ... + θ_q*ε_{t-q}
+
+Where:
+- θᵢ are coefficients
+- μ is the mean of the series
+- ε_t is white noise
+
+
+3. ARIMA(p, d, q) MODEL
+-----------------------
+Combine all three elements:
+
+If d = 1:
+    ΔY_t = Y_t - Y_{t-1}
+
+Then fit ARMA(p, q) model on the differenced data:
+
+    ΔY_t = c + φ₁*ΔY_{t-1} + ... + φ_p*ΔY_{t-p}
+               + ε_t + θ₁*ε_{t-1} + ... + θ_q*ε_{t-q}
+
+Or, in full ARIMA notation:
+    Y_t = c + φ₁*Y_{t-1} + ... + φ_p*Y_{t-p}
+               + ε_t + θ₁*ε_{t-1} + ... + θ_q*ε_{t-q}
+    (after applying differencing d times)
+
+
+#####--------------------------------#####
+     4. MANUAL EXAMPLE (ARIMA(1,1,0))
+#####--------------------------------#####
+Let's walk through a small manual example.
+
+Assume:
+- We have the following time series:
+    Y = [10, 12, 13, 16, 18]
+
+- Step 1: Differencing (d = 1)
+    Y'_t = Y_t - Y_{t-1}
+    Y' = [12-10, 13-12, 16-13, 18-16] = [2, 1, 3, 2]
+
+    Now we work with Y' = [2, 1, 3, 2]
+
+- Step 2: Fit AR(1) model on Y'
+    Model: Y'_t = c + φ₁Y'_{t-1} + ε_t
+
+    Let's assume:
+    c = 0.5
+    φ₁ = 0.6
+
+    Predict the value of Y'_5 (next value in differenced series)
+    Use last known Y'_4 = 2
+
+    Y'_5 = 0.5 + 0.6 * 2 = 1.7
+
+- Step 3: Convert back to original scale
+    Recall last original value was Y_5 = 18
+    So Y_6 = Y_5 + Y'_5 = 18 + 1.7 = 19.7
+
+    Final forecast: Y_6 ≈ 19.7
+
+
+5. CONCLUSION
+-------------
+ARIMA is a powerful tool for forecasting univariate time series.
+- Use differencing to remove trend (d)
+- Use AR (p) for past values
+- Use MA (q) for past forecast errors
+
+ARIMA(p, d, q) can be tuned manually or with software tools (e.g., AIC/BIC in Python or R)
+
+

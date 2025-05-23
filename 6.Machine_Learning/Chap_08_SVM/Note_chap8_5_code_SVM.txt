@@ -1,0 +1,106 @@
+#--------------------------------------------------#
+#--------------- SVM Classification ---------------#
+#--------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+data = pd.read___
+
+x = data[['col1', 'col2',...]]
+y = data['output']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from sklearn.svm import SVC
+svmC = SVC(gamma = 'scale', C = 100, kernel = 'rbf', probability = True)
+# gamma: Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If gamma = 'scale' (default) is passed then it uses 1 / (n_features * X.var()) as value of gamma
+#                                                            If gamma = ‘auto’, uses 1 / n_features
+# kernal: {‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’} or callable, default=’rbf’
+# C: the bigger the C, the narrower the margins (and vice versa)
+#    A larger C value gives a higher penalty to misclassification. 
+#    This means the SVM will try harder to classify all training points correctly, even if it results in a smaller margin between the classes
+#    If C too large, can be overfitted
+#probability = True: to enable probability estimates. This must be enabled prior to calling ".fit()"
+
+svmC.fit(x_train, y_train)
+
+y_test_pred = svmC.predict(x_test)
+
+svmC.score(x_test, y_test) #Or use sklearn.metrics.accuracy_score
+
+#Use metrics like confusion_matrix, classification_report, ROC_AUC,... to evaluate this SVM classification model
+
+#----------------------------------------------#
+#--------------- SVM Regression ---------------#
+#----------------------------------------------#
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+data = pd.read___
+
+x = data[['col1', 'col2',...]]
+y = data['output']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from sklearn.svm import SVR
+
+svmR_rbf = SVR(kernel = 'rbf', C = 100, gamma = 'scale')
+svmR_lin = SVR(kernel = 'linear', C = 100)
+svmR_poly = SVR(kernel = 'poly', C = 100, degree = 3)
+
+svmR_rbf.fit(x_train, y_train)
+svmR_rbf.score(x_test, y_test)
+
+svmR_lin.fit(x_train, y_train)
+svmR_lin.score(x_test, y_test)
+
+svmR_poly.fit(x_train, y_train)
+svmR_poly.score(x_test, y_test)
+
+
+########### Visualize Y ~ X to see which kernel function is the best ##############
+plt.subplot(1,3,1)
+plt.scatter(x_test, y_test)
+plt.plot(x_test, svmR_rbf.predict(x_test))
+plt.title('RBF')
+
+plt.subplot(1,3,2)
+plt.scatter(x_test, y_test)
+plt.plot(x_test, svmR_lin.predict(x_test))
+plt.title('Linear')
+
+plt.subplot(1,3,3)
+plt.scatter(x_test, y_test)
+plt.plot(x_test, svmR_poly.predict(x_test))
+plt.title('Polynomial')
+
+plt.show()
+
+############ Visualize Y_test ~ Y_test_pred to see which kernel function is the best ###########
+plt.subplot(1,3,1)
+plt.scatter(y_test, svmR_rbf.predict(x_test))
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color = 'green')
+plt.title('RBF')
+
+plt.subplot(1,3,2)
+plt.scatter(y_test, svmR_lin.predict(x_test))
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color = 'green')
+plt.title('Linear')
+
+plt.subplot(1,3,3)
+plt.scatter(y_test, svmR_poly.predict(x_test))
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color = 'green')
+plt.title('Polynomial')
+
+plt.show()

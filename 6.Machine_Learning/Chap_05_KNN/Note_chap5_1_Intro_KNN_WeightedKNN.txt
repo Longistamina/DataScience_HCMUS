@@ -1,0 +1,278 @@
+#---------------------------------------------------------#
+#------------- K-Nearest Neighbors (KNN) -----------------#
+#---------------------------------------------------------#
+K-Nearest Neighbors is a simple, versatile machine learning algorithm used for both classification and regression tasks. 
+It's a non-parametric method that makes predictions based on the similarity between data points.
+
+Basic Concept:
+# The core idea of KNN is intuitive: similar data points tend to have similar outputs. 
+
+# For a new data point: Find the K closest data points (neighbors) from the training set
+	For classification: use majority vote among neighbors
+	For regression: take the average (or weighted average) of neighbors' values
+
+
+
+Which number of K to choose?
+# K should not be too low, since the low K number makes the model sensitive to noise
+# Set a for loop, test K range from 3 -> 10 (or more), and check for the best the accuracy score
+# Maximum K should be: 
+	
+	Kmax = sqrt(n) / 2 (n is sample size)
+
+
+
+Pros:
+# Easy to deploy
+# Work well on simple classification tasks (even multi-class)
+# Flexible in selecting feature/distance
+# Very effective if the training data is large enough
+
+Cons:
+# Hard to choose suitable K values
+# The change of K can lead to the shift in output results
+# If the number of output classes is imbalanced for each class => weaken the KNN model
+
+Application:
+# Classification
+# Regression
+# Fill missing values
+# Pattern recognition
+# Identify gene expression
+# Protein-protein prediction
+# Protein 3D structure prediction
+# Document similarity: to find documents whose ideas are similar
+
+#-------------------------------------------------------#
+#------------- Distance calculating formula ------------#
+#-------------------------------------------------------#
+
+Distance Metrics: KNN uses distance metrics to measure similarity. 
+# The most common is Euclidean distance:
+	For two points x and y with n features:
+	d(x,y)= sqrt[(x1 - y1)^2 +(x2 - y2)^2 + ... + (x_i - y_i)^2]
+
+# Other common distance metrics include:
+	Manhattan distance: d(x,y)= |x1 - y1| + |x2 - y2| + ... + |x_i - y_i|
+	
+	Minkowski distance: d(x,y)= (|x1 - y1|^p + |x2 - y2|^p + ... + |x_i - y_i|^p)^(1/p)
+
+
+# If the features are all categorical:
+	Hamming Distance: Counts the number of features that differ between two samples.
+	Jaccard Distance: Measures dissimilarity as the proportion of features that differ.
+	Matching Coefficient: Counts the number of matching features.
+
+
+# For a new data point: Find the K closest data points (neighbors) from the training set based on distances
+	For classification: use majority vote among neighbors
+	For regression: take the average (or weighted average) of neighbors' values
+
+
+#-------------------------------------------------------#
+#------------- Example: Classification task ------------#
+#-------------------------------------------------------#
+Let's classify a new point based on a small dataset with two features and two classes.
+
+Training data:
+# Point A: (2, 3), Class: Blue
+# Point B: (5, 4), Class: Red
+# Point C: (9, 6), Class: Red
+# Point D: (4, 7), Class: Blue
+# Point E: (8, 1), Class: Red
+
+New point to classify: (5, 5)
+**************
+Step 1: Calculate distances from the new point to all training points using Euclidean distance.
+# Distance to A = sqrt[(5−2)^2 + (5−3)^2] = sqrt(9 + 4) = sqrt(13) ≈ 3.61
+# Distance to B = sqrt[(5−5)^2 + (5−4)^2] = sqrt(0 + 1) = sqrt(1)  = 1
+# Distance to C = sqrt[(5−9)^2 + (5−6)^2] = sqrt(16+ 1) = sqrt(17) ≈ 4.12
+# Distance to D = sqrt[(5−4)^2 + (5−7)^2] = sqrt(1 + 4) = sqrt(5)  ≈ 2.24
+# Distance to E = sqrt[(5−8)^2 + (5−1)^2] = sqrt(9 +16) = sqrt(25) = 5
+**************
+Step 2: Select K neighbors (let's use K=3) and identify the K points with smallest distances.
+The 3 closest points are:
+# Point B (distance 1): Class Red
+# Point D (distance 2.24): Class Blue
+# Point A (distance 3.61): Class Blue
+**************
+Step 3: Use majority voting to determine the class of the new point.
+
+2 points are Blue, 1 point is Red
+==> Therefore, the new point (5, 5) is classified as Blue.
+*************
+
+#-------------------------------------------------------#
+#------------- Example: Regression task ----------------#
+#-------------------------------------------------------#
+Let's predict a house price based on its size (square feet).
+
+Training data:
+# House A: 1500 sq ft, Price: $200,000
+# House B: 1800 sq ft, Price: $250,000
+# House C: 2200 sq ft, Price: $300,000
+# House D: 1600 sq ft, Price: $210,000
+# House E: 2000 sq ft, Price: $270,000
+
+New house to predict: 1750 sq ft
+*************
+Step 1: Calculate distances from the new point to all training points.
+
+Distance to A: |1750 - 1500| = 250
+Distance to B: |1750 - 1800| = 50
+Distance to C: |1750 - 2200| = 450
+Distance to D: |1750 - 1600| = 150
+Distance to E: |1750 - 2000| = 250
+*************
+Step 2: Select K neighbors (let's use K=3) and identify the K points with smallest distances.
+The 3 closest houses are:
+
+House B (distance 50): $250,000
+House D (distance 150): $210,000
+House A/E (tied at distance 250): $200,000 and $270,000
+
+Since we have a tie for the third neighbor, let's use the first four neighbors (K=4).
+*************
+Step 3: Calculate the average price of these neighbors to predict the price of the new house.
+
+Predicted price = ($250,000 + $210,000 + $200,000 + $270,000) / 4 
+		= $930,000 / 4 
+		= $232,500
+
+
+
+#--------------------------------------------------------------------#
+#------------- Example: All features are categorical ----------------#
+#--------------------------------------------------------------------#
+
+Let's consider a simple dataset with 3 categorical features:
+
+Sample | Color | Size  | Shape
+-------|-------|-------|--------
+A      | Red   | Small | Round
+B      | Blue  | Small | Square
+C      | Red   | Large | Triangle
+X      | Red   | Small | Square
+
+Distance between X and A:
+# Color: Red vs Red → Same (0)
+# Size: Small vs Small → Same (0)
+# Shape: Square vs Round → Different (1)
+# Hamming distance = 0 + 0 + 1 = 1
+
+Distance between X and B:
+# Color: Red vs Blue → Different (1)
+# Size: Small vs Small → Same (0)
+# Shape: Square vs Square → Same (0)
+# Hamming distance = 1 + 0 + 0 = 1
+
+Distance between X and C:
+# Color: Red vs Red → Same (0)
+# Size: Small vs Large → Different (1)
+# Shape: Square vs Triangle → Different (1)
+# Hamming distance = 0 + 1 + 1 = 2
+
+Based on these calculations, 
+both A and B are equally  close to X with a distance of 1, 
+while C is farther away with a distance of 2.
+
+If using K=2 for KNN, both A and B would be considered the nearest neighbors to X.
+
+#-----------------------------------------------------------#
+#------------- Extensions to Basic KNN ---------------------#
+#-------------      Weighted KNN       ---------------------#
+
+Weighted KNN: Neighbors contribute based on distance (closer neighbors have more influence)
+
+For regression:
+	y_predict = (w1*y1 + w2*y2 + ... + w_i*y_i) / (w1 + w2 + ... + w_i )
+
+		  = sum(w_i*y_i) / sum(w_i)
+
+w_i: is the weight of point (x_i, y_i) for the new point (x_new, y_new)
+
+w_i = 1 / d(x_i, x_new)^2
+
+==> So, the closer the training data point to (x_new, y_new), 
+	the shorter distance between them,
+	hence the bigger weight value it has
+
+**********Example*****************
+
+Let's predict a house price based on its size (square feet).
+
+Training data:
+# House A: 1500 sq ft, Price: $200,000
+# House B: 1800 sq ft, Price: $250,000
+# House C: 2200 sq ft, Price: $300,000
+# House D: 1600 sq ft, Price: $210,000
+# House E: 2000 sq ft, Price: $270,000
+
+New house to predict: 1750 sq ft
+*************
+Step 1: Calculate distances from the new point to all training points.
+
+Distance to A: |1750 - 1500| = 250
+Distance to B: |1750 - 1800| = 50
+Distance to C: |1750 - 2200| = 450
+Distance to D: |1750 - 1600| = 150
+Distance to E: |1750 - 2000| = 250
+**************
+Step 2: Calculate weights for each neighbor
+
+For weighted KNN, we typically use inverse distance squared as weights:
+
+	w_i = 1 / d(x_i, x_new)^2
+
+Weight for A = 1 / (250)^2 = 1/62500   = 0.000016
+Weight for B = 1 / (150)^2  = 1/2500   = 0.0004
+Weight for C = 1 / (450)^2 =  1/202500 ≈ 0.0000049
+Weight for D = 1 / (150)^2 =  1/22500  ≈ 0.0000444
+Weight for E = 1 / (250)^2 =  1/62500  = 0.000016
+***************
+Step 3: Select K neighbors (let's use K=3)
+
+The 3 neighbors with smallest distances are:
+# House B (distance 50): $250,000, weight = 0.0004
+# House D (distance 150): $210,000, weight = 0.0000444
+# House A/E (tied at distance 250): $200,000 and $270,000, weight = 0.000016 each
+
+Let's include all 4 of these houses since there's a tie.
+****************************
+Step 4: Calculate weighted average
+
+Use   the   formula: 
+	y_predict = (w1*y1 + w2*y2 + ... + w_i*y_i) / (w1 + w2 + ... + w_i )
+
+		  = sum(w_i*y_i) / sum(w_i)​​
+
+
+First, calculate the sum of weights:
+	sum(w_i) =   0.0004 +  0.0000444  +       0.000016   +     0.000016  
+                 =   0.0004764
+
+Now calculate the weighted sum of prices:
+	sum(w_i*y_i)  =  (0.0004*250,000)   +   (0.0000444*210,000)   +   (0.000016*200,000)    +    (0.000016*270,000)
+		      =           100       +           9.324         +              3.2        +           4.32
+		      =           116.844
+
+Finally, divide to get the predicted price:
+	y_predict =   116.844   /   0.0004764    =    245,264.27
+
+So, our weighted KNN predicts the house price to be approximately $245,264.
+
+
+#-----------------------------------------------------------#
+#------------- Extensions to Basic KNN ---------------------#
+#-------------      Feature Scaling    ---------------------#
+
+Feature Scaling: Since KNN uses distances, features should be on similar scales
+
+Standard scaling: x_i_scaled = (x_i - mean(x)) / std(x)
+
+Min-max scaling: ​ x_i_scaled = (x_i - min(x)) /  (max(x) - min(x))
+
+Or can also use RobustScaler, Normalizer,....
+
+
+KNN is simple yet effective, though it can be computationally expensive for large datasets since all distances must be calculated for each prediction.

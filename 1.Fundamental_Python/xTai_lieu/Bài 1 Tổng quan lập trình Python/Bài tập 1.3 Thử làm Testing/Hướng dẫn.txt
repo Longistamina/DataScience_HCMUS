@@ -1,0 +1,6 @@
+Học viên cho thực hiện file testing.py đính kèm, quan sát và thử sửa lỗi.
+
+Gợi ý:
+- Chương trình có chạy được không ?
+- Nếu không chạy được thì lỗi xuất hiện ở dòng nào ?
+- Hãy sửa lại cho đúng để chương trình có thể thực hiện được.

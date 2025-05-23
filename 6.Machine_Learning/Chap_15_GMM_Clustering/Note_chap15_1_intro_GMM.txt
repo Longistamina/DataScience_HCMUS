@@ -1,0 +1,371 @@
+Explain video: https://www.youtube.com/watch?v=EWd1xRkyEog
+
+#----------------------------------------------------------------------------#
+#----------------- GAUSSIAN MIXTURE MODEL (GMM) -----------------------------#
+#----------------------------------------------------------------------------#
+
+== INTRODUCTION ==
+A Gaussian Mixture Model (GMM) is a probabilistic model that assumes
+that data points are generated from a mixture of several Gaussian distributions 
+with unknown parameters.
+
+Each Gaussian (normal distribution) in the mixture has its own:
+- Mean (μ)
+- Variance (σ²)
+- Weight (π), where weights sum to 1
+
+
+== THE GMM FORMULA ==
+Given K Gaussians, the probability density function (pdf) for a data point x is:
+
+    p(x) = Σ (from k=1 to K) π_k * N(x | μ_k, σ²_k)
+
+Where:
+- π_k: weight of the k-th Gaussian (sum of π_k = 1)
+- N(x | μ_k, σ²_k): normal distribution:
+
+    N(x | μ, σ²) = (1 / sqrt(2πσ²)) * exp( - (x - μ)² / (2σ²) )
+
+== EXPECTATION-MAXIMIZATION (EM) ALGORITHM ==
+To learn GMM parameters (π_k, μ_k, σ²_k), we use the EM algorithm:
+
+1. **Initialization**
+    - Randomly initialize π_k, μ_k, σ²_k for each component.
+
+2. **Expectation Step (E-Step)**
+    - Compute "responsibilities" γ(z_k):
+    
+        γ(z_k) = (π_k * N(x | μ_k, σ²_k)) / Σ (over all j) (π_j * N(x | μ_j, σ²_j))
+
+    - γ(z_k) is the probability that point x belongs to component k.
+
+3. **Maximization Step (M-Step)**
+    - Update parameters:
+    
+        N_k = Σ γ(z_k) (sum of all the probabilities belonging to k-th cluster of all databpoints)
+
+        μ_k = (1 / N_k) * Σ (γ(z_k) * x)
+
+        σ²_k = (1 / N_k) * Σ (γ(z_k) * (x - μ_k)²)
+
+        π_k = N_k / N
+
+    where:
+    - N is total number of data points.
+
+4. **Repeat**
+    - Repeat E and M steps until convergence (parameters stop changing much).
+
+
+#-----------------------------------------------------------------------------------------------#
+#----------------- Example for 1D Unsupervised Learning or Clustering --------------------------#
+#-----------------------------------------------------------------------------------------------#
+
+== SETUP ==
+We have 4 data points:
+
+    x = [1.0, 1.5, 5.0, 6.0]
+
+We want to cluster into K = 2 clusters (two Gaussians).
+
+== INITIAL PARAMETERS (ASSUMED) ==
+Component 1 (Cluster 1):
+    μ₁ = 1.0
+    σ₁² = 1.0
+    π₁ = 0.5
+
+Component 2 (Cluster 2):
+    μ₂ = 5.5
+    σ₂² = 1.0
+    π₂ = 0.5
+
+== STEP 1: E-STEP (Calculate Responsibilities) ==
+Formula for responsibility for cluster 1:
+
+    γ(z₁) = (π₁ * N(x | μ₁, σ₁²)) / [π₁ * N(x | μ₁, σ₁²) + π₂ * N(x | μ₂, σ₂²)]
+
+Where:
+
+    N(x | μ, σ²) = (1 / sqrt(2πσ²)) * exp(-(x - μ)² / (2σ²))
+
+Let's compute:
+
+--- For x = 1.0 ---
+
+N(1|1.0,1) = (1/sqrt(2π)) * exp(0)
+           ≈ 0.3989
+
+N(1|5.5,1) = (1/sqrt(2π)) * exp(-(1-5.5)² / 2)
+           ≈ 0.3989 * exp(-10.125)
+           ≈ 0.3989 * 4.01e-5
+           ≈ 0.000016
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 0.3989) / (0.5 * (0.3989 + 0.000016))
+          ≈ 0.19945 / 0.199458
+          ≈ 0.99996
+
+    γ(z₂) = 1 - γ(z₁) ≈ 0.00004
+
+--- For x = 1.5 ---
+
+N(1.5|1.0,1) = (1/sqrt(2π)) * exp(-(1.5-1.0)²/2)
+             = 0.3989 * exp(-0.125)
+             ≈ 0.3989 * 0.8825
+             ≈ 0.3521
+
+N(1.5|5.5,1) = 0.3989 * exp(-(1.5-5.5)²/2)
+             = 0.3989 * exp(-8.0)
+             ≈ 0.3989 * 0.000335
+             ≈ 0.000134
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 0.3521) / (0.5 * (0.3521 + 0.000134))
+          ≈ 0.17605 / 0.176117
+          ≈ 0.9996
+
+    γ(z₂) ≈ 0.0004
+
+--- For x = 5.0 ---
+
+N(5|1.0,1) = 0.3989 * exp(-(5-1.0)²/2)
+           = 0.3989 * exp(-8.0)
+           ≈ 0.3989 * 0.000335
+           ≈ 0.000134
+
+N(5|5.5,1) = 0.3989 * exp(-(5-5.5)²/2)
+           = 0.3989 * exp(-0.125)
+           ≈ 0.3989 * 0.8825
+           ≈ 0.3521
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 0.000134) / (0.5 * (0.000134 + 0.3521))
+          ≈ 0.000067 / 0.176117
+          ≈ 0.00038
+
+    γ(z₂) ≈ 0.99962
+
+--- For x = 6.0 ---
+
+N(6|1.0,1) = 0.3989 * exp(-(6-1.0)²/2)
+           = 0.3989 * exp(-12.5)
+           ≈ 0.3989 * 3.726e-6
+           ≈ 1.486e-6
+
+N(6|5.5,1) = 0.3989 * exp(-(6-5.5)²/2)
+           = 0.3989 * exp(-0.125)
+           ≈ 0.3989 * 0.8825
+           ≈ 0.3521
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 1.486e-6) / (0.5 * (1.486e-6 + 0.3521))
+          ≈ 7.43e-7 / 0.17605
+          ≈ ~0.000004
+
+    γ(z₂) ≈ 0.999996
+
+== SUMMARY OF RESPONSIBILITIES ==
+|  x   | γ(z₁) (Cluster 1) | γ(z₂) (Cluster 2) |
+|------|-------------------|-------------------|
+| 1.0  |     0.99996       |     0.00004       |
+| 1.5  |     0.9996        |     0.0004        |
+| 5.0  |     0.00038       |     0.99962       |
+| 6.0  |     0.000004      |     0.999996      |
+
+== STEP 2: CLUSTER ASSIGNMENT ==
+Assign each point to the cluster with the higher γ(z):
+
+- 1.0 → Cluster 1
+- 1.5 → Cluster 1
+- 5.0 → Cluster 2
+- 6.0 → Cluster 2
+
+== STEP 3: OPTIONAL - UPDATE PARAMETERS (M-STEP) ==
+Could update μ₁, μ₂, σ₁², σ₂², π₁, π₂ based on γ(z) as before.
+(If doing multiple iterations.)
+
+== FINAL CLUSTERS ==
+Cluster 1: {1.0, 1.5}
+Cluster 2: {5.0, 6.0}
+
+== IMPORTANT NOTE ==
+- GMM naturally gives probabilities.
+- Even though assignment is hard for clustering, the "soft" assignment helps in downstream tasks (like semi-supervised learning or anomaly detection).
+
+
+
+#-----------------------------------------------------------------------------------------------#
+#----------------- Example for 2D Unsupervised Learning or Clustering --------------------------#
+#-----------------------------------------------------------------------------------------------#
+
+== SETUP ==
+We have 4 points, each 2D:
+
+    x₁ = (1.0, 2.0)
+    x₂ = (1.5, 1.8)
+    x₃ = (5.0, 6.0)
+    x₄ = (6.0, 5.5)
+
+We want to find K = 2 clusters.
+
+== INITIAL PARAMETERS (ASSUMED) ==
+Cluster 1:
+    μ₁ = (1.0, 2.0)
+    Σ₁ = [[1, 0], [0, 1]]  # Identity matrix (no correlation)
+
+Cluster 2:
+    μ₂ = (5.5, 5.5)
+    Σ₂ = [[1, 0], [0, 1]]  # Identity matrix
+
+Mixing weights:
+    π₁ = 0.5
+    π₂ = 0.5
+
+== STEP 1: E-STEP (Calculate Responsibilities) ==
+Multivariate Gaussian density formula:
+
+    N(x | μ, Σ) = (1 / (2π√|Σ|)) * exp(-0.5 * (x - μ)ᵀ Σ⁻¹ (x - μ))
+
+Σ (sigma) is the covariance matrix of the multivariate Gaussian (normal) distribution.
+Since Σ = Identity, Σ⁻¹ = Identity, |Σ| = 1.
+
+Simplified:
+
+    N(x | μ) = (1 / (2π)) * exp(-0.5 * [(x₁-μ₁)² + (x₂-μ₂)²])
+
+Constant:
+
+    1 / (2π) ≈ 0.1592
+
+Now compute:
+
+--- For x₁ = (1.0, 2.0) ---
+
+Distance to μ₁:
+    (1.0-1.0)² + (2.0-2.0)² = 0
+
+Distance to μ₂:
+    (1.0-5.5)² + (2.0-5.5)²
+    = (20.25) + (12.25) = 32.5
+
+N(x₁|μ₁) = 0.1592 * exp(-0.5 * 0) = 0.1592
+N(x₁|μ₂) = 0.1592 * exp(-0.5 * 32.5)
+         ≈ 0.1592 * exp(-16.25)
+         ≈ 0.1592 * 8.81e-8
+         ≈ 1.4e-8
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 0.1592) / (0.5 * (0.1592 + 1.4e-8))
+          ≈ 0.0796 / 0.0796
+          ≈ ~1.0
+
+    γ(z₂) ≈ ~0.0
+
+--- For x₂ = (1.5, 1.8) ---
+
+Distance to μ₁:
+    (1.5-1.0)² + (1.8-2.0)²
+    = (0.25) + (0.04) = 0.29
+
+Distance to μ₂:
+    (1.5-5.5)² + (1.8-5.5)²
+    = (16.0) + (13.69) = 29.69
+
+N(x₂|μ₁) = 0.1592 * exp(-0.5 * 0.29)
+         ≈ 0.1592 * exp(-0.145)
+         ≈ 0.1592 * 0.8652
+         ≈ 0.1377
+
+N(x₂|μ₂) = 0.1592 * exp(-0.5 * 29.69)
+         ≈ 0.1592 * exp(-14.845)
+         ≈ 0.1592 * 3.59e-7
+         ≈ 5.7e-8
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 0.1377) / (0.5 * (0.1377 + 5.7e-8))
+          ≈ 0.06885 / 0.06885
+          ≈ ~1.0
+
+    γ(z₂) ≈ ~0.0
+
+--- For x₃ = (5.0, 6.0) ---
+
+Distance to μ₁:
+    (5.0-1.0)² + (6.0-2.0)²
+    = (16) + (16) = 32
+
+Distance to μ₂:
+    (5.0-5.5)² + (6.0-5.5)²
+    = (0.25) + (0.25) = 0.5
+
+N(x₃|μ₁) = 0.1592 * exp(-0.5 * 32)
+         ≈ 0.1592 * exp(-16)
+         ≈ 0.1592 * 1.12e-7
+         ≈ 1.8e-8
+
+N(x₃|μ₂) = 0.1592 * exp(-0.5 * 0.5)
+         ≈ 0.1592 * exp(-0.25)
+         ≈ 0.1592 * 0.7788
+         ≈ 0.124
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 1.8e-8) / (0.5 * (1.8e-8 + 0.124))
+          ≈ 9e-9 / 0.062
+          ≈ ~0.0
+
+    γ(z₂) ≈ ~1.0
+
+--- For x₄ = (6.0, 5.5) ---
+
+Distance to μ₁:
+    (6.0-1.0)² + (5.5-2.0)²
+    = (25) + (12.25) = 37.25
+
+Distance to μ₂:
+    (6.0-5.5)² + (5.5-5.5)²
+    = (0.25) + (0.0) = 0.25
+
+N(x₄|μ₁) = 0.1592 * exp(-0.5 * 37.25)
+         ≈ 0.1592 * exp(-18.625)
+         ≈ 0.1592 * 8.25e-9
+         ≈ 1.31e-9
+
+N(x₄|μ₂) = 0.1592 * exp(-0.5 * 0.25)
+         ≈ 0.1592 * exp(-0.125)
+         ≈ 0.1592 * 0.8825
+         ≈ 0.1405
+
+Responsibilities:
+
+    γ(z₁) ≈ (0.5 * 1.31e-9) / (0.5 * (1.31e-9 + 0.1405))
+          ≈ 6.55e-10 / 0.07025
+          ≈ ~0.0
+
+    γ(z₂) ≈ ~1.0
+
+== SUMMARY OF RESPONSIBILITIES ==
+|  (x₁, x₂)  | γ(z₁) (Cluster 1) | γ(z₂) (Cluster 2) |
+|------------|-------------------|-------------------|
+| (1.0, 2.0) |     ~1.0          |      ~0.0         |
+| (1.5, 1.8) |     ~1.0          |      ~0.0         |
+| (5.0, 6.0) |     ~0.0          |      ~1.0         |
+| (6.0, 5.5) |     ~0.0          |      ~1.0         |
+
+== STEP 2: CLUSTER ASSIGNMENT ==
+Assign based on higher responsibility:
+
+- (1.0, 2.0) → Cluster 1
+- (1.5, 1.8) → Cluster 1
+- (5.0, 6.0) → Cluster 2
+- (6.0, 5.5) → Cluster 2
+
+== FINAL CLUSTERS ==
+Cluster 1: {(1.0, 2.0), (1.5, 1.8)}
+Cluster 2: {(5.0, 6.0), (6.0, 5.5)}

@@ -1,0 +1,73 @@
+# !pip3 install pyECLAT
+# !pip3 install mlxtend
+
+from pyECLAT import ECLAT
+import pandas as pd
+
+data = {
+    'T1': ['milk', 'bread', 'nuts'],
+    'T2': ['milk', 'bread'],
+    'T3': ['milk', 'bread', 'apple'],
+    'T4': ['milk', 'bread', 'apple'],
+    'T5': ['milk', 'bread', 'apple']
+}
+df_transaction = pd.DataFrame.from_dict(data, orient='index')
+
+eclat_instance = ECLAT(data=df_transaction.reset_index(drop=True), verbose=True, sep)
+
+transaction_id_set = eclat_instance.fit(min_support=0.3, min_combination=2, max_combination=3, separator=' & ')
+#print(transaction_id_set)
+
+
+# eclat_instance.data => original dataframe
+# eclat_instance.df_bin => one-hot encoded dataframe
+# eclat_instance.uniq_ => return a list of all items (1-itemset)
+# eclat_instance.support() => Return a dictionary. The key is the feature (1-itemset) and value is support
+
+
+##################################################################################################################
+############# Create frequent_itemsets from transaction_id_set and eclat_instance.support ########################
+##################################################################################################################
+
+individual_item = eclat_instance.support()
+del individual_item[None] #use this if there is None in individual_item dictionary
+
+# Fix individual items to be singleton lists
+itemset_lst = [[item] for item in individual_item.keys()] + [itemset.split(' & ') for itemset in transaction_id_set[1].keys()]
+support_lst = list(individual_item.values()) + list(transaction_id_set[1].values())
+
+frequent_itemsets = pd.DataFrame({
+    'support': support_lst,
+    'itemsets': itemset_lst
+})
+
+# Now safely convert to frozenset
+frequent_itemsets['itemsets'] = df_tid['itemsets'].apply(frozenset)
+
+print(frequent_itemsets)
+
+######################################################################################
+############### Apply association_rules for frequent_itemsets ########################
+######################################################################################
+
+from mlxtend.frequent_patterns import association_rules
+
+## Find association rules within itemsets
+asc_rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.3, #Run with minimum confidence threshold = 0.3
+                             return_metrics=['support', 'confidence', 'lift', 'leverage', 'conviction'])
+print(asc_rules)
+
+
+#Run with lift
+asc_rules = association_rules(frequent_itemsets, metric='lift', min_threshold=1.1, asc_rules #Run with minimum lift threshold = 1.1
+                              return_metrics=['support', 'confidence', 'lift', 'leverage', 'conviction'])
+print(asc_rules)
+
+
+for row in asc_rules.iterrows():
+	if "milk" in row[1][0]:
+		print(row)
+
+support = asc_rules['support'].values
+confidence = asc_rules['confidence'].values
+lift = asc_rules['lift'].values

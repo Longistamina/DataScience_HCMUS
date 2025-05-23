@@ -1,0 +1,177 @@
+-- 1a.-----------------------
+SELECT `Ma_sinh_vien`,
+	concat(`Ho`, ' ', `Ten`) as Ho_ten,
+        CASE
+        	WHEN `Gioi_tinh`='True' THEN 'Nam'
+            ELSE 'Nu'
+        END AS Gioi_tinh,
+        `Ngay_sinh`,
+        `Hoc_bong`
+FROM `sinh_vien`;
+
+
+
+--1b.---------------------------
+SELECT `Ma_sinh_vien`,
+	concat(`Ho`, ' ', `Ten`) as Ho_ten,
+        `Hoc_bong`,
+        `Ma_khoa`
+FROM `sinh_vien`
+ORDER BY `Hoc_bong` DESC 
+LIMIT 10;
+
+
+
+--2a.----------------------------------------
+SELECT sv.Ma_sinh_vien, 
+       sv.Ho, sv.Ten, 
+       sv.Ngay_sinh, sv.Gioi_tinh, 
+       sv.Ma_khoa, kh.Ten
+FROM `sinh_vien` sv JOIN `khoa` kh ON sv.Ma_khoa=kh.Ma_khoa;
+
+
+--2b.-----------------------------
+SELECT sv.Ma_sinh_vien,
+       concat(`Ho`, ' ', `Ten`) as Ho_ten,
+       kq.Ma_mon, kq.Diem
+FROM sinh_vien sv JOIN ket_qua kq ON sv.Ma_sinh_vien=kq.Ma_sinh_vien;
+
+
+
+--2c.-----------------------------
+SELECT sv.Ma_sinh_vien,
+       concat(sv.`Ho`, ' ', sv.`Ten`) as Ho_ten,
+       sv.Ngay_sinh,
+       kq.Ma_mon
+FROM sinh_vien sv JOIN ket_qua kq
+WHERE (kq.Ma_mon='CSD1') OR (kq.Ma_mon='CSD2');
+
+
+
+--2d.------------------------------------
+
+SELECT sv.Ma_sinh_vien,
+       concat(sv.`Ho`, ' ', sv.`Ten`) as Ho_ten,
+       sv.Ngay_sinh,
+       kq.Diem
+FROM sinh_vien sv JOIN ket_qua kq
+WHERE kq.Diem=10
+LIMIT 10;
+
+
+--2e.------------------------------------
+SELECT sv.Ma_sinh_vien,
+       concat(sv.`Ho`, ' ', sv.`Ten`) as Ho_ten,
+       sv.Ngay_sinh,
+       kq.Ma_mon,
+       mh.Ten,
+       kq.Diem
+FROM sinh_vien sv JOIN ket_qua kq ON sv.Ma_sinh_vien=kq.Ma_sinh_vien
+				  JOIN mon_hoc mh ON kq.Ma_mon=mh.Ma_mon
+WHERE ((kq.Ma_mon='TOA1') OR (kq.Ma_mon='TOA2')) AND (kq.Diem>5);
+
+
+--2f.--------------------
+SELECT mh.Ma_mon, mh.Ten, kq.Ma_sinh_vien
+FROM `mon_hoc` mh LEFT OUTER JOIN ket_qua kq ON mh.Ma_mon=kq.Ma_mon
+WHERE kq.Ma_sinh_vien IS NULL;
+
+
+--2g.--------------------
+SELECT mh.Ma_mon, mh.Ten, kq.Ma_sinh_vien
+FROM `mon_hoc` mh RIGHT OUTER JOIN ket_qua kq ON mh.Ma_mon=kq.Ma_mon
+WHERE mh.Ma_mon IS NULL;
+
+
+--3a.---------------------
+SELECT * FROM
+(
+SELECT sv.Ma_khoa, COUNT(*) as Tong_so_sv
+FROM `sinh_vien` sv
+GROUP BY sv.Ma_khoa
+) as q
+ORDER BY Tong_so_sv ASC;
+
+--3b.---------------------
+SELECT * FROM
+(
+SELECT sv.Ma_khoa, SUM(sv.Hoc_bong) as Tong_hoc_bong
+FROM `sinh_vien` sv
+GROUP BY sv.Ma_khoa
+) as q
+WHERE Tong_hoc_bong>=150000000;
+
+
+--3c.-------------------------
+SELECT sv.Ma_sinh_vien,
+       concat(sv.Ho, ' ', sv.Ten) as Ho_ten,
+       AVG(kq.Diem) as Diem_trung_binh
+FROM sinh_vien sv JOIN ket_qua kq on sv.Ma_sinh_vien=kq.Ma_sinh_vien
+GROUP BY sv.Ma_sinh_vien, Ho_ten;
+
+
+--3d.------------------------
+SELECT sv.Ma_khoa, khoa.Ten, 
+       AVG(kq.Diem) AS Diem_trung_binh
+FROM khoa JOIN sinh_vien sv ON khoa.Ma_khoa = sv.Ma_khoa 
+	  JOIN ket_qua kq ON sv.Ma_sinh_vien = kq.Ma_sinh_vien
+GROUP BY sv.Ma_khoa, khoa.Ten;
+
+
+--3e.-----------------------
+SELECT *,
+       CASE
+       	    WHEN Diem_trung_binh <5 THEN 'Yeu'
+            WHEN Diem_trung_binh>=5 AND Diem_trung_binh<6.5 THEN 'Trung binh'
+            WHEN Diem_trung_binh>=6.5 AND Diem_trung_binh<8 THEN 'Kha'
+            ELSE 'Gioi'
+       END as Xep_loai
+FROM
+(
+SELECT sv.Ma_sinh_vien,
+       concat(sv.Ho, ' ', sv.Ten) as Ho_ten,
+       AVG(kq.Diem) as Diem_trung_binh
+FROM sinh_vien sv JOIN ket_qua kq on sv.Ma_sinh_vien=kq.Ma_sinh_vien
+GROUP BY sv.Ma_sinh_vien, Ho_ten
+) AS subquery;
+
+
+--3f.---------------------
+SELECT DISTINCT * FROM
+(
+SELECT 
+    kq.Ma_mon, 
+    mh.Ten, 
+    kq.Diem,
+    DENSE_RANK() OVER(PARTITION BY kq.Ma_mon ORDER BY kq.Diem DESC) AS Ranking
+FROM ket_qua kq JOIN mon_hoc mh ON kq.Ma_mon = mh.Ma_mon
+) as subquery
+WHERE Ranking=1;
+
+
+--3g.------------------
+SELECT kq.Ma_mon, mh.Ten,
+	   COUNT(*) AS So_sv_dang_ky
+FROM ket_qua kq JOIN mon_hoc mh ON kq.Ma_mon=mh.Ma_mon
+GROUP BY kq.Ma_mon, mh.Ten;
+
+
+--3h.------------------
+SELECT * FROM
+(
+SELECT kq.Ma_mon, mh.Ten,
+	   COUNT(*) AS So_sv_dang_ky
+FROM ket_qua kq JOIN mon_hoc mh ON kq.Ma_mon=mh.Ma_mon
+GROUP BY kq.Ma_mon, mh.Ten
+) as subquery
+ORDER BY So_sv_dang_ky DESC
+LIMIT 1;
+
+
+--3i.--------------------
+SELECT kq.Ma_mon, mh.Ten, 
+       COUNT(CASE WHEN kq.Diem >= 5 THEN 1 END) AS So_sv_dau,
+       COUNT(CASE WHEN kq.Diem < 5 THEN 1 END) AS So_sv_rot
+FROM ket_qua kq JOIN mon_hoc mh ON kq.Ma_mon = mh.Ma_mon
+GROUP BY kq.Ma_mon, mh.Ten;
+

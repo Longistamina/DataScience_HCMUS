@@ -1,0 +1,93 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+df = pd.read_.....
+
+#---------------------------------------------------#
+#--------------------- problems --------------------#
+#---------------------------------------------------#
+
+If we use too much features / inputs to train model
+=> Can cause overfitting
+=> Can make the training time longer
+
+=> CHOOSE ESSENTIAL FEATURES ONLY
+
+
+
+#---------------------------------------------------------------------------------#
+#--------------------- Method 1: correlation matrix + heatmap --------------------#
+#---------------------------------------------------------------------------------#
+
+df.corr() #Create the correlation matrix
+
+#Check the corr efficient between Y and X1, X2, X3,...
+# If absolute(corr effi) Y~Xn is too low (<0.5), then we can eliminate Xn feature out of the model
+# If absolute(corr effi) Y~Xn is high enough (>=0.6), add this Xn feature to model
+
+
+#Or draw a heatmap to visualize correlation matrix, then select
+plt.figure(figsize=(15,7))
+g = sbn.heatmap(df.corr(), cmap='RdYlGn', annot=True) #Rd is Red, Yl is Yellow, and Gn is Green
+plt.show()
+
+
+#---------------------------------------------------------------------------------------#
+#--------------------- Method 2: use Select K best features Library --------------------#
+#---------------------------------------------------------------------------------------#
+
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
+
+# Apply SelectKBest class to extract all best features
+k_best = SelectKBest(score_func=f_regression, k='all').fit(x, y)
+
+#Create a dataframe Feature_name : Score
+df_k_best_score = pd.DataFrame({
+    'Feature_name':x.columns,
+    'Score':k_best.scores_
+})
+
+#Sort in descending order
+df_k_best_score.sort_values('Score', ascending=False)
+
+#print(df_k_best_score.sort_values('Score', ascending=False))
+
+#The bigger the score/weight that feature has, the more important that feature is
+
+
+#---------------------------------------------------------------#
+#--------------------- score_func to select --------------------#
+#---------------------------------------------------------------#
+
+f_classif
+=> ANOVA F-value between label/feature for classification tasks.
+
+mutual_info_classif
+=> Mutual information for a discrete target.
+
+chi2
+=> Chi-squared stats of non-negative features for classification tasks.
+
+f_regression
+=> F-value between label/feature for regression tasks.
+
+mutual_info_regression
+=> Mutual information for a continuous target.
+
+SelectPercentile
+=> Select features based on percentile of the highest scores.
+
+SelectFpr
+=> Select features based on a false positive rate test.
+
+SelectFdr
+=> Select features based on an estimated false discovery rate.
+
+SelectFwe
+=> Select features based on family-wise error rate.
+
+GenericUnivariateSelect
+=> Univariate feature selector with configurable mode.

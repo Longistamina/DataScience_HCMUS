@@ -1,0 +1,50 @@
+#------------------------------------#
+#-------LU decompostition------------#
+#------------------------------------#
+
+Formula: A = Pt.L.U
+Or P.A = L.U
+(P is orthonormal: P.Pt = P.inv(P) = In )
+
+L = Lower triangle matrix, containing diagonal 1
+U = Upper triangle matrix
+P = Pivotal matrix, a pivoted unit matrix shows the steps how the original matrix is pivoted
+
+Pt, L, U = scipy.linalg.lu(matrix)
+
+LU, Per = scipy.linalg.lu_factor(matrix)
+#Function scipy.linalg.lu_factor(matrix) returns an array containing two sub_arrays
+#The first sub_array is the LU matrix, which is equal to L + U - diag(L) (Its index is lu_factor(matrix)[0])
+#The second sub_array is the permutational array (Its index is lu_factor(matrix)[1])
+
+#About the permutational array, for example Per = [3,2,4,5]
+#Per[0] = 3 means permutate the row[0] of unit matrix with its row[3]
+#Per[1] = 2 means permutate the row[1] of unit matrix with its row[2]... and so on
+
+
+#------------------------------------#
+#-------QR decompostition------------#
+#------------------------------------#
+
+Formula: A = Q.R
+Where Q is a square matrix having orthonormal columns, meaning Qt.Q = In
+      R is an upper triangle and inversible matrix
+
+Q, R = scipy.linalg.qr(matrix)
+#The scipy.linalg.qr(matrix) function returns an array contains two matrix
+#The first matrix is Q matrix, it has orthonormal columns, meaning Q.Qt = Q.inv(Q) = In
+#The second matrix is R matrix, it is an upper triangle matrix and inversable
+#And the A = Q.R
+
+
+#------------------------------------------#
+#-------Cholesky decompostition------------#
+#------------------------------------------#
+
+Formula: A = L.Lt = Ut.U
+meaning L = Ut, and Lt = U
+
+Note: Only applied for square symmetrical matrix having all positive eigenvalues
+
+## numpy.linalg.cholesky: Default --> return LOWER (L) matrix
+## scipy.linalg.cholesky: Default --> return UPPER (U) matrix 

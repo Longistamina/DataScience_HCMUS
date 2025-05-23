@@ -1,0 +1,43 @@
+In a multiclass classification setting with K classes, the cross-entropy loss is defined as:
+H(y, p) = -∑(i=1 to K) y_i log(p_i)
+
+Where:
+# y_i is an indicator (0 or 1) - equals 1 only for the true class and 0 for all other classes
+# p_i is the predicted probability for class i
+# the minus sign "-" is added to convert the H(y, p) into positive values
+
+For a single data point with true class k, this simplifies to: 
+	H(y, p) = -log(p_k)
+
+This is because y_i = 0 for all i ≠ k, so all those terms disappear from the sum.
+
+In Naive Bayes, p_k represents P(y=k|x), which is calculated using Bayes' rule:
+P(y=k|x) = P(x|y=k)P(y=k) / P(x)
+
+Where:
+# P(x|y=k) is the likelihood of seeing features x given class k
+# P(y=k) is the prior probability of class k
+# P(x) is the evidence (normalization term)
+
+
+#------------------------------------------------------#
+#----------------- Example -----------------------------#
+#------------------------------------------------------#
+
+Let's consider a text classification example with three classes: "Sports", " Politics",  and "Technology".
+
+Assume we have a document with the words: "president election debate"
+
+Our Naive Bayes model has calculated the following probabilities:
+# P(Sports . document) = 0.05
+# P(Politics . document) = 0.85
+# P(Technology . document) = 0.10
+
+If the true class is "Politics", then:
+# The one-hot encoded true label would be y = [0, 1, 0]
+# The predicted probabilities are p = [0.05, 0.85, 0.10]
+
+The cross-entropy loss would be:
+H(y, p)  = -(0×log(0.05) + 1×log(0.85) + 0×log(0.10))
+      = -log(0.85)
+      = 0.163

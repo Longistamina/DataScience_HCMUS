@@ -1,0 +1,15 @@
+Vào ngày 15 tháng 4 năm 1912, trong chuyến hành trình đầu tiên của mình, tàu Titanic đã gặp tai nạn sau khi va chạm với một tảng băng trôi, đã có 1502 người mãi mãi ra đi trong tổng số 2224 hành khách và phi hành đoàn.
+
+Thông tin về Titanic Disaster có thể xem tại: https://www.kaggle.com/c/titanic/data
+
+Dựa trên tập tin train.csv, hãy hoàn tất file đính kèm để phân tích về Titanic Disaster:
+1. a) Đọc dữ liệu từ tập tin train.csv và lưu vào biến titanic. Hiển thị 5 dòng dữ liệu đầu của titanic.
+b) Thiết lập cột index cho titanic là PassengerId. Hiển thị lại 5 dòng dữ liệu đầu của titanic lúc này.
+2. Tạo pie chart thể hiện tỷ lệ hành khách nam/nữ trên tàu
+3. Cho biết có bao nhiêu người còn sống sót
+4. Vẽ biểu đồ histogram của cột vé (Fare)
+Bạn nhận xét gì về biểu đồ vừa vẽ.
+
+
+https://drive.google.com/file/d/1f0-h20DcIbT2droAo5OFj5nt1dQEfBLc/view
+https://drive.google.com/file/d/1yCemzwVklToPAO0k6L-eb5a1TUaRYOCA/view

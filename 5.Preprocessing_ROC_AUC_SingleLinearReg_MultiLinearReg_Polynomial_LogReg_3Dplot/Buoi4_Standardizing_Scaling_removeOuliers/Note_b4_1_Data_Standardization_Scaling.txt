@@ -1,0 +1,202 @@
+Data can come from many sources (Excel, csv,...) => must standardize to a common format/structure (facility teamwork)
+Unify the measure unit into one unit type only (kg, lbs,...)
+
+
+#---------------------------------------------------------------------------------#
+#-----------------Log normalization (ln) (reduce right skewness)------------------#
+#---------------------------------------------------------------------------------#
+
+Using logarith function to transform data
+
+Often used to reduce the right skewness of data
+
+So check the skewness, if skewness > 0, then use log
+(can't use log if skewness <0)
+
+Use log napier (ln) ~~~ np.log(data)
+
+When to use:
+	+when data is right skewed (skewness > 0)
+	+If the data changes exponentially (thay doi theo cap so nhan)
+	+Variance of the data is too large (meaning the data distributes widely)
+
+#---------------------------------------------------------------------------------------------#
+#-----------------Feature scaling (for continuous data only, not categorical)------------------#
+#---------------------------------------------------------------------------------------------#
+
+Apply for a set of MANY variables/features of the data
+
+It helps reduce the weight gap between variables, helps equalize the contribution of all variables in the AI model
+
+If the model we are using has the euclid distance sqrt( (x1-x2)^2 + (y1-y2)^2 ), it will be very sensitive to MAGNITUDE (do lon)
+=> Use feature scaling to reduce this magnitude or weight gap
+
+Some algorithms that NEED data feature scaling: PCA, Gradient descent, K-nearest neighbors, K-means, Logistic regression, Linear discriminant analysis (LDA)
+
+Meanwhile, Naive Bayes, Tree-based models,... DON"T NEED feature scaling because they are not based on distance or euclid distance
+
+Use sklearn.preprocessing library:
+	+StandardScaler
+	+MinMaxScaler
+	+RobustScaler
+	+Binarizer
+	+.....
+
+#---------------------------------------------------------------------------------------#
+#-----------------StandardScaler (approximate normal distribution data------------------#
+#---------------------------------------------------------------------------------------#
+Formula:                  (xi - mean(x)) / std(x)
+
+StandardScaler: used when the variables have gaussian distribution (normal distribution) or approximate normal distribution (mean ~ 0, std ~ 1)
+
+
+Can train model 2 times with raw data, and with standard-scaled data, then examine the effectiveness of StandardScaler
+
+###code start
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler() #Create a StandardScaler object named "scaler"
+
+df_scale = scaler.fit_transform(df_raw) #apply the StandardScaler method on raw dataframe df_raw, store the results in df_scale variable
+					# "fit" means building model, it uses df_raw to train StandardScaler model, to choose most suitable parameters
+					# "transform" means using the trained model to transform or the df_raw into df_scale
+
+df_scale = pd.DataFrame(df_scale, columns=df_raw.columns) #Result of scaler.fit_transform() is a pandas series, so have to convert back into dataframe
+
+#Draw all kde distribution line plot of three features col_1, col_2 and col_3 in df_scale to check the result of StandardScaler
+f, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(6,5))
+sbn.kdeplot(df_scale['col_1'], ax = ax1)
+sbn.kdeplot(df_scale['col_2'], ax = ax1)
+sbn.kdeplot(df_scale['col_3'], ax = ax1)
+plt.show()
+###code end
+
+
+#---------------------------------------------------------------------------#
+#-----------------MinMaxScaler (non-gaussian, no outliers)------------------#
+#---------------------------------------------------------------------------#
+Formula:               (xi - min(x)) / (max(x) - min(x))
+
+Use when our features/variables do not respect normal distribution, and don't have outliers
+
+It will reduce the distribution in range [0,1] or [-1,1] in case there are negative values in the feature
+
+This scaler method however will not work well with data containing outliers
+=> must CHECK (use boxplot or use np.std(), if std is small then maybe no outliers)
+=> if have outliers, use RobustScaler
+
+###code start
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler() #Create a MinMaxScaler object named "scaler"
+
+df_scale = scaler.fit_transform(df_raw) #apply the MinMaxScaler method on raw dataframe df_raw, store the results in df_scale variable
+					# "fit" means building model, it uses df_raw to train MinMaxScaler model, to choose most suitable parameters
+					# "transform" means using the trained model to transform or the df_raw into df_scale
+
+df_scale = pd.DataFrame(df_scale, columns=df_raw.columns) #Result of scaler.fit_transform() is a pandas series, so have to convert back into dataframe
+
+#Draw all kde distribution line plot  to check the result of MinMaxScaler
+f, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9,7))
+sbn.kdeplot(df_raw['col'], ax = ax1)
+ax1.set_title("Before scaling")
+
+sbn.kdeplot(df_scale['col'], ax = ax2)
+ax2.set_title("After scaling")
+plt.show()
+###code end
+
+MinMaxScaler does not affect correlation coefficients
+use df_raw.corr() and df_scaled.corr() to check
+
+#---------------------------------------------------------------------------#
+#-----------------RobustScaler (containing outliers data)------------------#
+#---------------------------------------------------------------------------#
+Formula:        (xi - Q1(x)) / (Q3(x) - Q1(x) or (xi - Q1(x)) / IQR
+
+It use only data points within IQR (Q1 < x < Q3) for scaling, therefore not being affected by outliers
+
+If the raw data has 2 outliers, after applying RobustScaler, the scaled data will also contain 2 outliers
+
+###code start
+from sklearn.preprocessing import RobustScaler
+
+scaler = RobustScaler() #Create a RobustScaler object named "scaler"
+
+df_scale = scaler.fit_transform(df_raw) #apply the RobustScaler method on raw dataframe df_raw, store the results in df_scale variable
+					# "fit" means building model, it uses df_raw to train RobustScaler model, to choose most suitable parameters
+					# "transform" means using the trained model to transform or the df_raw into df_scale
+
+df_scale = pd.DataFrame(df_scale, columns=df_raw.columns) #Result of scaler.fit_transform() is a pandas series, so have to convert back into dataframe
+
+#Draw all kde distribution line plot  to check the result of RobustScaler
+f, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9,7))
+sbn.kdeplot(df_raw['col'], ax = ax1)
+ax1.set_title("Before scaling")
+
+sbn.kdeplot(df_scale['col'], ax = ax2)
+ax2.set_title("After scaling")
+plt.show()
+
+#Can draw one more boxplot to check the outliers after scaling the data
+
+###code end
+
+RobustScaler does not affect correlation coefficients
+use df_raw.corr() and df_scaled.corr() to check
+
+
+#----------------------------------------------------------------------------------#
+#-----------------Binarizer (convert continuous in to binary 0|1)------------------#
+#----------------------------------------------------------------------------------#
+Principale: set a threshold, if xi > threshold => 1
+			     if xi < threshold => 0
+
+###code start
+from sklearn.preprocessing import Binarizer
+
+scaler = Binarizer(threshold=1) #Create a Binarizer object named "scaler", with threshold=1
+
+df_scale = scaler.fit_transform(df_raw) #apply the Binarizer method on raw dataframe df_raw, store the results in df_scale variable
+				
+df_scale = pd.DataFrame(df_scale, columns=df_raw.columns) #Result of scaler.fit_transform() is a pandas series, so have to convert back into dataframe
+
+df_raw, df_scale #display dataframe in jupyter to check
+
+###code end
+
+#-----------------------------------------------------------------------------------------------------------------------------------------#
+#-----------------Normalizer (transform data so that the distance from each data point to mean (central) is all equal 1)------------------#
+#-----------------------------------------------------------------------------------------------------------------------------------------#
+Assume we have 3 variables/features: x, y and z
+Normalizer formula:
+	xi_new = xi / sqrt(xi^2 + yi^2 + zi^2)
+	yi_new = yi / sqrt(xi^2 + yi^2 + zi^2)
+	zi_new = zi / sqrt(xi^2 + yi^2 + zi^2)
+
+###code start
+
+from mpl_toolkits.mplot3d import Axes3D #Import this to draw 3D plot
+
+#Draw raw 3D data (a dataframe with 3 columns A, B and C)
+f = plt.figure(figsize=(6,6))
+ax = f.add_subplot(111, projection="3d")
+ax.scatter(df_raw['A'], df_raw['B'], df_raw['C'])
+plt.show()
+
+from sklearn.preprocessing import Normalizer
+
+scaler = Normalizer() #Create a Binarizer object named "scaler"
+
+df_scale = scaler.fit_transform(df_raw) #apply the Normalizer  method on raw dataframe df_raw, store the results in df_scale variable
+				
+df_scale = pd.DataFrame(df_scale, columns=df_raw.columns) #Result of scaler.fit_transform() is a pandas series, so have to convert back into dataframe
+
+#Draw scaled 3D data (a dataframe with 3 columns A, B and C)
+f = plt.figure(figsize=(6,6))
+ax = f.add_subplot(111, projection="3d")
+ax.scatter(df_scale['A'], df_scale['B'], df_scale['C'])
+plt.show()
+#Since all the distances are now equal 1, the 3D scatter plot will bear a spherical shape
+
+###code end

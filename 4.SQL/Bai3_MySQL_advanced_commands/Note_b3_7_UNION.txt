@@ -1,0 +1,62 @@
+UNION dung de ket hop cac bo ket qua cua hai truy va SELECT voi nhau
+
+UNION ket hop theo vi tri cot, khong phai theo ten cot
+=> Cac kieu du lieu trong tung cot tuong ung phai khop voi nhau (INT-INT, DECIMAL-DECIMAl, VARCHAR-VARCHAR,...)
+
+UNION con goi la phep nhan giua hai bang
+
+
+#---------------------------------------------------------------------------------------------------------------#
+
+SELECT CONCAT(FirstName, ' ', LastName) as First_Last_name, Country, City FROM `Customers`
+UNION
+SELECT Contactname, Country, City FROM `Suppliers`;
+-- Ket hop ket qua truy van bang `Customers` voi bang `Suppliers`
+-- Cot First_Last_name, Country, City FROM `Customers` tuong ung voi
+       Contactname, Country, City FROM `Suppliers`
+-- `Customers` co 91 rows
+-- `Suppliers` co 24 rows
+-- Sau khi UNION xong, nhung phan tu chung bi gom thanh 1, tao thanh mot bang co 120 rows
+-- Tuy nhien, se khong the phan biet duoc dau la Suppliers, dau la Customers
+
+#---------------------------------------------------------------------------------------------------------------#
+
+SELECT CONCAT(FirstName, ' ', LastName) as First_Last_name, Country, City FROM `Customers`
+UNION
+SELECT Contactname, Country, City FROM Suppliers
+ORDER BY First_Last_name;
+-- Neu them ORDERY BY, thi no se sap xep theo ket qua cua UNION, chu khong phai theo cac bang thanh phan
+
+
+#---------------------------------------------------------------------------------------------------------------#
+
+SELECT CONCAT(FirstName, ' ', LastName) as First_Last_name, 
+       'Customer' as Note,
+       Country, City FROM `Customers`
+UNION
+SELECT Contactname, 
+       'Supplier' as Note,
+       Country, City FROM Suppliers
+ORDER BY First_Last_name;
+-- Them mot cot Note de phan biet giua Supplier va Customer
+
+
+#---------------------------------------------------------------------------------------------------------------#
+
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, JOB_ID, DEPARTMENT_ID, 'Hien tai' as Note FROM `employees` WHERE EMPLOYEE_ID=101
+UNION
+SELECT EMPLOYEE_ID, '', '', JOB_ID, DEPARTMENT_ID, 'Qua khu' as NOTE FROM job_history WHERE EMPLOYEE_ID=101;
+-- Dung UNION de xem cong viec hien tai va qua khu cua NV 101
+-- Vi bang job_history khong co cot FIRST_NAME va LAST_NAME, nen phai chen hai vi tri '', '' vao de tuong ung voi phia tren
+
+
+
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, JOB_ID, DEPARTMENT_ID, 'Hien tai' as Note 
+FROM `employees` emp WHERE EMPLOYEE_ID=101 
+UNION
+SELECT jb.EMPLOYEE_ID, emp.FIRST_NAME, emp.LAST_NAME, jb.JOB_ID, jb.DEPARTMENT_ID, 'Qua khu' as NOTE 
+FROM job_history jb, employees emp 
+WHERE jb.EMPLOYEE_ID=emp.EMPLOYEE_ID AND emp.EMPLOYEE_ID=101;
+-- Hoac ket hop ca hai bang nhu sau de lay FIRST_NAME va LAST_NAME tu bang employees dap vao cho tuong ung
+
+

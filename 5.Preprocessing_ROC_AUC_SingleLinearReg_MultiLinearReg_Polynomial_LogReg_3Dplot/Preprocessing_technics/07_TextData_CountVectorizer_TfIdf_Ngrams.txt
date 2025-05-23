@@ -1,0 +1,185 @@
+#-------------------------------------------------------------------------#
+#---------------Text standardize (chuan hoa van ban)----------------------#
+#-------------------------------------------------------------------------#
+
+This step is to remove unwanted patterns out of the original text, to make it easier for following steps
+
+Some unwanted patterns need to be remove/replace: ":" "-" "," ......
+
+Can use regular expression, lowercase, remove, replace,...
+
+Should change all alphabet characters into lowercase because python distinguish lowercase and uppercase
+
+[a-zA-Z]: all alphabet characters (both lower and upper)
+[^a-zA-Z]: characters that are NOT all alphabet characters
+[^a-zA-Z0-9]: characters that are NOT all alphabet characters or NOT all digits
+
+For example:
+	speech_df['text'].str.replace('([^a-zA-Z])', ' ', regex=True)
+	speech_df['text'].str.lower() #convert to lower case
+
+
+#---------------------------------------------------------------------------------------------#
+#---------------Create advanced features to store standardized text data----------------------#
+#---------------------------------------------------------------------------------------------#
+
+speech_df['text_clean'] = speech_df['text'].str.replace('[^a-zA-Z0-9]', ' ', regex=True).lower() #standardize text data
+
+speech_df['word_count'] = speech_df['text_clean'].str.split(' ').str.len() #Count the number of words
+
+speech_df['char_count'] = speech_df['text_clean'].str.len() #Count the number of characters
+
+speech_df['avg_word_length'] = speech_df['char_count'] / speech_df['word_count'] #Calculate average length of each word
+
+
+#-----------------------------------------------------------------#
+#--------------Word count presentation (CountVectorizer)----------#
+#----------------------------------------------------------------- #
+
+Count the number of existence of each word inside one text
+
+Create a dataframe, the columns are the unique words across all texts (in alphabet order)
+The rows are the texts
+Each cell show the number of existence of each word inside a specific text
+
+	"go"	"here"	"i"	"love"
+text1    2        0      1         3
+text2    1        1      5         4
+text3    0        0      2         2
+
+This table is called "bag of words"
+
+###Use CountVectorizer library
+
+from sklearn.feature_extraction.text import CountVectorizer
+
+cnt_vtr = CountVectorizer()
+
+#cnt_vtr.fit(speech_df['text_clean'])
+#text_transformed = cnt_vtr.transform()
+
+text_transformed = cnt_vtr.fit_transform(speech_df['text_clean']) #return a CountVectorizer object
+
+text_transformed.toarray() #convert to array "bag of words"
+
+cnt_vtr.get_feature_names_out() #Get the list of unique words (also column names) across all texts
+
+text_transformed.shape
+=> (58, 9043)
+=> There are 58 texts (rows)
+=> There are 9043 unique words across all 58 texts (columns)
+
+df_text_transformed = pd.DataFrame(text_transformed, columns = cnt_vtr.get_feature_names_out().add_prefix('cv_'))
+#add_prefix('cv_') to avoid duplicated names
+
+df_text_transformed.head() #Show 5 first lines of the dataframe
+
+df_text_new = pd.concat([df, df_text_transformed], axis=1) #Add "bag of words" to original text dataframe
+
+
+###Use with min_df and max_df
+
+cnt_vtr2 = CountVectorizer(min_df=0.2, max_df=0.8)
+#Only gets the words whose existence rate in 20%-80% to form "bag of words", ignore the rest (<20% or >80%)
+
+text_transformed2 = cnt_vtr2.fit_transform(speech_df['text_clean']).toarray()
+
+text_transformed.shape
+=> (58, 818)
+=> A lot of words have been removed (reduce from 9043 to 818)
+
+
+#---------------------------------------------------------------------------------------------#
+#-------------Tf-Idf (Term frequency - Inverse document frequency) (TfidfVectorizer)----------#
+#---------------------------------------------------------------------------------------------#
+
+Some words may appear many times in the text, but can also be not important (like "a", "is", "of",...)
+
+Use Tf-Idf technique to find truly important words or terms
+
+Tf-Idf also decomposes texts into a list of unique words.
+But then, instead of counting for frequency of appearance, it calculates the weight (trong5 so61) of each word for each text
+=> higher weight ~ more important
+
+Formula:		W(x,y) = tf(x,y) * log( N / df(x) )
+
+	W(x,y) = weight of term "x" in text "y"
+	tf(x,y) = frequency of term "x" in text "y"
+	df(x) = number of texts containing term "x"
+	N = total number of texts
+
+Since Tf-Idf and CountVectorizer only differs in the method of calculating the value of "bag of words" cells
+=> all the parameters of these two are the same
+=> the table/array they return are also similar
+
+###Code
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+tfidf = TfidfVectorizer(max_features=200, stop_words='english')
+	#max_features: the maximum number of features/words to be extracted by tfidf
+	#stop_words:  list of words that are very common/unimportant and can be ignored while processing
+	#stop_words='english' to use the list of stopwords in english language created before by sklearn devs
+
+#Search "vietnamese stopwords" in google to find the list of stopwords of Vietnamese (same for other languages)
+#Then read that .txt file, convert to a list of stopwords and add to the function
+
+tfidf_transformed = tfidf.fit_transform(df['text_clean']).toarray()
+
+tfidf.get_feature_names_out()
+
+df_tfidf_transformed = pd.DataFrame(tfidf_transformed, columns = tfidf.get_feature_names_out().add_prefix('tf_'))
+
+
+df_tfidf_transformed.iloc[0].sort_values(ascending=False).head(10)
+#Print out first 10 terms having highest weights of the first text (in descending order)
+
+df_tfidf_transformed.sum().sort_values(ascending=False).head(10)
+#First 10 terms having highest weights across all the texts
+
+df_text_new = pd.concat([df, df_tfidf_transformed], axis=1)
+
+
+#----------------------------------------------------------------------------------------------#
+#-------------N-grams (for languages that have many word morphologies like Vietnames)----------#
+#----------------------------------------------------------------------------------------------#
+
+Besides single words, some languages like Vietnamese, Japanese, Chinese.. have "grouped words" 
+Example:"ngoan hien", "lanh loi",...
+
+Word "lanh" when goes with "loi" in "lanh loi" will have different meaning from "lanh chanh"
+
+=> Use N-grams technique (not Tf-Idf nor CountVectorizer)
+
+single word: happy
+bi-gram: verry happy
+tri-gram: never not happy
+=> Different meanings
+
+=> MUST use N-grams
+
+Generally, maximum N is 3 (3-gram or tri-gram), cause the larger the N, the more combinations of word,
+and the more storage (RAM) is occupied
+
+Assume we have 26 single words in a text
+	N=1: 	        26^1 words/columns
+	N=2 (bi-gram):  26^2 words/columns
+	N=3 (tri-gram): 26^3 words/columns
+
+ngram_range = (n1,n2)
+	(1,1): examine only single words (26^1)
+	(2,2): examine only bi-grams (26^2)
+	(1,2): examine both single words and bi-grams (26^1 + 26^2)
+	(1,3): examine single wors, bi-grams and tri-grams (26^1 + 26^2 + 26^3)
+	(2,3): examine only bi-grams and tri-grams (26^2 + 26^3)
+
+
+###Code
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+tfidf = TfidfVectorizer(max_features=200, stop_words='english', ngram_range=(2,2))
+
+#the rest codes are the same 
+
+#Why create only "american people" but not "people american"?
+=> tfidf will can calculate the frequency of each N-gram combination, and choose only the highest one to create feature

@@ -1,0 +1,28 @@
+#### Example 1: get col_names as items ###
+store_data = pd.read_csv('Data/store_data.csv')
+
+transaction_dict = {}
+
+for row in range(store_data.shape[0]):
+    transaction_id = f'T{row}'
+    item_lst = [col for col in store_data.columns if pd.notna(store_data.loc[row, col])]
+    transaction_dict[transaction_id] = item_lst
+
+df_transaction = pd.DataFrame.from_dict(data=transaction_dict, orient = 'index')
+
+print(df_transaction)
+
+
+### Example 2: use .groupby().agg(lambda x: list(x)).tolist() ###
+dataset_group = (
+    pd.read_csv('Data/dataset_group.csv', header=None)
+    .set_axis(['Date', 'Order', 'Items'], axis = 1) #set columns' names
+)
+
+transaction_id = dataset_group.groupby('Order')['Items'].agg(lambda x: list(x)).reset_index()['Order'].to_list()
+item_lst = dataset_group.groupby('Order')['Items'].agg(lambda x: list(x)).reset_index()['Items'].to_list()
+
+transaction_dict = {f'T{tid}': items for tid, items in zip(transaction_id, item_lst)}
+
+df_transaction = pd.DataFrame.from_dict(transaction_dict, orient='index')
+print(df_transaction)

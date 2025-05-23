@@ -1,0 +1,53 @@
+#------------------------------------------#
+#---------- Facebook Graph API ------------#
+#------------------------------------------#
+
+Access developers.facebook.com/docs/graph-api/using-graph-api
+
+List of accessible/query-able fields in Graph API: developers.facebook.com/docs/graph-api/reference
+
+
+
+
+#-----------------------------------------------------------------------#
+#---------- Connect Python - Facebook API - get fields data ------------#
+#-----------------------------------------------------------------------#
+
+*********** method1: use facebook.GraphAPI **********************
+
+import facebook #import facebook library
+
+access_token = '.....' #Get from above isntructions
+
+graph = facebook.GraphAPI(access_token) #Create an object named "graph" to work with Facebook GraphAPI
+
+
+info = graph.get_object(id='me', fields='name, email, birthday, gender')
+print(info) #It's a json type
+
+{
+"id": "4064440890459767",
+  "name": "Đỗ Phạm Thế Long",
+  "email": "dophamthelong03@gmail.com"
+.....}
+
+
+*********** method2: use request.get() **********************
+
+Go to developers.facebook.com/tools/explorer and choose the fields name to get information,
+get the URL:
+	https/graph.facebook.com/v22.0/me?fields=id,name
+	
+#v22.0 is the version, choose the latest version
+#fields=id,name are the information fields selected, can add in more fields like email, birthday,...
+
+
+
+import request
+
+token = "...."
+
+#Get user data
+ressult = request.get('https/graph.facebook.com/v22.0/me?fields=id,name&access_token' + token)
+result = result.json()
+print(result)

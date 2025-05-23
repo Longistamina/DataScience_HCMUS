@@ -1,0 +1,135 @@
+#--------------------------------------------------------#
+#----------- Classifier Decision Tree -------------------#
+#--------------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+data = pd.read_.....
+
+x = data['col1', 'col2',...]
+y = data['output']
+
+x_enc = pd.get_dummies(x, drop_first=True).astype(int)
+y_enc = pd.get_dummies(y, drop_first=True).astype(int)
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x_enc, y_enc, test_size = 0.2, random_state = 1)
+
+from sklearn.tree import DecisionTreeClassifier
+
+tree_model = DecisionTreeClassifier(criterion='gini', max_depth=None, min_samples_split=2, max_leaf_nodes=None)
+# criterion can be 'gini', 'entropy' or 'log_loss'
+# max_depth to define the depth level of the tree, can limit this depth to avoid overfitting
+# min_samples_split is the minimum sample size a group must have to be splitted lower than this threshold => no split)
+# max_leaf_nodes is to set the maximum threshold number of leaf nodes
+
+tree_model.fit(x_train, y_train)
+
+
+y_pred_test = tree_model.predict(x_test)
+
+#Use metrics like confusion_matrix, classification_report, ROC_Curve to evaluate the model
+
+
+##Visualize the tree
+from sklearn.tree import export_graphviz
+from IPython.display import Image
+import pydotplus
+
+dot_data = export_graphviz(tree_model, out_file=None, feature_name = x_enc.columns) #export to dot_data
+
+graph = pydotplus.graph_from_dot_data(dot_data) #create graph from dot_data
+
+Image(graph.create_png()) #show the graph from dot_data
+
+
+#-------------------------------------------------------#
+#----------- Regressor Decision Tree -------------------#
+#-------------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+data = pd.read_.....
+
+x = data['col1', 'col2',...]
+y = data['output']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x_enc, y_enc, test_size = 0.2, random_state = 1)
+
+from sklearn.tree import DecisionTreeRegressor
+
+tree_model = DecisionTreeRegressor(criterion=“squared_error”, max_depth=None, min_samples_split=2, max_leaf_nodes=None)
+# criterion can be “squared_error”, “friedman_mse”, “absolute_error”, “poisson”
+# max_depth to define the depth level of the tree, can limit this depth to avoid overfitting
+# min_samples_split is the minimum sample size a group must have to be splitted (if lower than this threshold => no split)
+# max_leaf_nodes is to set the maximum threshold number of leaf nodes
+
+tree_model.fit(x_train, y_train)
+
+
+y_pred_test = tree_model.predict(x_test)
+
+tree_model.score(x_train, y_train)
+tree_model.score(x_test, y_test)
+
+#With regression test, use mean_squared_error()
+
+##Visualize the tree
+from sklearn.tree import export_graphviz
+from IPython.display import Image
+import pydotplus
+
+dot_data = export_graphviz(tree_model, out_file=None, feature_name = x.columns) #export to dot_data
+
+graph = pydotplus.graph_from_dot_data(dot_data) #create graph from dot_data
+
+Image(graph.create_png()) #show the graph from dot_data
+
+
+#---------------------------------------------------------#
+#--------- Visulize tree without graphviz ----------------#
+#---------------------------------------------------------#
+
+***************** Get encoded feature names from Pipeline *******************************
+features = treeC_pipe.named_steps['Onehot_Encoder'].get_feature_names_out()
+print(feature_names)
+
+features_cleaned = [feat.replace("OneHotEnc__", "").replace("remainder__", "") for feat in feature_names]
+
+print(features_cleaned)
+
+del features
+
+
+****************** Visulize tree ****************************************
+
+from sklearn.tree import plot_tree
+import matplotlib.pyplot as plt
+
+# Assuming treeC_pipe is your pipeline with a decision tree classifier
+# Extract the trained decision tree classifier from your pipeline
+tree_classifier = treeC_pipe.named_steps['Tree_Classifier']
+
+# Create a figure with the desired size
+plt.figure(figsize=(15, 10))
+
+# Plot the tree
+plot_tree(tree_classifier, 
+          filled=True,  # Color nodes by class
+          feature_names= features_cleaned,  # If you have feature names
+          class_names=class_names,      # If you have class names
+          rounded=True,                 # Round node corners
+          proportion=False)             # Show counts instead of proportions
+
+# Add a title
+plt.title("Decision Tree Visualization")
+
+# Display the plot
+plt.show()

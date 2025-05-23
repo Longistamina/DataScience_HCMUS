@@ -1,0 +1,92 @@
+Reference link:
+
+BernoulliNB & MultinomialNB: https://www.youtube.com/watch?v=O2L2Uv9pdDA
+GaussianNB: https://www.youtube.com/watch?v=H3EjCKtlVog
+
+#---------------------------------------------------#
+#---------------- Code BernoulliNB -----------------#
+#---------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+
+df = pd.read_.....
+
+x = df[['Col1', 'Col2', 'Col3',...]]
+y = df['Class']
+
+x_dummies = pd.get_dummies(x, drop_first=True).astype(int)
+y_dummies = pd.get_dummies(y, drop_first=True).astype(int)
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x_dummies, y_dummies, test_size=0.3, random_state=1)
+
+
+from sklearn.naive_bayes import BernoulliNB
+nbBer = BernoulliNB().fit(x_train, y_train)
+
+y_test_pred  = nbBer.predict(x_test)
+y_test_proba = nbBer.predict(x_test)
+
+#Score, accuracy, confusion matrix, classification report, ROC AUC are the same as Logistic Regression
+
+
+#-----------------------------------------------------#
+#---------------- Code MultinomialNB -----------------#
+#-----------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+
+df = pd.read_.....
+
+x = df[['Col1', 'Col2', 'Col3',...]]
+y = df['Class']
+
+from sklearn.feature_extraction.text import CountVectorizer #Or TfidfVectorizer
+cvt = CountVectorizer(max_features=None, stop_words='english', ngram_range=(1,1))
+bag_of_words = cvt.fit_transform(x)
+x_bow = bag_of_words.to_array()
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x_bow, y, test_size=0.3, random_state=1)
+
+
+from sklearn.naive_bayes import MultinomialNB
+nbMulti = MultinomialNB().fit(x_train, y_train)
+
+y_test_pred  = nbMulti.predict(x_test)
+y_test_proba = nbMulti.predict(x_test)
+
+#Score, accuracy, confusion matrix, classification report, ROC AUC are the same as Logistic Regression
+
+new_text = "I love Vietnam!"
+nbMulti.predict(cvt.transform(new_text).to_array())
+
+
+#---------------------------------------------------#
+#---------------- Code GaussianNB ------------------#
+#---------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+
+df = pd.read_.....
+
+x = df[['Col1', 'Col2', 'Col3',...]]
+y = df['Class']
+
+y_dummies = pd.get_dummies(y, drop_first=True).astype(int)
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y_dummies, test_size=0.3, random_state=1)
+
+
+from sklearn.naive_bayes import GaussianNB
+nbGaus = GaussianNB().fit(x_train, y_train)
+
+y_test_pred  = nbGaus.predict(x_test)
+y_test_proba = nbGaus.predict(x_test)
+
+
+#Score, accuracy, confusion matrix, classification report, ROC AUC are the same as Logistic Regression

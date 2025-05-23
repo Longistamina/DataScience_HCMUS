@@ -1,0 +1,76 @@
+MySQL does not have pivot function like pandas.pivot() or pandas.pivot_table() in Python
+
+Therefore, the only way is using CASE to pivot the SQL table manually
+
+
+#---------- Unpivoted table ------------------#
+
+SELECT YEAR(HIRE_DATE) AS HIRE_YEAR, COUNT(*) AS Tong_so_nv_vao_lam_trong_nam
+FROM `employees`
+GROUP BY YEAR(HIRE_DATE)
+ORDER BY HIRE_YEAR;
+
+
+#------------- Pivot table using CASE_WHEN_THEN 1_ELSE 0_END_AS column_name -------------------------#
+
+SELECT
+    CASE WHEN YEAR(HIRE_DATE)=2001 THEN 1 ELSE 0 END AS year_2001,
+    CASE WHEN YEAR(HIRE_DATE)=2002 THEN 1 ELSE 0 END AS year_2002,
+    CASE WHEN YEAR(HIRE_DATE)=2003 THEN 1 ELSE 0 END AS year_2003,
+    CASE WHEN YEAR(HIRE_DATE)=2004 THEN 1 ELSE 0 END AS year_2004,
+    CASE WHEN YEAR(HIRE_DATE)=2005 THEN 1 ELSE 0 END AS year_2005,
+    CASE WHEN YEAR(HIRE_DATE)=2006 THEN 1 ELSE 0 END AS year_2006,
+    CASE WHEN YEAR(HIRE_DATE)=2007 THEN 1 ELSE 0 END AS year_2007,
+    CASE WHEN YEAR(HIRE_DATE)=2008 THEN 1 ELSE 0 END AS year_2008
+FROM `employees`;
+
+-- In year_2003, the rows have value = 1 means that the employees represented by that row are hired in 2003
+-- In contrast, the rows have value = 0 means that the employees represented by that row are not hired in 2003
+-- Same for other column
+
+
+#------------- Combine with SUM() to count the total cases of that year -------------------------#
+SELECT
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2001 THEN 1 ELSE 0 END) AS year_2001,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2002 THEN 1 ELSE 0 END) AS year_2002,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2003 THEN 1 ELSE 0 END) AS year_2003,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2004 THEN 1 ELSE 0 END) AS year_2004,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2005 THEN 1 ELSE 0 END) AS year_2005,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2006 THEN 1 ELSE 0 END) AS year_2006,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2007 THEN 1 ELSE 0 END) AS year_2007,
+    SUM(CASE WHEN YEAR(HIRE_DATE)=2008 THEN 1 ELSE 0 END) AS year_2008
+FROM `employees`;
+
+-- Now, the value of each year_200x is the total number of employees being hired in that year
+
+
+
+#------------- Using IF for more concise code -------------------------#
+SELECT
+    SUM(IF(YEAR(HIRE_DATE)=2001,1,0)) AS year_2001,
+    SUM(IF(YEAR(HIRE_DATE)=2002,1,0)) AS year_2002,
+    SUM(IF(YEAR(HIRE_DATE)=2003,1,0)) AS year_2003,
+    SUM(IF(YEAR(HIRE_DATE)=2004,1,0)) AS year_2004,
+    SUM(IF(YEAR(HIRE_DATE)=2005,1,0)) AS year_2005,
+    SUM(IF(YEAR(HIRE_DATE)=2006,1,0)) AS year_2006,
+    SUM(IF(YEAR(HIRE_DATE)=2007,1,0)) AS year_2007,
+    SUM(IF(YEAR(HIRE_DATE)=2008,1,0)) AS year_2008
+FROM `employees`;
+
+-- Now, the value of each year_200x is the total number of employees being hired in that year
+
+
+
+SELECT
+	JOB_ID,
+    SUM(IF(YEAR(HIRE_DATE)=2001,1,0)) AS year_2001,
+    SUM(IF(YEAR(HIRE_DATE)=2002,1,0)) AS year_2002,
+    SUM(IF(YEAR(HIRE_DATE)=2003,1,0)) AS year_2003,
+    SUM(IF(YEAR(HIRE_DATE)=2004,1,0)) AS year_2004,
+    SUM(IF(YEAR(HIRE_DATE)=2005,1,0)) AS year_2005,
+    SUM(IF(YEAR(HIRE_DATE)=2006,1,0)) AS year_2006,
+    SUM(IF(YEAR(HIRE_DATE)=2007,1,0)) AS year_2007,
+    SUM(IF(YEAR(HIRE_DATE)=2008,1,0)) AS year_2008
+FROM `employees`
+GROUP BY JOB_ID;
+-- Dung them GROUP BY JOB_ID de phan nhom ket qua theo tung job

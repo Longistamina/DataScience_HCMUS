@@ -1,0 +1,61 @@
+#----------------------------------------------------#
+#-------- DB_API_library_connect_cursor -------------#
+#----------------------------------------------------#
+
+Connection object => connect to database, manage sessions
+
+Cursor object => carry out queries via Connection
+
+#####
+cursor() => return a cursor object to execute commands
+
+commit() => update changes in Database
+
+rollback() => undo the changes and updates in Database, back to previous status
+
+close()
+
+
+
+#--------------------------------------------------------------------------#
+#---------------- example with connection() cursor() execute() ------------#
+#--------------------------------------------------------------------------#
+
+from mysql.connector import connect
+
+username='root'
+pwd=''
+server='localhost' #Get from local PHPMyAdmin, without https
+db='salesdb'
+
+#Create connect object with these parameters
+conn1 = connect(host=server, database=db, user=username, password=pwd, port=3306) 
+
+
+
+#Create an sql command string
+sql_commands = 'select id, ProductName, UnitPrice from `products` where IsDiscontinued=0'
+
+#sql command string with multiple lines
+sql_commands2 = '''
+select id, ProductName, UnitPrice 
+from `products` 
+where IsDiscontinued=0;
+'''
+
+#create cursor() object from connection()
+curs1 = conn1.cursor()
+
+#execute sql_commands with cursor curs1
+curs1.execute(sql_commands)
+
+
+#Read and print out executed results
+row = curs1.fetchone()
+while row: #fetch one
+	print(row)
+	row = curs1.fetchone()
+
+#Close cursor and connection
+curs1.close()
+conn1.close()

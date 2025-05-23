@@ -1,0 +1,43 @@
+import matplotlib.pyplot as plt
+import seaborn as sbn
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix, classification_report, roc_curve, auc
+
+model.fit(x_train, y_train)
+
+y_test_pred = model.predict(x_test)
+y_test_proba = model.predict_proba(x_test)
+
+print(f'Accuracy on train set: {model.score(x_train, y_train)}')
+print(f'Accuracy on test  set: {model.score(x_test, y_test)}')
+print()
+
+labels = [.....]
+cm_df = pd.DataFrame(confusion_matrix(y_test, y_test_pred), index=labels, columns=labels)
+print(f'\nConfusion matrix:\n {cm_df}')
+print()
+print(f'\nClassification report:\n {classification_report(y_test, y_test_pred, target_names=labels)}')
+
+sbn.set_theme(style='darkgrid')
+plt.figure(figsize=(20,5))
+plt.subplot(1,2,1)
+sbn.heatmap(cm_df, cmap='crest', annot=True, fmt='g')
+plt.xlabel("Predict values", size=15)
+plt.ylabel("True values", size=15)
+plt.title(f'Confusion Matrix \nAccuracy: {forestC_pipe.score(x_test, y_test):.2f}', size=20)
+
+#plot_confusion_matrix(model, x_test, y_test, values_format = 'd', display_labels = ['label1', 'label2',...])
+                                                                                    #follow alphabet orders
+
+
+#ROC and AUC are only for binary classification
+#For multiclass, must be "one and the rest"
+
+fpr, tpr, thresholds = roc_curve(y_test, y_test_proba[:,1], pos_label=None)
+
+plt.subplot(1,2,2)
+sbn.lineplot(x = [0,1], y = [0,1], label = 'Reference line', color = 'green')
+sbn.lineplot(x = fpr, y = tpr, label = 'ROC Curve', linestyle = 'dotted', color = 'orange', linewidth=4)
+plt.xlabel('False Positive Rate', size=15)
+plt.ylabel('True Positive Rate', size=15)
+plt.title(f'ROC Curve \nAUC: {auc(fpr, tpr):.2f}', size=20)
+plt.show()

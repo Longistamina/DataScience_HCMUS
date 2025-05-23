@@ -1,0 +1,112 @@
+#-----------------------------------------------------------------------------------#
+#---------------------SVD (Sigular Value Decomposition------------------------------#
+#-----------------------------------------------------------------------------------#
+
+Theory of Singular Value Decomposition (SVD)
+ A = U.S.Vt
+
+while Vt is a right-singular vectors
+      S is a diagonal vectors, containing sqrt(eigenvalue > 0), in a descending order
+      U is a left-singular vectors
+
+To do a SVD of matrix A(mxn):
+   1st: calculate a matrix P = At.A (if m>n, tall matrix, to create P(nxn) smaller)
+                    or     P = A.At (if m<n, wide matrix, to create P(mxm) smaller)
+   2nd: find the eigenvalues of P
+   3rd: create S matrix by arranging the sqrt(eigval) of P into a diagonal matrix, in a desceding order
+   4th: Calculate the inv(S) matrix by inverse the sqrt(eigval) -> 1/sqrt(eigval)
+   5th: Calculate the eigenvectors of P
+   6th: Normalize the eigenvectors by dividing them by their length (or module)
+   7th: Create Vt matrix by arranging the normalized eigenvectors in rows (HORIZONTALLY)
+   8th: Calculate the U matrix = A.V.inv(S)(V is transpose of Vt)
+   9th: We have decomposed matrix A = U.S.Vt
+
+The function numpy.linalg.svd(matrix) can do all the above jobs for us
+ it returns a list containing 3 sub-matrix
+ the first one [0] is U matrix
+ the second one [1] is list containing sqrt(eigval), to make S matrix, use numpy.diag(...)
+ and the third one [2] is the Vt matrix
+
+U, S, Vt = numpy.linalg.svd(matrix)
+S_diag = numpy.diag(S)
+
+recconstruct_matrix = U.dot(np.diag(S)).dot(Vt)
+
+
+#--------------------------------------------------------------------------------------------------#
+#---------------------Pseudo Inverse matrix (Ma tran gia nghich dao) ------------------------------#
+#--------------------------------------------------------------------------------------------------#
+
+
+In general, only a square matrix that can have its inverse matrix (if inversible)
+However, with rectangular matrix (meaning m != n), we have a concept of Pseudo Inverse Matrix
+
+Call Api is the pseudo inverse matrix of rectangular matrix A
+     If A.Api = I then Api is called right inverse
+     If Api.A = I then Api is called left inverse
+
+
+
+In case A(mxn) has m>=n, then matrix (At.A) is invversible (nxm . mxn = nxn, a square matrix of smaller shape)
+        therefore, Api.A = inv(At.A).(At.A) = I
+ ====> left inverse Api = inv(At.A).At
+
+
+In case A(mxn) has m=<n, then matrix (A.At) is invversible (mxn . nxm = mxm, a square matrix of smaller shape)
+        therefore, A.Api = (A.At).inv(A.At) = I
+ ====> right inverse Api = At.inv(A.At)
+
+
+Calculate general Api
+   method_1: Api = V.inv(S).Ut #Using SVD results
+   method_2: Api = numpy.linalg.pinv(A)
+
+#--------------------------------------------------------------------#
+#---------------------Reduce Dimension ------------------------------#
+#--------------------------------------------------------------------#
+
+Assume we have a dataframe with 150 observations and 10 features ( DF(150x10) )
+
+Then, we perform SVD, we accquire three following results:
+    U matrix (150x150)
+    S_diag matrix (150x10)
+    Vt (10x10)
+
+So, when we resconstruct matrix = U(150x150) @ S_diag(150x10) @ Vt(10x150), we get recons_matrix(150x10)
+
+However, in some situations, we have to reduce the components/eigenvectors to lower the data storage requirement
+
+In the above example, we have 10 components (10 eigenvectors), now, let's keep only 5 of them:
+    U matrix (150x150)
+    S_diag matrix (150x5)
+    Vt (5x10)
+Recons_matrix = U(150x150) @ S_diag(150x5) @ Vt (5x10) still have the same shape (150x10)
+But it will not be the same as original matrix, and there will be errors
+
+error_matrix = original_matrix(10/10) - reconstruc_matrix(5/10)
+
+###Calculate projected matrix
+    method_1: Projected matrix = U(150x150) @ S_diag(150x5)
+    method_2: Projected matrix = S_diag(150x5) @ Vt(5x10)
+The projected matrix has a SMALLER size than original matrix => REDUCE DIMENSION
+
+This theory is the basis of PCA analysis or TSVD analysis
+
+#------------------------------------------------------------------------#
+#---------------------TSVD (truncated SVD) ------------------------------#
+#------------------------------------------------------------------------#
+from sklearn.decomposition import TruncatedSVD
+
+tsvd = TruncatedSVD(n_components=10) #create a truncatedSVD object to do tsvd with only 10 components of input raw data
+
+data_reduced = tsvd.fit(data_raw).transform(data_raw)
+                #the .fit() method will use data_raw to train TSVD model and find out 10 most principle components
+                #the .transform() method will use the output model of .fit() method to create new 10-component data_reduced
+
+data_approx = tsvd.inverse_transform(data_reduced) #Reconstruct approximate full-size data from reduced-size data
+                                                   #By using data_reduced @ Vt(10 components)
+
+print('\nThe sum of variance ratio for retaining 10 components =',tsvd.explained_variance_ratio_[0:10].sum())
+## 0.73 = 73% with 10 components
+##   it means that, if we retain only 10 components, we will recover only 73% information from the original data
+##      and lose 27% information

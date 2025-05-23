@@ -1,0 +1,97 @@
+Hierachical Clustering: https://www.youtube.com/watch?v=7xHsRkOdVwo
+
+#------------------------------------------------#
+#------ Hierachical Clustering Code -------------#
+#------------------------------------------------#
+
+data = pd.read_....
+
+inputs = data[['col1', 'col2',...]]
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++ use scipy.cluster.hierachy +++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+import scipy.cluster.hierachy as shc
+
+plt.figure(figsize = (10,3))
+plt.title('Dendograms')
+
+dend = shc.dendogram(shc.linkage(inputs, method = 'ward')) #Apply hierachichal clustering and draw dendogram
+
+
+# scipy.cluster.hierarchy.linkage methods:
+## 'single':
+    - Method: Nearest Point Algorithm
+    - Distance: Minimum distance between any two points in the clusters.
+    - Formula: d(u, v) = min(dist(u[i], v[j]))
+    - Characteristics: Produces long, "chain-like" clusters.
+
+## 'complete':
+    - Method: Farthest Point Algorithm
+    - Distance: Maximum distance between any two points in the clusters.
+    - Formula: d(u, v) = max(dist(u[i], v[j]))
+    - Characteristics: Produces more compact clusters.
+
+## 'average':
+    - Method: UPGMA (Unweighted Pair Group Method with Arithmetic mean)
+    - Distance: Average distance between all pairs of points in the clusters.
+    - Formula: d(u,v) = sum(d(u[i], v[j])) / (|u|*|v|)
+    - Characteristics: Balances between single and complete linkage.
+
+## 'weighted':
+    - Method: WPGMA (Weighted Pair Group Method with Arithmetic mean)
+    - Distance: Average distance, accounting for cluster size.
+    - Formula: d(u,v) = (dist(s,v) + dist(t,v))/2 (where u was formed from s and t)
+    - Characteristics: Accounts for cluster sizes when averaging.
+
+## 'centroid':
+    - Method: UPGMC (Unweighted Pair Group Method with Centroid)
+    - Distance: Euclidean distance between cluster centroids.
+    - Formula: dist(s,t) = ||c_s-c_t||_2
+    - Characteristics: Uses centroid distances.
+
+## 'median':
+    - Method: WPGMC (Weighted Pair Group Method with Centroid)
+    - Distance: Average of cluster centroid distances.
+    - Characteristics: Weighted centroid-based distance.
+
+## 'ward':
+    - Method: Ward's variance minimization algorithm
+    - Distance: Minimizes within-cluster variance.
+    - Characteristics: Produces relatively equally sized, compact clusters.
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++ use sklearn.cluster.AgglomerativeClustering +++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#Find optimal K with silhouette score
+
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+
+k_nums = range(1, 8) #Can set more k values to try out
+
+for k in k_nums:
+	hierclust = AgglomerativeClustering(n_cluster = k)
+	hierclust.fit(inputs)
+	labels = hierclust.labels_
+	print(f'Silhouette score for k = {k}: {silhouette_score(inputs, labels)}')
+
+#Choose K value where silhouette score is the HIGHEST
+
+#Build official model
+
+hierclust = AgglomerativeClustering(n_cluster = k)
+hierclust.fit(inputs)
+labels = hierclust.labels_
+
+inputs['Group'] = labels
+
+#--------------------------------------------------------------#
+#------ Visualize result for data with 2 features -------------#
+#--------------------------------------------------------------#
+
+plt.scatter(inputs['col1'], inputs['col2'], c = inputs['Group'], cmap = 'rainbow')
+plt.show()

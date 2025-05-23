@@ -1,0 +1,53 @@
+sudo apt update && sudo apt upgrade
+sudo apt install apache2 #install apache2
+sudo apt install mysql-server #install mysql
+
+sudo mysql
+mysql>ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+mysql>exit
+
+sudo mysql_secure_installation
+#All choose YES (y)
+#Choose the password strength level you want
+
+sudo apt install php libapache2-mod-php php-mysql #install package for php
+php -v #confirm php version
+
+#---------------- optional-----------------
+#This is to make apache server prefers PHP when a directory is requested
+
+sudo nano /etc/apache2/mods-enabled/dir.conf
+
+#Change the
+<IfModule mod_dir.c>
+    DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
+</IfModule>
+
+#Into this
+<IfModule mod_dir.c>
+    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+
+sudo systemctl restart apache2 #Restart apache to apply changes
+sudo systemctl status apache2 #Check apache status
+#--------------------------------------
+
+
+sudo apt install aptitude 
+sudo aptitude install phpmyadmin #install phpmyadmin usng aptitude
+                                 #Can also use sudo apt install phpmyadmin
+
+ifconfig #use this to get the local ip
+#Find these
+enp3s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.13  netmask 255.255.255.0  broadcast 192.168.1.255
+
+#Take the 192.168.1.13 as local ip
+
+#Turn on a web browser
+#Browse this http://192.168.1.13/phpmyadmin/
+
+
+
+
+

@@ -1,0 +1,75 @@
+Explain video: https://www.youtube.com/watch?v=EWd1xRkyEog
+
+#------------------------------------------------------------------------#
+#--------------------- GMM Clustering Code ------------------------------#
+#------------------------------------------------------------------------#
+
+data = pd.read_...
+
+inputs = data[['col1', 'col2', 'col3']]
+
+#If data has only 2 features, can use scatterplot to visualize them
+
+from sklearn.mix import GaussianMixture
+
+#-----------------------------------------------------------------#
+#------ Find optimal K clusters with Silhoutte Score -------------#
+#-----------------------------------------------------------------#
+from sklearn.metrics import silhouette_score
+
+silh_score = []
+
+k_nums = range(1, 8) #Can set more k values to try out
+
+for k in k_nums:
+	gmm = GaussianMixture(n_components = k, random_state = 1)
+	gmm.fit(inputs)
+	labels = gmm.fit_predict(inputs)
+	print(f'Silhouette score for k = {k}: {silhouette_score(inputs, labels)}')
+	silh_score.append(silhouette_score(inputs, labels))
+
+#Choose k value where the silhouette score is HIGHEST
+
+#Plot the Silhouette Score
+plt.plot(k_nums, silh_score, 'bx-')
+plt.xlabel('Number of K')
+plt.ylabel('Silhouette score')
+plt.title('The Silhouette-score Method showing optimal K')
+plt.show()
+
+#Choose k value where the silhouette score is HIGHEST
+
+#---------------------------------------------#
+#------ Build official GMM Model -------------#
+#---------------------------------------------#
+#Take k=3 for example
+
+gmm = GaussianMixture(n_components = 3, random_state = 1)
+gmm.fit(inputs)
+
+labels = gmm.fit_predict(inputs)
+
+inputs['Group'] = pd.Series(labels) #Add the classified group/label column to see the group where each observation belongs to
+print(inputs)
+
+
++++++++++++ GMM attributes ++++++++++++++++
+
+gmm.weights_
+gmm.means_
+gmm.covariances_
+
+#--------------------------------------------------------------#
+#------ Visualize result for data with 2 features -------------#
+#--------------------------------------------------------------#
+
+means_inverse = gmm_pipe.named_steps['StandardScaler'].inverse_transform(gmm_pipe.named_steps['GMM'].means_)
+
+sbn.scatterplot(data = data_group, x = 'Feature_1', y = 'Feature_2', hue = 'Group', palette = 'rainbow', edgecolors = 'black')
+sbn.scatterplot(x = means_inverse[:,0], y = means_inverse[:,1], color = 'red', marker = 's', s = 50)
+plt.show()
+
+#Describe result
+# Group 1: x < x1, y < y1
+# Group 2: x1 < x < x2, y1 < y < y2
+# Group 3: x > x2, y > y2

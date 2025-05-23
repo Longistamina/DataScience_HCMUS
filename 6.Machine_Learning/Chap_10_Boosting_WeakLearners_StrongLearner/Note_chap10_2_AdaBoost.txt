@@ -1,0 +1,209 @@
+AdaBoost reference: https://www.youtube.com/watch?v=LsK-xG1cLYA
+
+#----------------------------------------------------------#
+#---------- AdaBoost - Adaptive Boost ---------------------#
+#----------------------------------------------------------#
+
+AdaBoost is a machine learning ensemble method that combines multiple weak learners (typically simple classifiers like decision stumps) into a strong classifier. 
+It does this by iteratively training classifiers, giving more attention to data points that were misclassified in previous rounds. 
+Each classifier gets a weight ("Amount of Say") based on its performance, and the sample weights of the training data are updated to focus on harder-to-classify examples.
+
+Key concepts:
+# Weak Learner: A classifier that performs slightly better than random guessing (accuracy > 50% for binary classification).
+# Amount of Say (α): The weight assigned to each weak learner based on its error rate.
+# Sample Weights: Each training example has a weight that adjusts after every iteration to emphasize misclassified points.
+# Final Prediction: A weighted vote of all weak learners.
+
+
+++++++++++++++
+Amount of Say (α):
+	
+	α = 0.5 * ln((1 - error) / error) + ln(K - 1)
+
+# error is the weighted error rate of the classifier (between 0 and 1).
+# ln is the natural logarithm.
+# α measures how much influence the classifier has in the final decision. A lower error gives a higher α.
+# K is the number of classes
+
+++++++++++++++
+New Sample Weight:
+
+	w_new = w_old * e^(α * I(prediction ≠ true_label))
+
+# w_old is the current weight of the sample.
+# e is the base of the natural logarithm (~2.718).
+# α is the classifier’s "Amount of Say."
+# I(prediction ≠ true_label) is an indicator: 
+	1 if the prediction is wrong, 
+	0 if the prediction is correct.
+# After updating, weights are normalized so they sum to 1.
+
++++++++++++
+Final prediction:
+	
+	Score(k) = Σ (α_t * I(h_t(x) = k))
+
+# k: The class being evaluated (e.g., 0, 1, 2 in a 3-class problem).
+# α_t: The "Amount of Say" (weight) of the t-th weak classifier, based on its performance during training.
+# h_t(x): The prediction made by the t-th weak classifier for input x (e.g., 0, 1, or 2).
+# I(h_t(x) = k): An indicator function that equals 
+	         1 if the t-th classifier predicts class k for input
+                 0 otherwise.
+# Σ: Sum over all weak classifiers (t = 1 to T, where T is the number of iterations).
+
+#-------------------------------------------------------#
+#---------- Classification Example ---------------------#
+#-------------------------------------------------------#
+
+Training data:
+
+            Feature     Label      Initial_Weight
+Point 1        2          1            0.25
+Point 2        4          0            0.25
+Point 3        6          1            0.25
+Point 4        8          0            0.25
+
+
++++++++++++++
+Iteration 1: First Weak Classifier
+
+# Step 1: Suppose our weak classifier is a decision stump: 
+	
+	New stump: "If feature < 7, predict 1, else predict 0."
+
+Point 1: feature=2 < 7 → Predict 1 (True=1, Correct)
+Point 2: feature=4 < 7 → Predict 1 (True=0, Wrong)
+Point 3: feature=6 < 7 → Predict 1 (True=1, Correct)
+Point 4: feature=8 ≥ 7 → Predict 0 (True=0, Correct)
+
+
+# Step 2: Calculate weighted error and Amount of Say
+
+Weighted error = sum of weights of misclassified points.
+	Misclassified: Point 2 (w2=0.25)
+=> error = w2 = 0.25
+
+Calculate Amount of Say (α1)
+α1 = 0.5 * ln((1 - error) / error) + ln(2 - 1)
+   = 0.5 * ln((1 - 0.25) / 0.25) + ln(1)
+   = 0.5 * ln(0.75 / 0.25) + 0
+   = 0.5 * ln(3)
+   ≈ 0.5 * 1.0986  (using ln(3) ≈ 1.0986)
+   ≈ 0.5493
+
+
+# Step 3: Update Sample Weights
+Using the formula w_new = w_old * e^(α * I(prediction ≠ true_label)):
+	Point 1: Correct (I=0),  w_new = 0.25 * e^(0.5493 * 0) = 0.25 * 1 = 0.25
+	Point 2: Wrong (I=1),    w_new = 0.25 * e^(0.5493 * 1) = 0.25 * e^0.5493 ≈ 0.25 * 1.732 = 0.433
+	Point 3: Correct (I=0),  w_new = 0.25 * e^(0 * 0.5493) = 0.25 * 1 = 0.25
+	Point 4: Correct (I=0),  w_new = 0.25 * e^(0 * 0.5493) = 0.25 * 1 = 0.25
+
+Sum of new weights = 0.25 + 0.433 + 0.25 + 0.25 = 1.183
+
+Normalize: Divide each by 1.183.
+	w1 = 0.25 / 1.183 ≈ 0.211
+	w2 = 0.433 / 1.183 ≈ 0.366
+	w3 = 0.25 / 1.183 ≈ 0.211
+	w4 = 0.25 / 1.183 ≈ 0.211
+
++++++++++++++
+Iteration 2: Second Weak Classifier
+
+            Feature     Label      New_Weight
+Point 1        2          1          0.211
+Point 2        4          0          0.366
+Point 3        6          1          0.211
+Point 4        8          0          0.211
+
+Using new weights: w1=0.211, w2=0.366, w3=0.211, w4=0.211.
+	
+	New stump: "If feature < 3, predict 1, else predict 0."
+
+Point 1: feature=2 < 3 → Predict 1 (True=1, Correct)
+Point 2: feature=4 ≥ 3 → Predict 0 (True=0, Correct)
+Point 3: feature=6 ≥ 3 → Predict 0 (True=1, Wrong)
+Point 4: feature=8 ≥ 3 → Predict 0 (True=0, Correct)
+
+# Step 1: Calculate Error
+	Misclassified: Point 3 (w3=0.211)
+=> error = 0.211
+
+# Step 2: Calculate Amount of Say (α2)
+α2 = 0.5 * ln((1 - 0.211) / 0.211) + ln(2 - 1)
+   = 0.5 * ln(0.789 / 0.211) + ln(1)
+   = 0.5 * ln(3.739) + 0
+   ≈ 0.5 * 1.318 (ln(3.739) ≈ 1.318)
+   ≈ 0.659
+
+# Step 3: Update Sample Weights
+	Point 1: Correct, w_new = 0.211 * e^(0 * 0.659) = 0.211
+	Point 2: Correct, w_new = 0.366 * e^(0 * 0.659) = 0.366
+	Point 3: Wrong, w_new = 0.211 * e^(0.659) ≈ 0.211 * 1.932 = 0.408
+	Point 4: Correct, w_new = 0.211 * e^(0 * 0.659) = 0.211
+
+Sum = 0.211 + 0.366 + 0.408 + 0.211 = 1.196
+
+Normalize:
+	w1 = 0.211 / 1.196 ≈ 0.176
+	w2 = 0.366 / 1.196 ≈ 0.306
+	w3 = 0.408 / 1.196 ≈ 0.341
+	w4 = 0.211 / 1.196 ≈ 0.176
+
++++++++++++++
+Final Model
+
+Combine classifiers with weights 
+	α1 ≈ 0.5493
+	α2 ≈ 0.659 
+using a weighted vote.
+
+Final prediction:
+	Score(k) = Σ (α_t * I(h_t(x) = k))
+# k: The class being evaluated (e.g., 0, 1, 2 in a 3-class problem).
+# α_t: The "Amount of Say" (weight) of the t-th weak classifier, based on its performance during training.
+# h_t(x): The prediction made by the t-th weak classifier for input x (e.g., 0, 1, or 2).
+# I(h_t(x) = k): An indicator function that equals 
+	         1 if the t-th classifier predicts class k for input
+                 0 otherwise.
+# Σ: Sum over all weak classifiers (t = 1 to T, where T is the number of iterations).
+
+Suppose we have a new point: feature=5.
+	Classifier 1: 5 < 7 → Predict 1
+	Classifier 2: 5 ≥ 3 → Predict 0 
+
+Score for class k = 1:
+	 Classifier 1, predit 1 => I(h_1(x) = 1) = 1
+	 Classifier 2, predit 0 => I(h_2(x) = 1) = 0
+	 Score(k = 1) = α1*1 + α2*0 = α1 = 0.5493
+
+Score for class k = 0:
+	 Classifier 1, predit 1 => I(h_1(x) = 0) = 0
+	 Classifier 2, predit 0 => I(h_2(x) = 0) = 1
+	 Score(k = 0) = α1*0 + α2*1 = α1 = 0.659
+
+Score(k=0) > Score(k=0)
+	=> Final predict is Class 0
+	
+	
+#--------------------------------------------------------#
+#------------- AdaBoost Regression ----------------------#
+#--------------------------------------------------------#
+
+AdaBoost Regression Formula:
+
+1. Initialize sample weights:
+   w_i = 1 / N, for all i = 1, ..., N
+
+2. For m = 1 to M (number of weak learners):
+   a) Train weak learner h_m(x) using weighted dataset.
+   b) Compute weighted error:
+      err_m = (sum(w_i * |y_i - h_m(x_i)|)) / (sum w_i)
+   c) Compute model weight:
+      alpha_m = 0.5 * ln((1 - err_m) / err_m)
+   d) Update sample weights:
+      w_i <- w_i * exp(-alpha_m * y_i * h_m(x_i))
+   e) Normalize weights so they sum to 1.
+
+3. Final prediction:
+   F(x) = sum(alpha_m * h_m(x)) / sum(alpha_m)

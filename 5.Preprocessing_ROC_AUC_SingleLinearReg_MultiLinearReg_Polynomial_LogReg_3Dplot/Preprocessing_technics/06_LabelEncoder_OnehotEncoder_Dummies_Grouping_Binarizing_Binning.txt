@@ -1,0 +1,256 @@
+If the variable's datatype is "object" => it takes the model longer time to process, to learn
+=> Convert into "categorical" to unburden the model
+
+*Domain knowledge: kien thuc chuyen mon ve linh vuc nao do
+If we don't have domain knowledge of a specific area => should study, learn, ask relevant experts for advice
+
+Feature Engineering: is using domain knowledge to create new necessary features from original features of raw data to fetch the model
+	
+	=> Help highlight principal information/feature, help the model to "focus" only on important ones
+	=> Use domain knowledge to generate new more suitable features for the model
+	=> Share new knowledge for colleagues
+
+#--------------------------------------------------------------------#
+#----------------Feature Engineering (df.select_dtypes)--------------#
+#--------------------------------------------------------------------#
+
+numer_col = df.select_dtypes(include = ['int64', 'float64']) #Return a subdataframe whose columns are "int" or "float" types
+#If set 'int' only => default: 'int32'
+#If set 'float' only => default: 'float64'
+numer_col.columns
+
+numer_col_2 = df.select_dtypes(exclude = ['object']) #Return a subdataframe whose columns are NOT "object" type
+numer_col_2.columns
+
+
+#------------------------------------------------------------------#
+#----------------Encoding categorical feature (label)--------------#
+#------------------------------------------------------------------#
+Convert categorical from "string" or "object" into numeric type
+For example: "dog", "cat", "bird",... => 0, 1, 2, 3,...
+
+3 methods: one hot encoder, dummy encoder, label encoder
+
+Only apply for "string" categorical feature (not numeric categorical feature)
+
+Must define the category is ordinal or non-ordinal (nominal)
+	+example ordinal: "place" -> "1st", "2nd", "3rd",...
+	+example nominal: "color" -> "red", "blue", "green",...
+
+However, some models can work directly with "string" categorical data (like decision tree),
+therefore no need to encode the labels in some cases
+
+
+########################## Integer encoder / Label encoder ##########################
+For example: "First" -> 1, "Second" -> 2, "Third" -> 3, ...
+
+This method is only suitable for ORDINAL categorical features
+
+##Code
+from sklearn.preprocessing import LabelEncoder
+
+encoder = LabelEncoder()
+
+df['place_encoded'] = encoder().fit_transform(df['place'])
+
+df['place_decoded'] = encoder().inverse_transform(df['place_encoded'])
+####
+
+PROBLEM is that, the LabelEncoder will arrange category in A-Z order, then labeling them,
+so: 
+	"First":  0 
+	"Four":   1
+	"Third":  2
+	"Second": 3
+
+
+Let's adjust a little bit: "1st", "4th", "3rd", "2nd", then it will arrange and label like this
+	"1st": 0
+	"2nd": 1
+	"3rd": 2
+	"4th": 3
+
+
+If the categorical feature is nominal (not ordinal), and we still apply IntegerEncoder for it, for example:
+	"Dong Nai": 1
+	"Long An": 2
+	"Tp.HCM": 3
+	"Binh Duong": 0
+Since the "Tp.HCM" is encoded as 3 and "Long An" is encoded as 2, the model will understand that 
+"Long An" is more important than "Tp.HCM", but in reality the truth is opposite.
+
+
+
+################## One-hot Encoder / Dummy Encoder #################
+
+Use these 2 for encoding nominal (not ordinal) categorical feature
+These are two different methods, but the result they return are the same, so can use whichever we prefer
+
+**********************************************************************
+*******************Code OneHotEncoder*********************************
+*********************************************************************
+
+
+This will treat each categorical value as a standalone feature/column, storing binary data (0/1)
+
+##
+from sklearn.preprocessing import OneHotEncoder
+encoder = OneHotEncoder()
+
+arr = encoder.fit_transform(df[['Noisinh']]) #Write [[]] not [] to input as 2D array (requirement of OneHotEncoder)
+
+print(arr)
+		0	0	1
+		1	0	0
+		0	1	0
+
+df_temp = pd.DataFrame(arr, columns = ['N_' + i for i in encoder.categories_[0]]) 
+		#encoder.categories_[0] to get the array of encoded values, i.e ['Dong Nai', 'Long An', 'Tp.HCM']
+		# "N_" +.... to add prefix "N_" into columns' name, to not overlap another column's name of the dataframe
+
+
+print(df_temp)
+		N_Dong Nai     N_Long An       N_Tp.HCM
+		0		0		1
+		1		0		0
+		0		1		0
+
+df_new = pd.concat([df, df_temp], axis=1)
+
+df_new['Noisinh_decode'] = encoder.inverse_transform(df_new['N_' + i for i in encoder.categories_[0]])
+###
+
+But it is not necessary to store all the columns of the encoded array, 
+cause we can extrapolate the missing values from the rest
+
+###
+encoder2 = OneHotEncoder(drop='first') #to drop the 1st column of the encoded array
+
+arr2 = encoder2.fit_transform(df[['Noisinh']]).toarray()
+print(arr2) #As we can see, the 1st column 010 that stands for "Dong Nai" has been dropped
+	    #But can still extrapolate the "Dong Nai" from other 2 labels "Long An" and "Tp.HCM"
+		0	1
+		0	0
+		1	0
+
+print(encoder2.categories_[0]) #However, the encoder2 object still stores all 3 encoded values
+			       #So that when we use encoder2.inverse_transform(), it can still decode all 3 encoded values
+	arr(['Dong Nai', 'Long An', 'Tp.HCM'])
+
+df_temp2 = pd.DataFrame(arr, columns = ['N_' + i for i in encoder.categories_[0][1:]]) #Get only "Long An" and "Tp.HCM"
+print(df_temp2)
+		N_Long An	N_Tp.HCM
+		0		1
+		0		0
+		1		0
+
+df_new2 = pd.concat([df, df_temp2], axis=1)
+
+df_new2['Noisinh_decode'] = encoder.inverse_transform(df_new2['N_' + i for i in encoder.categories_[0][1:]])
+##
+
+Pros of OneHotEncoder: it's a model-type method, so we can store the model and reuse in the future, can inverse_transform()
+Cons of OneHotEncoder: programming process is more complex
+
+*************************************************************************************
+*******************Code DummyEncoder(pandas method) *********************************
+*************************************************************************************
+
+Pros of Dummy: is more simple than OneHotEncoder
+Cons of Dummy: it's a pandas method, not a model-type, so can not store to reuse, also cannot inverse_transform()
+
+###
+df_new = pd.get_dummies(data=df, columns=['Noisinh'], prefix='N_')
+print(df_new) #Show the same result as OneHotEncoder
+
+df_new2 = pd.get_dummies(data=df, columns=['Noisinh', 'Gioitinh'], prefix='N_', drop_first=True)
+#Can apply for many columns, and drop the 1st encoded value column, very neat
+
+
+#----------------------------------------------#
+#----------------Uncommon feature--------------#
+#----------------------------------------------#
+Assume we have a counted list like this:
+df['Group'].value_counts()
+	A: 115
+	B: 98
+	C: 150
+	D: 10
+	E: 5
+
+As we can see, the D and E groups have only 10 and 5 observations respectively,
+which are very small compared to A, B and C
+
+=> Should combine D and E into one group, named "Other": 15
+	A: 115
+	B: 98
+	C: 150
+	Other: 15
+
+###Code
+group_count = df['Group'].values_count()
+
+group_count[group_count <= 10].index #Get the index (i.e group's name) that values_count < 10 (D and E)
+
+condition = df['Group'].isin(group_count[group_count <= 10].index) #Condition to check for the row having wanted groups' name
+							     	   #Any rows have 'Group=="D" or "E" will be True
+
+df['Group'][condition] = 'Other' 
+#Check in "Group" column which rows satisfy "condition", then replace the values (group name) with "Other"
+
+#------------------------------------------------------------------#
+#----------------Binarizing column (tao cot nhi phan)--------------#
+#------------------------------------------------------------------#
+
+In case we don't care about the magnitude of each data point, we only want to know if there is a data point or not
+(is it NaN or not)
+
+=> use Binarizing column technique
+
+###Code
+df['Passed'] = 0 #Create a 'Passed' column with all rows = 0 (means failed)
+
+df.loc[ df['GPA' >= 5.0], 'Passed' ] = 1 #Where 'GPA' >= 5.0, update 'Passed' = 1 (means passed)
+
+print(df)
+		student		GPA		Passed
+		A001		6.0		1
+		A002		3.5		0
+		A003		4.9		0
+
+
+#------------------------------------------------------------------#
+#----------------Binning column (chia khoang du lieu)--------------#
+#------------------------------------------------------------------#
+In case we don't care about the accuracy, we only want to know which range each data point is in
+(is it NaN or not)
+
+=> use Binnin column technique
+
+=> By doing this, can reduce the overfitting risk of model, but lost an amount of information
+
+use pd.cut(df['column_name'], bins) #"bins" is integer, define the number of data ranges we want to split
+
+###Code
+df['GPA_bin'] = pd.cut(df['GPA'], 4)
+print(df)
+		student		GPA		GPA_bin
+		A001		6.0		(5, 7.5]
+		A002		3.5		(2.5, 5]
+		A003		4.9		(2.5, 5]
+
+df['GPA_bin'].unique() #Check all the bins
+df['GPA_bin'].values_count()
+
+
+#### Or we can specify the means and labels ourself
+
+gpa_bins = [-np.inf, 2.5, 5, 7.5, 10] #Set lowest value is -np.inf to include GPA=0
+gpa_labels = ['Very low', 'Low', 'Medium', 'High']
+
+df['GPA_bin'] = pd.cut(df['GPA'], gpa_bins, labels = gpa_labels)
+print(df)
+		student		GPA		GPA_bin
+		A001		6.0		Medium
+		A002		3.5		Medium
+		A003		4.9		Low

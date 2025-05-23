@@ -1,0 +1,7 @@
+Cho các dữ liệu year, physical_sciences, computer_science, health, education từ tập tin women_in_science.txt
+
+Hãy hoàn tất file đính kèm để phân tích dữ liệu 'Women in Science'.
+
+
+https://drive.google.com/file/d/1B3x-kLSe6TbteD8x5xbdMelAnH2Wqm31/view
+https://drive.google.com/file/d/144PKlLmoi5Bv-8YS2zNX4fSfYblrQepa/view

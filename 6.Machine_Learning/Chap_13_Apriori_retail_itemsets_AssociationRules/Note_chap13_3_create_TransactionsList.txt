@@ -1,0 +1,31 @@
+#### Example 1: get col_names as items ###
+store_data = pd.read_csv('Data/store_data.csv')
+
+transactions_lst = []
+
+for row in range(store_data.shape[0]):
+    transaction = [item for item in store_data.columns if pd.notna(store_data.loc[row, item])]
+    transactions_lst.append(transaction)
+
+len(transactions_lst)
+
+
+
+#### Example 2: use one-hot encoder or pd.get_dummies instead of TransactionEncoder ###
+lenses = pd.read_csv('Data/contact_lenses.txt', sep = '\t')
+lenses_encode = pd.get_dummies(lenses)
+frequent_items = apriori(lenses_encode, min_support=0.3, use_colnames=True)
+
+
+
+### Example 3: use .groupby().agg(lambda x: list(x)).tolist() ###
+dataset_group = (
+    pd.read_csv('Data/dataset_group.csv', header=None)
+    .set_axis(['Date', 'Order', 'Items'], axis = 1) #set columns' names
+)
+
+dataset_group_condensed = dataset_group.groupby('Order')['Items'].agg(lambda x: list(x))
+
+transactions_lst = dataset_group_condensed.tolist()
+
+#Or transactions_lst = dataset_group.groupby('Order')['Items'].agg(lambda x: list(x)).tolist()

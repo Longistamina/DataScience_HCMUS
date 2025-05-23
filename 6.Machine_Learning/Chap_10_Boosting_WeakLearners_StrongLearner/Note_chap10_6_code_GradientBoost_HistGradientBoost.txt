@@ -1,0 +1,99 @@
+#------------------------------------------#
+#------- Gradient Boost Classifier --------#
+#------------------------------------------#
+
+x = ...
+y = ....
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from skleran.ensemble import GradientBoostingClassifier
+gbc = GradientBoostingClassifier(random_state = 1).fit(x_train, y_train)
+
+# https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html
+#Go to this link to see more info about gradient boost classifier hyper-parameters
+
+y_test_pred = gbc.predict(x_test)
+y_test_proba = gbc.predict_proba(x_test)
+
+gbc.score(x_train, y_train)
+gbc.score(x_test, y_test)
+
+
+
+#-----------------------------------------#
+#------- Gradient Boost Regressor --------#
+#-----------------------------------------#
+
+x = ...
+y = ....
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from skleran.ensemble import GradientBoostingRegressor
+gbr = GradientBoostingRegressor(random_state = 1).fit(x_train, y_train)
+
+# https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html
+#Go to this link to see more info about gradient boost classifier hyper-parameters
+
+y_test_pred = gbr.predict(x_test)
+
+gbr.score(x_train, y_train)
+gbr.score(x_test, y_test)
+
+
+#-----------------------------------------------#
+#------- Hist Gradient Boost Classifier --------#
+#-----------------------------------------------#
+
+Histogram-based binning: Instead of evaluating all possible split points, it groups data into discrete bins, making training faster.
+This estimator is much faster than GradientBoostingClassifier for big datasets (n_samples >= 10 000)
+
+x = ...
+y = ....
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from skleran.ensemble import HistGradientBoostingClassifier
+hgbc = HistGradientBoostingClassifier(random_state = 1).fit(x_train, y_train)
+
+# https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingClassifier.html
+#Go to this link to see more info about gradient boost classifier hyper-parameters
+
+y_test_pred = hgbc.predict(x_test)
+y_test_proba = hgbc.predict_proba(x_test)
+
+gbc.score(x_train, y_train)
+gbc.score(x_test, y_test)
+
+
+#----------------------------------------------#
+#------- Hist Gradient Boost Regressor --------#
+#----------------------------------------------#
+
+Histogram-based binning: Instead of evaluating all possible split points, it groups data into discrete bins, making training faster.
+This estimator is much faster than GradientBoostingRegressor for big datasets (n_samples >= 10 000).
+
+x = ...
+y = ....
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from skleran.ensemble import HistGradientBoostingRegressor
+hgbr = HistGradientBoostingRegressor(random_state = 1).fit(x_train, y_train)
+
+# https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html
+#Go to this link to see more info about gradient boost classifier hyper-parameters
+
+y_test_pred = hgbr.predict(x_test)
+
+hgbr.score(x_train, y_train)
+hgbr.score(x_test, y_test)

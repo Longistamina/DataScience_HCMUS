@@ -1,0 +1,128 @@
+#----------------------------------------------------#
+#-------- KNN code: Classification task -------------#
+#----------------------------------------------------#
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+data = pd.read_....
+
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+
+x = data.drop('output', axis=1)
+y = le.fit_transform(data['output'])
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+#Train many models with many K values to choose the best K (having highest accuracy score)
+#If many K values have the same accuracy score 
+#   => Choose the K that has smallest value | acc_train - acc_test |
+
+lst_k = []
+lst_acc_test = []
+lst_acc_train = []
+lst_acc_diff = []
+
+for k_value in range(2,9):
+	lst_k.append(k_value)
+	knnC = KNeighborsClassifier(n_neighbors = k_value)
+	knnC.fit(x_train, y_train)
+
+	y_pred_test = knnC.predict(x_test)
+	y_pred_train = knnC.predict(x_train)
+
+	acc_test = accuracy_score(y_test, y_pred_test)
+	lst_acc_test.append(acc_test)
+	
+	acc_train = accuracy_score(y_train, y_pred_train)
+	lst_acc_train.append(acc_train)
+	
+	acc_diff = np.absolte(acc_train - acc_test)
+	lst_acc_diff.append(acc_diff)
+
+	print(f'K = {k_value} ____ Accuracy test = {acc_test} ___ Accuracy train-test difference = {acc_diff}')
+
+
+#Visualization K - accuracy
+sbn.set_theme(style = 'darkgrid')
+sbn.lineplot(x = lst_k, y = lst_acc_test, label = 'Accuracy on test set') #Higher is better
+sbn.lineplot(x = lst_k, y = lst_acc_diff, label = 'Accuracy difference between train and test') #Lower is better
+plt.xlabel('K_values')
+plt.ylabel('Accuracy score')
+plt.legend()
+plt.show()
+
+
+#------------------------------------------------#
+#-------- KNN code: Regression task -------------#
+#------------------------------------------------#
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+data = pd.read_....
+
+x = data.drop('output', axis=1)
+y = data['output']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import accuracy_score, mean_squared_error
+
+#Train many models with many K values to choose the best K (having highest accuracy score)
+#If many K values have the same accuracy score 
+#   => Choose the K that has smallest MSE or RMSE (square-root of mean-squared-error)
+
+lst_k = []
+lst_acc_test = []
+lst_rmse = []
+
+for k_value in range(2,9):
+	lst_k.append(k_value)
+	knnR = KNeighborsRegressor(n_neighbors = k_value)
+	knnR.fit(x_train, y_train)
+
+	y_pred_test = knnR.predict(x_test)
+	acc_test = accuracy_score(y_test, y_pred_test)
+	lst_acc_test.append(acc_test)
+	
+	rmse = np.sqrt(mean_square_error(y_test, y_pred_test))
+	lst_rmse.append(rmse)
+	
+	print(f'K = {k_value} ____ Accuracy test = {acc_test} ___ RMSE = {rmse}')
+
+
+#Visualization K - accuracy
+plt.figure(figsize=(20,5))
+sbn.set_theme(style = 'darkgrid')
+
+plt.subplot(1,2,1)
+sbn.lineplot(x = lst_k, y = lst_acc_test)
+plt.xlabel('K_values')
+plt.ylabel('Accuracy score') #Higher is better
+plt.legend()
+plt.show()
+
+plt.subplot(1,2,2)
+sbn.lineplot(x = lst_k, y = lst_rmse)
+plt.xlabel('K_values')
+plt.ylabel('RMSE') #Lower is better
+plt.legend()
+plt.show()
+
+#if RMSE values are too big => use ln() to reduce the scale
+# lst_ln_rmse = list(map(np.log, lst_rmse))

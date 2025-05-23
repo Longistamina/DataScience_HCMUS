@@ -1,0 +1,177 @@
+#---------------------------------------------#
+#---------------- Install library ------------#
+#---------------------------------------------#
+
+pip3 install ibm_db
+
+
+Then, go into IBM cloud, choose "Service credentials" to access necessary information:
+	+Port
+	+Database
+	+Host
+	+Username
+	+Password
+	+URI: used when using Magic SQL in python/jupyter notebook
+
+
+
+#---------------------------------------------#
+#---------------- make connection ------------#
+#---------------------------------------------#
+
+import ibm_db
+
+dsn_database = "...."
+dsn_hostname = "...."
+dsn_port = "...."
+dsn_protocol = "TCPIP"
+dsn_uid = "...."
+dsn_pwd = "...."
+
+dsn = (
+	"DATABASE={0};"
+	"HOSTNAME={1};"
+	"PORT={2};"
+	"PROTOCOL={3};"
+	"UID={4};"
+	"PWD={5};"
+).format(dsn_database, dsn_hostname, dsn_port, dsn_protocol, dsn_uid, dsn_pwd)
+
+try:
+	conn = ibm_db.connect(dsn, "", "")
+	print('Connected!')
+except:
+	print('Unable to connect to database')
+
+
+ibm_db.close(conn)
+
+
+#---------------------------------------------------#
+#---------------- ibm_db.exec_immediate ------------#
+#---------------------------------------------------#
+
+sql_cmd = 'SELECT * FROM TABLE_NAME;'
+
+select_cmd = ibm_db.exec_immdediate(conn, sql_cmd) #Do this to execute a query command
+
+print(select_cmd)
+
+
+#-----------------------------------#
+#---------------- fetch ------------#
+#-----------------------------------#
+
+Fetch methods of ibm_db return results as dictionary
+
+#Fetch the dictionary (first row only)
+result_both = ibm_db.fetch_both(select_cmd)
+while result_both != False:
+	print(result_both)
+	result_both = ibm_db.fetch_both(select_cmd)
+
+
+
+result_tupple = ibm_db.fetch_tupple(select_cmd)
+while result_tupple != False:
+	print(result_tupple)
+	result_tupple = ibm_db.fetch_tupple(select_cmd)
+
+
+
+result_assoc = ibm_db.fetch_assoc(select_cmd)
+while result_assoc != False:
+	print(result_assoc)
+	result_assoc = ibm_db.fetch_assoc(select_cmd)
+
+
+results = ibm_db.fetch_row (select_cmd)
+
+
+
+#------------------------------------------------------#
+#------------- query with parameters ------------------#
+#------------------------------------------------------#
+
+sql_cmd = "SELECT * FROM INSTRUCTOR WHERE CITY = ? AND CODE = ?"
+# the "?" here are parameters
+
+stmt = ibm_db.prepare(conn, sql_cmd)
+
+city = 'Chicago'
+ccode = 'US'
+
+#Pass the values into parameters "?"
+ibm_db.bind_param(stmt, 1, city)
+ibm_db.bind_param(stmt, 2, ccode)
+ibm_db.execute(stmt)
+
+row = ibm_db.fetch_assoc(stmt)
+while row:
+	print(row)
+	row = ibm_db.fetch_assoc(stmt)
+
+ibm_db.close(conn)
+
+
+
+#----------------------------------------------#
+#------------ pandas read sql -----------------#
+#----------------------------------------------#
+
+import imb_db_dbi
+import pandas as pd
+
+
+dsn_database = "...."
+dsn_hostname = "...."
+dsn_port = "...."
+dsn_protocol = "TCPIP"
+dsn_uid = "...."
+dsn_pwd = "...."
+
+dsn = (
+	"DATABASE={0};"
+	"HOSTNAME={1};"
+	"PORT={2};"
+	"PROTOCOL={3};"
+	"UID={4};"
+	"PWD={5};"
+).format(dsn_database, dsn_hostname, dsn_port, dsn_protocol, dsn_uid, dsn_pwd)
+
+conn = ibm_db.connect(dsn, "", "")
+
+pd_conn = ibm_db_dbi.Connection(conn)
+
+df = pd.read_sql('SELECT * FROM INSTRUCTOR', pconn)
+
+#or use sql_cmd = 'SELECT * FROM INSTRUCTOR', 
+#then pd.read_sql(sql_cmd, pconn)
+
+conn.close()
+
+
+
+
+#----------------------------------------#
+#------------ Magic SQL -----------------#
+#----------------------------------------#
+
+%load_ext sql
+
+Then, go into IBM cloud, choose "Service credentials" to access necessary information
+
+Get the URI in Credentials, replace db2:// with ibm_db_sa://
+
+#Connect:
+%sql ibm_db_sa://.........
+
+#Run a command, store in variable
+df = %sql select * from departments;
+
+
+%%sql
+....
+(multi-line command)
+.....
+

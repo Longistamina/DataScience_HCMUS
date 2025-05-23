@@ -1,0 +1,122 @@
+#-----------------------------------------------------------------#
+#----------------------- Confusion Matrix ------------------------#
+#-----------------------------------------------------------------#
+
+
+Confusion Matrix: a matrix whose size depends on the number of labels/classes. If our data have 2 classes,
+then the Confusion Matrix size is 2x2, if 3 classes then Confusion Matrix is 3x3 (and so on). This matrix contains following information:
+	
+	+Precision: assume the model predict 100 cases as positive, but only 85 of them are truly positive, Precision = 85%
+	+Recall: assume we have 100 positive cases, but the model predict only 90 positive cases, Recall = 90%
+	+F1 Score (F-Score): 2*precision*recall / (precision + recall), so this is average of precision and recall
+	
+The diagonal cells of confusionmatrix show the correctly predicted case of each label
+The other cells show wrongly predicted case
+
+
+******** code *************
+from sklearn.metrics import confusion_matrix
+print(f'Confusion matrix:\n {confusion_matrix(y_test, y_test_pred)}')
+
+When use ConfusionMatrix() function in python, the row must be predicted result, the column is ground-truth
+
+
+
+#-------------------------------------------------------------------------#
+#-------------------- Precision_Recall_F1score ---------------------------#
+#-------------------------------------------------------------------------#
+
+Accuracy = (correct class1 + correct class2) / all cases
+
+Precision class1 = correct class1 / all predicted as class1 (correct class1 + false positive class1)
+
+Recall class1 = correct class1 / all ground-truth class1 (correct class1 + false positive class2)
+
+F1_score = (2*Precision*Recall)/(Precision+Recall) #This is like the combination of precision and recall
+
+Some problems rely more on Precision, some more on Recall, some more on F1-Score
+
+-------result interpretation-------
+High recall + High precision: the model is perfectly appropriate
+
+Low recall + High precision: the model cannot detect all true cases, but once it detected them, the accuracy is high
+
+High recall + Low precision: the model can detect many true cases, but the accuracy is low
+
+Low recal + Low precision: worst result, model is not appropriate, cannot be used this one, so try to build new model
+
+
+******** code precision recall fscore *************
+from sklearn.metrics import precision_recall_fscore_support
+
+print(precision_recall_fscore_support(y_test, y_test_pred, average='macro')) 
+#Calculate metrics globally by counting the total true positives, false negatives and false positives.
+
+print(precision_recall_fscore_support(y_test, y_test_pred, average='micro'))
+#Calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+
+******** code confusion matrix *************
+from sklearn.metrics import classification_report
+labels = ['class1', 'class2',...]
+print(f'Classification report:\n {classification_report(y_test, y_test_pred, target_names=labels)}') 
+
+#This will return a summary table containing recall, precision and F1_score for each class
+
+#-----------------------------------------------------------------#
+#-------------------- ROC curves - AUC ---------------------------#
+#-----------------------------------------------------------------#
+ROC curves: alternative for Precision and Recall, it uses:
+	+Sensitivity (True Positive Rate - TPR) = True Positive / Positive Population
+	+False Positive Rate - FPR = False Positive / Positive Population
+	+Specificity = True Negative / Negative Population
+
+Threshold:
+	+0: surely negative
+	+1: surely positive
+	+PP = Positive population: total number of positive class samples
+	+NP = Negative population: total number of negative class samples
+	+TP = True Positive
+	+FP = False Positive
+	+TN = True Negative
+	+FN = False Negative
+
+ROC Curves:
+	+ X axis: FPR (0-1)
+	+ Y axis: TPR (0-1)
+	+Increase the threshold from 0 to 1 to change the ROC curve, make it go up vertically and then bend horizontally. 
+	+We also need to draw a reference line X = Y (45 degrees)
+	+The more the ROC cureves are distanced from the reference line, the better the model is
+	+Perfect ROC curve: go up along Y axis, then bend and go towards X axis, look ike half square
+
+Sometimes, using ROC Curves to validate the model might be subjectively, there fore use AUC:
+	+AUC = Area under ROC Curve (Area of the region limited by ROC Curve and X axis)
+	+Use integration to calculate this Area
+	+AUC ranges from 0 to 1
+	+The more it is closed to 1, the better the model is
+	
+	
+
+#--------------------------------------------------------------------------#
+#-------------------- Draw ROC curve --------------------------------------#
+#--------------------------------------------------------------------------#
+
+from sklearn.metrics import roc_curve, auc
+
+y_proba_1 = classifier.predict_proba(x_test)[:, 1]  # Probabilities for class 1
+
+fpr, tpr, thresholds = roc_curve(y_test, y_proba_1)
+
+
+roc_auc = auc(fpr, tpr)
+
+
+plt.figure()
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()

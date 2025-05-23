@@ -1,0 +1,43 @@
+Part 1: Basic R
+# R basic command lines
+# Conditional commands
+# Loop commands
+# Function
+
+Part 2: Data Structure
+# Vector
+# Factor
+# Array
+# Matrix
+# List
+# Data Frame
+# Tidyverse (a library for handling data frame)
+
+Part 3: files handling
+# Txt file
+# CSV file
+# Excel file
+# XML file
+# JSON file
+
+Part 4: Graph and Chart
+# Pie chart
+# Bar chart
+# Histogram
+# Line graph
+# Scatterplot
+# ggplot2 (an extended library for better visualization in R)
+
+Part 5: Statistics
+# Descriptive Statistics
+# Normal Distribution
+# Binomial Distribution
+# Time Series Analysis
+
+Part 6: Machine learning
+# All types of machine learning: Supervised Learning, Unsupervised Learning, Reinforcement Learning
+# Linear Regression
+# Logistic Regression
+# Decision Tree
+# K-Means Clustering
+# Apriori (bonus)

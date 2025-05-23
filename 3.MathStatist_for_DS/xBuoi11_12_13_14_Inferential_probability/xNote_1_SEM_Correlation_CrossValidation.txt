@@ -1,0 +1,86 @@
+#-------------------------------------------------------------#
+#----------------SEM (Standard Error of Mean)-----------------#
+#-------------------------------------------------------------#
+
+The standard error of the mean (SEM) measures how much discrepancy is likely in a sample's mean compared with the population mean.
+
+SEM = std / math.sqrt(sample_size)
+
+#--------------------------------------------------------#
+#---------------Covariance - Correlation-----------------#
+#--------------------------------------------------------#
+
+Correlation and Covariance are to measure the joint variability between variables (often between 2 variables)
+Covariance is dependent to the unit of the variables, therefore not used much
+However, the Correlation is independent from the unit, range from -1 to 1, therefore more significant in comparison of the joint variability
+
+There are many types of correlation: Pearson, Spearsman and Tau
+
+The Pearson method uses directly the original data to calculate the correlation coefficient, therefore always prioritize to use this method first1
+Conditions/assumptions of Pearson correlation: normality, two variables are independent from each other, no outliers,...
+
+In case the Pearson conditions are violated => Use Spearsman, which converts the data into ranks then use them to calculate correlation coefficient 
+
+In case there are many tie-rank values (many values have the same rank), use Kendal's Tau correlation
+
+####Code: numpy.arr([array_X]).corr(array_Y, method='')
+print('\nWeights ~ Heights Pearson correlation =', heights_new.corr(weights_new, method='pearson')) #Default
+
+print('\nWeights ~ Heights Spearman correlation =', heights_new.corr(weights_new, method='spearman'))
+
+print('\nWeights ~ Heights Kendall correlation =', heights_new.corr(weights_new, method='kendall'))
+
+
+
+#---------------------------------------------------------#
+#--------------- K-fold Cross Validation -----------------#
+#---------------------------------------------------------#
+Assumming we have a dataset with 10000 data
+
+Then, we divide it into 5 part:
+ 1st: 2000 data
+ 2nd: 2000 data
+ 3rd: 2000 data
+ 4th: 2000 data
+ 5th: 2000 data
+
+After that, we conduct the model training like this:
+ Row 1: we use the 1st part for testing and 2nd, 3rd, 4th, 5th for training
+ Row 2: we use the 2nd part for testing and 1st, 3rd, 4th, 5th for training
+.... keep doing like that until the 5th part as testing set
+
+Finally, we calculate the average accuracy of 5 training rows to get the final result
+
+This method is called k-fold cross validation (in this case is 5-fold)
+With this method, all the datasets can become the test set, enhancing the reliability of our model
+
+###Code
+from sklearn.model_selection import train_test_split, KFold
+#
+# scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
+#    KFold(n_splits=5, *, shuffle=False, random_state=None)
+#       shuffle: bool (default=False)
+#                Whether to shuffle the data before splitting into batches. 
+#                Note that the samples within each split will not be shuffled.
+#       random_state: int or RandomState instance (default=None)
+#                When shuffle is True, random_state affects the ordering 
+#                of the indices, which controls the randomness of each fold.
+#                Otherwise, this parameter has no effect.
+#                Pass an int for reproducible output across multiple function calls.
+
+data   = pd.read_csv('data/fruit_data_with_colors.txt', sep='\t')
+X = data[['mass', 'width', 'height', 'color_score']]
+y = data['fruit_label']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3)
+
+cv = KFold(n_splits=10, shuffle=True, random_state=1) 
+# random_state tương tự seed()
+time = 0
+for train_index, test_index in cv.split(X):
+    time += 1
+    print('*** Time:', time)
+    print('   - Train Index: ', train_index.tolist())
+    print('   - Test Index: ', test_index.tolist(), '\n')
+    X_train, X_test= X.iloc[train_index.tolist()], X.iloc[test_index.tolist()]
+    y_train, y_test = y.iloc[train_index.tolist()], y.iloc[test_index.tolist()] 

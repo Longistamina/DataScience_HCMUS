@@ -1,0 +1,19 @@
+#Eliminate outliers
+x_train = loan
+x_train['Predict'] = y_train
+
+def remove_outliers_rows(data, column_list):
+    index_to_drop = []
+    for col in column_list:
+        q1 = data[col].quantile(0.25)
+        q3 = data[col].quantile(0.75)
+        iqr = q3-q1
+        condition = (data[col] < (q1 - iqr*1.5)) | (data[col] > (q3 + iqr*1.5)) #Condition to get outliers
+        index_to_drop += data.loc[condition, col].index.to_list() #Get the index of outliers from data[col] pandas series
+    
+    index_to_drop = list(set(index_to_drop)) #set to remove duplicate index values between variables
+    data = data.drop(index_to_drop)
+    return data.reset_index(drop=True)
+    
+x_train = remove_outliers_rows(x_train, lst_quantitative)
+x_train

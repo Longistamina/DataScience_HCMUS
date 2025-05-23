@@ -1,0 +1,13 @@
+#------------------------------------------------------------#
+#---------------------- Get posts information ---------------#
+#------------------------------------------------------------#
+import request
+
+token = "...."
+
+post = request.get('https/graph.facebook.com/v22.0/me/feed?access_token' + token)
+post = post.json()
+print(post)
+
+df_post = pd.DataFrame(result2['data'])
+print(df_post)

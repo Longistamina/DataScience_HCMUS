@@ -1,0 +1,412 @@
+Decision Tree _ Classification task example
+
+Assuming a training dataset like this
+
+Day | Outlook  | Temperature | Humidity | Windy | Play Tennis
+----|----------|-------------|----------|-------|-------------
+1   | Sunny    | Hot         | High     | No    | No
+2   | Sunny    | Hot         | High     | Yes   | No
+3   | Overcast | Hot         | High     | No    | Yes
+4   | Rain     | Mild        | High     | No    | Yes
+5   | Rain     | Cool        | Normal   | No    | Yes
+6   | Rain     | Cool        | Normal   | Yes   | No
+7   | Overcast | Cool        | Normal   | Yes   | Yes
+8   | Sunny    | Mild        | High     | No    | No
+9   | Sunny    | Cool        | Normal   | No    | Yes
+10  | Rain     | Mild        | Normal   | No    | Yes
+11  | Sunny    | Mild        | Normal   | Yes   | Yes
+12  | Overcast | Mild        | High     | Yes   | Yes
+13  | Overcast | Hot         | Normal   | No    | Yes
+14  | Rain     | Mild        | High     | Yes   | No
+
+
+#----------------------------------------------------------------------------------#
+#----------------------- Level 1: Root Node Split ---------------------------------#
+#----------------------------------------------------------------------------------#
+
+First, calculate the Gini impurity for the root node:
+
+Sample size = 14
+There are 9 "Yes" instances and 5 "No" instances
+
+=> Gini(root) = 1 - (9/14)^2 - (5/14)^2 = 1 - 0.413 - 0.128 = 0.459
+
+Now, let's calculate the information gain for each feature:
+
+---------------------------
+# For "Outlook": #
+
+For Outlook = "Sunny":
+  P("Yes"|"Sunny") and  P("No"|"Sunny")
+  5 instances: 2 "Yes", 3 "No"
+  Gini(Sunny) = 1 - (2/5)^2 - (3/5)^2 = 1 - 0.16 - 0.36 = 0.48
+
+For Outlook = "Overcast":
+  P("Yes"|"Overcast") and P("No"|"Overcast")
+  4 instances: 4 "Yes", 0 "No"
+  Gini(Overcast) = 1 - (4/4)^2 - (0/4)^2 = 0
+
+For Outlook = "Rain":
+  P("Yes"|"Rain") and P("No"|"Rain")
+  5 instances: 3 "Yes", 2 "No"
+  Gini(Rain) = 1 - (3/5)^2 - (2/5)^2 = 1 - 0.36 - 0.16 = 0.48
+
+Weighted Gini after split on "Outlook":
+  WeightedGini(Outlook) = (5/14 × 0.48) + (4/14 × 0) + (5/14 × 0.48) = 0.343
+
+Information Gain for Outlook:
+  Gain(Outlook) = 0.459 - 0.343 = 0.116
+
+---------------------------
+# For "Temperature": #
+
+For Temperature = "Hot":
+  P("Yes"|"Hot") and P("No"|"Hot")
+  4 instances: 2 "Yes", 2 "No"
+  Gini(Hot) = 1 - (2/4)^2 - (2/4)^2 = 1 - 0.25 - 0.25 = 0.5
+
+For Temperature = "Mild":
+  P("Yes"|"Mild") and P("No"|"Mild")
+  6 instances: 4 "Yes", 2 "No"
+  Gini(Mild) = 1 - (4/6)^2 - (2/6)^2 = 1 - 0.444 - 0.111 = 0.445
+
+For Temperature = "Cool":
+  P("Yes"|"Cool") and P("No"|"Cool")
+  4 instances: 3 "Yes", 1 "No"
+  Gini(Cool) = 1 - (3/4)^2 - (1/4)^2 = 1 - 0.563 - 0.063 = 0.374
+
+Weighted Gini after split on "Temperature":
+  WeightedGini(Temperature) = (4/14 × 0.5) + (6/14 × 0.445) + (4/14 × 0.374) = 0.440
+
+Information Gain for Temperature:
+  Gain(Temperature) = 0.459 - 0.440 = 0.019
+
+--------------------------------
+# For "Humidity": #
+
+For Humidity = "High":
+  P("Yes"|"High") and P("No"|"High")
+  7 instances: 3 "Yes", 4 "No"
+  Gini(High) = 1 - (3/7)^2 - (4/7)^2 = 1 - 0.184 - 0.327 = 0.489
+
+For Humidity = "Normal":
+  P("Yes"|"Normal") and P("No"|"Normal")
+  7 instances: 6 "Yes", 1 "No"
+  Gini(Normal) = 1 - (6/7)^2 - (1/7)^2 = 1 - 0.735 - 0.02 = 0.245
+
+Weighted Gini after split on "Humidity":
+   WeightedGini(Humidity) = (7/14 × 0.489) + (7/14 × 0.245) = 0.367
+
+Information Gain for Humidity:
+  Gain(Humidity) = 0.459 - 0.367 = 0.092
+
+--------------------------------
+# For "Windy": #
+
+For Windy = "No":
+  P("Yes"|"Wind_No") and P("No"|"Wind_No")
+  8 instances: 6 "Yes", 2 "No"
+  Gini(No) = 1 - (6/8)^2 - (2/8)^2 = 1 - 0.563 - 0.063 = 0.374
+
+For Windy = "Yes":
+  P("Yes"|"Wind_Yes") and P("No"|"Wind_Yes")
+  6 instances: 3 "Yes", 3 "No"
+  Gini(Yes) = 1 - (3/6)^2 - (3/6)^2 = 1 - 0.25 - 0.25 = 0.5
+
+Weighted Gini after split on "Windy":
+   WeightedGini(Windy) = (8/14 × 0.374) + (6/14 × 0.5) = 0.429
+
+Information Gain for Windy:
+  Gain(Windy) = 0.459 - 0.429 = 0.03
+
+--------------------------------
+Best Split for Level 1:
+# Gain(Outlook)     = 0.116
+# Gain(Humidity)    = 0.092
+# Gain(Windy)       = 0.03
+# Gain(Temperature) = 0.019
+
+"Outlook" has the highest information gain, so it becomes our first split.
+
+
+#--------------------------------------------------------------------------------------------------#
+#----------------------- Level 2: Splits for each "Outlook" value ---------------------------------#
+#--------------------------------------------------------------------------------------------------#
+
+"Outlook" has 3 values: "Outcast", "Sunny" and "Rain"
+
+Each of these values will be a split
+
+------------------------------------
+For the "Overcast" branch, all instances are "Yes", 
+so this is a leaf node with prediction "Yes".
+
+Let's examine the "Sunny" and "Rain" branches:
+
+----------------------------------
+For "Sunny" branch:
+  We have 5 instances: 2 "Yes", 3 "No"
+  Gini(Sunny) = 0.48   (calculated above)
+
+Let's calculate the gain for each remaining feature:
+# For "Humidity" in Sunny: ###
+  For Sunny & Humidity = "High":
+    P("Yes" | "Sunny"."High") and P("No" | "Sunny"."High")
+    3 instances: 0 "Yes", 3 "No": 
+    Gini(Sunny.High) = 1 - (0/3)^2 - (3/3)^2 = 1 - 0 - 1 = 0
+
+  For Sunny & Humidity = "Normal":
+    P("Yes" | "Sunny"."Normal") and P("No" | "Sunny"."Normal")
+    2 instances: 2 "Yes", 0 "No"
+    Gini(Sunny.Normal) = 1 - (2/2)^2 - (0/2)^2 = 1 - 1 - 0 = 0
+
+  Weighted Gini:
+    WeightedGini(Humidity | Sunny) = (3/5 × 0) + (2/5 × 0) = 0
+
+  Information Gain for Humidity in Sunny:
+    Gain(Humidity | Sunny) = 0.48 - 0 = 0.48
+
+
+
+# For "Temperature" in Sunny: ###
+  For Sunny & Temperature = "Hot":
+    P("Yes" | "Sunny"."Hot") and P("No" | "Sunny"."Hot")
+    2 instances: 0 "Yes", 2 "No"
+    Gini(Hot | Sunny) = 1 - (0/2)^2 - (2/2)^2 = 1 - 0 - 1 = 0
+
+  For Sunny & Temperature = "Mild":
+    P("Yes" | "Sunny"."Mild") and P("No" | "Sunny"."Mild")
+    2 instances: 1 "Yes", 1 "No"
+    Gini(Mild | Sunny) = 1 - (1/2)^2 - (1/2)^2 = 1 - 1/4 - 1/4 = 0.5
+
+  For Sunny & Temperature = "Cool":
+    P("Yes" | "Sunny"."Cool") and P("No" | "Sunny"."Cool")
+    1 instance: 1 "Yes", 0 "No"
+    Gini(Cool | Sunny) = 1 - (1/1)^2 - (0/1)^2 = 1 - 1 - 0 = 0
+
+  Weighted Gini:
+    WeightedGini(Temperature | Sunny) = (2/5 × 0) + (2/5 × 0.5) + (1/5 × 0) = 0.2
+
+  Information Gain for Temperature in Sunny:
+    Gain(Temperature | Sunny) = 0.48 - 0.2 = 0.28
+
+
+
+# For "Windy" in Sunny:
+  For Sunny & Windy = "No":
+    P("Yes" | "Sunny"."Windy_No") and P("No" | "Sunny"."Windy_No")
+    3 instances: 1 "Yes", 2 "No"
+    Gini(Windy_No | Sunny) = 1 - (1/3)^2 - (2/3)^2 = 1 - 1/9 - 4/9 = 0.444
+
+  For Sunny & Windy = "Yes":
+    P("Yes" | "Sunny"."Windy_Yes") and P("No" | "Sunny"."Windy_Yes")
+    2 instances: 1 "Yes", 1 "No"
+    Gini(Windy_Yes | Sunny) = 1 - (1/2)^2 - (1/2)^2 = 1 - 1/4 - 1/4 = 0.5
+
+  Weighted Gini:
+    WeightedGini(Windy | Sunny) = (3/5 × 0.444) + (2/5 × 0.5) = 0.466
+
+  Information Gain for Windy in Sunny:
+    Gain(Windy | Sunny) = 0.48 - 0.466 = 0.014
+
+
+
+Best Split for Sunny:
+# Gain(Humidity | Sunny)    = 0.48
+# Gain(Temperature | Sunny) = 0.28
+# Gain(Windy | Sunny)       = 0.014
+
+"Humidity" has the highest gain, so it's the best split for the Sunny branch.
+
+
+
+---------------------------------------------------------
+For "Rain" branch:
+  We have 5 instances: 3 "Yes", 2 "No"
+  Gini(Rain) = 0.48
+
+Let's calculate the gain for each remaining feature:
+
+# For "Windy" in Rain: ###
+  For Rain & Windy = "No":
+    P("Yes" | "Rain"."Windy_No") and P("No" | "Rain"."Windy_No")
+    3 instances: 3 "Yes", 0 "No"
+    Gini(Windy_No | Rain) = 1 - (3/3)^2 - (0/3)^2 = 1 - 1 - 0 = 0
+
+  For Rain & Windy = "Yes":
+    P("Yes" | "Rain"."Windy_Yes") and P("No" | "Rain"."Windy_Yes")
+    2 instances: 0 "Yes", 2 "No"
+    Gini((Windy_Yes | Rain)) = 1 - (0/2)^2 - (2/2)^2 = 1 - 0 - 1 = 0
+
+  Weighted Gini:
+    WeightedGini(Windy | Rain) = (3/5 × 0) + (2/5 × 0) = 0
+
+  Information Gain for Windy in Rain:
+    Gain(Windy | Rain) = 0.48 - 0 = 0.48
+
+
+
+# For "Temperature" in Rain: ###
+  For Rain & Temperature = "Mild":
+    P("Yes" | "Rain"."Mild") and P("No" | "Rain"."Mild")
+    3 instances: 2 "Yes", 1 "No"
+    Gini(Mild | Rain) = 1 - (2/3)^2 - (1/3)^2 = 1 - 4/9 - 1/9 = 0.444
+
+  For Rain & Temperature = "Cool":
+    P("Yes" | "Rain"."Cool") and P("No" | "Rain"."Cool")
+    2 instances: 1 "Yes", 1 "No"
+    Gini(Cool | Rain) = 1 - (1/2)^2 - (1/2)^2 = 1 - 1/4 - 1/4 = 0.5
+
+  Weighted Gini:
+    WeightedGini(Temperature | Rain) = (3/5 × 0.444) + (2/5 × 0.5) = 0.466
+
+  Information Gain for Temperature in Rain:
+    Gain(Temperature | Rain) = 0.48 - 0.466 = 0.014
+
+
+
+# For "Humidity" in Rain: ###
+  For Rain & Humidity = "High":
+    P("Yes" | "Rain"."High") and P("No" | "Rain"."High")
+    2 instances: 1 "Yes", 1 "No"
+    Gini(High | Rain) = 1 - (1/2)^2 - (1/2)^2 = 1 - 1/4 - 1/4 = 0.5
+
+  For Rain & Humidity = "Normal":
+    P("Yes" | "Rain"."Normal") and P("No" | "Rain"."Normal")
+    3 instances: 2 "Yes", 1 "No"
+    Gini(Normal | Rain) = 1 - (2/3)^2 - (1/3)^2 = 1 - 4/9 - 1/9 = 0.444
+
+  Weighted Gini:
+    WeightedGini(Humidity | Rain) = (2/5 × 0.5) + (3/5 × 0.444) = 0.466
+
+  Information Gain for Humidity in Rain:
+    Gain(Humidity | Rain) = 0.48 - 0.466 = 0.014
+
+
+Best Split for Rain:
+# Gain(Windy | Rain) = 0.48
+# Gain(Temperature | Rain) = 0.014
+# Gain(Humidity | Rain) = 0.014
+
+"Windy" has the highest gain, so it's the best split for the Rain branch.
+
+
+#-------------------------------------------------------------------------------#
+#----------------------- Level 3: Final Splits ---------------------------------#
+#-------------------------------------------------------------------------------#
+
+The splits at Level 2 lead to pure nodes (Gini = 0), so we don't need further splitting.
+
+A node is considered "pure" when all instances in that node belong to the same class. 
+In our case, each of our leaf nodes contains instances that all have the same value for "Play Tennis" (either all "Yes" or all "No").
+
+When all instances belong to the same class, one of the probabilities becomes 1 and all others become 0. So the formula becomes:
+                  Gini(t) = 1 − 1^2 − 0^2 − ... −0^2 = 1 − 1 = 0
+
+---------------------
+Detailed explains
+
+#From the "Sunny" branch split on "Humidity": ###
+  
+  Sunny & Humidity = "High":
+    Contains 3 instances: Days 1, 2, and 8
+    All 3 instances have "Play Tennis = No"
+    Class distribution: 0 "Yes", 3 "No"
+    Gini impurity = 1 - (0/3)^2 - (3/3)^2 = 1 - 0 - 1 = 0
+
+  Sunny & Humidity = "Normal":
+    Contains 2 instances: Days 9 and 11
+    Both instances have "Play Tennis = Yes"
+    Class distribution: 2 "Yes", 0 "No"
+    Gini impurity = 1 - (2/2)^2 - (0/2)^2 = 1 - 1 - 0 = 0
+
+***
+# From the "Rain" branch split on "Windy": ###
+  
+  Rain & Windy = "No":
+    Contains 3 instances: Days 4, 5, and 10
+    All 3 instances have "Play Tennis = Yes"
+    Class distribution: 3 "Yes", 0 "No"
+    Gini impurity = 1 - (3/3)^2 - (0/3)^2 = 1 - 1 - 0 = 0
+
+  Rain & Windy = "Yes":
+    Contains 2 instances: Days 6 and 14
+    Both instances have "Play Tennis = No"
+    Class distribution: 0 "Yes", 2 "No"
+    Gini impurity = 1 - (0/2)^2 - (2/2)^2 = 1 - 0 - 1 = 0
+
+***
+The "Overcast" branch:
+Outlook = "Overcast":
+  Contains 4 instances: Days 3, 7, 12, and 13
+  All 4 instances have "Play Tennis = Yes"
+  Class distribution: 4 "Yes", 0 "No"
+  Gini impurity = 1 - (4/4)^2 - (0/4)^2 = 1 - 1 - 0 = 0
+
+#-----------------------------------------------------------------------------#
+#----------------------- Final Decision Tree ---------------------------------#
+#-----------------------------------------------------------------------------#
+
+Based on our calculations, here's the final decision tree:
+
+Root: Split on "Outlook"
+  If "Overcast" → Play Tennis = Yes
+
+  If "Sunny" → Check "Humidity"
+    If "High" → Play Tennis = No      (Because P("No" | "Sunny"."High") = 1 > P("Yes" | "Sunny"."High") = 0 ) 
+    If "Normal" → Play Tennis = Yes   (Because P("Yes" | "Sunny"."Normal") = 1 > P("No" | "Sunny"."Normal") = 0 )
+
+  If "Rain" → Check "Windy"
+    If "No" → Play Tennis = Yes       (Because P("Yes" | "Rain"."Windy_No") = 1 > P("No" | "Rain"."Windy_No") = 0 )
+    If "Yes" → Play Tennis = No       (Because P("No" | "Rain"."Windy_Yes") = 1 > P("Yes" | "Rain"."Windy_Yes") = 0 )
+
+
+                              Outlook
+                                 |
+           +-----------------+---+-------------------+
+           |                 |                       |
+        Sunny             Overcast                 Rain
+           |                 |                       |
+           |            Play Tennis = Yes            |
+           |                                         |
+       Humidity                                    Windy
+           |                                         |
+     +-----+------+                           +-----+------+
+     |            |                           |            |
+   High         Normal                       No           Yes
+     |            |                           |            |
+Play Tennis = No  Play Tennis = Yes   Play Tennis = Yes  Play Tennis = No
+
+
+IF Outlook = Overcast THEN Play Tennis = Yes
+IF Outlook = Sunny AND Humidity = High THEN Play Tennis = No
+IF Outlook = Sunny AND Humidity = Normal THEN Play Tennis = Yes
+IF Outlook = Rain AND Windy = No THEN Play Tennis = Yes
+IF Outlook = Rain AND Windy = Yes THEN Play Tennis = No
+
+#-----------------------------------------------------------------------------#
+#----------------------- Making a Prediction ---------------------------------#
+#-----------------------------------------------------------------------------#
+
+Let's make a prediction for a new instance:
+
+Outlook = Sunny
+Temperature = Cool
+Humidity = Normal
+Windy = Yes
+
+Following our decision tree:
+  # Check Outlook = Sunny → Check Humidity
+  # Humidity = Normal → Prediction: Play Tennis = Yes
+
+Therefore, the prediction for this new instance is: Yes, Play Tennis.
+
+#----------------------------------------------------------------#
+#-----------------------Summary ---------------------------------#
+#----------------------------------------------------------------#
+
+The complete decision tree has three levels with the following splits:
+
+Level 1: Split on "Outlook"
+Level 2: For "Sunny" branch, split on "Humidity"; For "Rain" branch, split on "Windy"
+All leaf nodes are pure (Gini = 0)

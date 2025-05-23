@@ -1,0 +1,148 @@
+#----------------------------------------------------------------#
+#-------------------- ECLAT explanation -------------------------#
+#----------------------------------------------------------------#
+
+
+1. OVERVIEW
+-----------
+ECLAT (Equivalence Class Clustering and bottom-up Lattice Traversal) is an algorithm used in data mining for frequent itemset mining. 
+
+Unlike Apriori, ECLAT uses a depth-first search strategy and operates on a vertical data format, 
+where each item is associated with a list of transaction IDs (TIDs) where it appears.
+
+2. BASIC TERMINOLOGY
+--------------------
+- Itemset: A collection of one or more items. (Transaction 1: butter, spinach, tomato,...)
+- TID List: List of transaction IDs that contain a particular itemset. (Coffee: transaction 1, transaction 2,  transaction 5, ....)
+
+
+- Support: The number of transactions that contain the itemset.
+
+   Support(X) = |TID List of X| / Total number of transactions
+
+Minimum Support Threshold: The minimum support value an itemset must meet to be considered frequent.
+
+
+- Confidence (for rule X -> Y):  
+    Confidence(X -> Y) = Support(X ∪ Y) / Support(X)  
+
+
+- Lift (X -> Y):  
+    Lift(X -> Y) = Confidence(X -> Y) / Support(Y)  
+
+
+3. ECLAT ALGORITHM STEPS
+------------------------
+1. Convert the transaction database into a vertical format (item -> list of TIDs).
+2. Use a depth-first search to combine items and intersect TID lists.
+3. Prune itemsets whose support is less than the minimum threshold.
+4. Continue until all frequent itemsets are found.
+
+
+#----------------------------------------------------------------------#
+#----------------------------- EXAMPLE --------------------------------#
+#----------------------------------------------------------------------#
+
+-----------------
+Transactions:
+T1: A, B, C  
+T2: A, B  
+T3: A, C  
+T4: B, C  
+T5: A, B, C  
+
+Minimum Support = 2 transactions (40% if 5 transactions)
+
+Step 1: Vertical format  
+A -> {T1, T2, T3, T5}
+B -> {T1, T2, T4, T5}  
+C -> {T1, T3, T4, T5}  
+
+Step 2: Generate 2-itemsets and intersect TID lists  
+AB -> {T1, T2, T5} => Support = 3 (Frequent)  
+AC -> {T1, T3, T5} => Support = 3 (Frequent)  
+BC -> {T1, T4, T5} => Support = 3 (Frequent)  
+
+Step 3: Generate 3-itemset from frequent 2-itemsets  
+ABC = A ∩ B ∩ C = {T1, T5} => Support = 2 (Frequent)  
+
+
+Frequent Itemsets (Support shown as decimal):
+A: 4/5 = 0.8  
+B: 4/5 = 0.8  
+C: 4/5 = 0.8  
+AB: 3/5 = 0.6  
+AC: 3/5 = 0.6  
+BC: 3/5 = 0.6  
+ABC: 2/5 = 0.4  
+
+Derived Association Rules with Comments:
+
+1. A -> B  
+   Support: 0.6  
+   Confidence: 0.75  
+   Lift: 0.9375  
+   Comment: 75% of transactions with A also have B, but since Lift < 1, A and B co-occur less than expected under independence.
+
+2. B -> A  
+   Support: 0.6  
+   Confidence: 0.75  
+   Lift: 0.9375  
+   Comment: Symmetric to A -> B, showing mutual but slightly negatively correlated behavior.
+
+3. A -> C  
+   Support: 0.6  
+   Confidence: 0.75  
+   Lift: 0.9375  
+   Comment: C appears in 75% of transactions containing A, but the lift again suggests weak negative correlation.
+
+4. C -> A  
+   Support: 0.6  
+   Confidence: 0.75  
+   Lift: 0.9375  
+   Comment: C is not a strong driver for A, same pattern as A -> C.
+
+5. B -> C  
+   Support: 0.6  
+   Confidence: 0.75  
+   Lift: 0.9375  
+   Comment: 3 out of 4 transactions with B also have C, but lift indicates they occur slightly less together than by chance.
+
+6. C -> B  
+   Support: 0.6  
+   Confidence: 0.75  
+   Lift: 0.9375  
+   Comment: Again, high confidence but less than ideal lift suggests weak association.
+
+7. AB -> C  
+   Support: 0.4  
+   Confidence: 0.6667  
+   Lift: 0.8333  
+   Comment: Two-thirds of transactions with A and B also include C, but the lift below 1 shows reduced significance of C.
+
+8. AC -> B  
+   Support: 0.4  
+   Confidence: 0.6667  
+   Lift: 0.8333  
+   Comment: Suggests B is moderately common in transactions with A and C, but not strongly.
+
+9. BC -> A  
+   Support: 0.4  
+   Confidence: 0.6667  
+   Lift: 0.8333  
+   Comment: A appears in 2 out of 3 BC transactions; some correlation, but not a strong predictive relationship.
+
+
+#-------------------------------------------------------#
+#--------------- Pros and Cons -------------------------#
+#-------------------------------------------------------#
+
+ADVANTAGES OF ECLAT
+----------------------
+- Faster than Apriori for dense datasets.  
+- Uses vertical format which is efficient for set intersections.
+
+LIMITATIONS
+--------------
+- High memory usage due to storing many TID lists.  
+- Not suitable for dynamic datasets.

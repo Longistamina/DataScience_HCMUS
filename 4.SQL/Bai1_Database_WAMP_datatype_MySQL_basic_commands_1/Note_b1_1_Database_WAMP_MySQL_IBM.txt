@@ -1,0 +1,145 @@
+#-------------------------------------------------------------------#
+#----------------------- Database ----------------------------------#
+#-------------------------------------------------------------------#
+
+Data can be simply considered as information in many forms like text, digit, image,...
+
+Data is very important nowadays, it's the most valuable asset of any company in the world.
+
+Data can be collected anywhere such as fill-in forms, reports, newspaper, surveys,....
+
+Database is the "place" where data is stored in a structured format (usually tabular format).
+Steps to create a database:
+	+Create database
+	+Create tables in database
+	+Add in data points in the tables
+	+Make queries for specific data points
+
+One database can contain many different tables
+
+One database can be accessed and used by many people 
+=> Must have authentication steps to ensure that only admitted people can access to the database (via username, password) 
+=> To ensure the security
+
+After authentication is authorization, means provides specific rights for particular people
+=> So, some people can only read the database, while others with higher rights can read and modify....
+
+DBMS = DataBase Management System = software that helps create and manage database
+
+#-------------------------------------------------------------------#
+#------------------------- SQL - -----------------------------------#
+#-------------------------------------------------------------------#
+
+SQL = Structured Query Language
+
+There are 2 types of SQL:
+	+DDL: Data Definition Language (to create or setup new database)
+	+DML: Data Manipulation Language (to add data, read, modify, or do other tasks in a database)
+
+DDL commands:
+	+CREATE: create new database
+	+ALTER: change database structure
+	+DROP: remove database
+	+RENAME: change database's name
+
+DML commands:
+	+INSERT: add in new data point(s)
+	+UPDATE: update new information for existed data point(s)
+	+DELETE: delete data point(s)
+
+#------------------------------------------------------------------------#
+#------------------------- WAMPServer -----------------------------------#
+#------------------------------------------------------------------------#
+WAMPServer is a software that helps work with web programing and web devlopper
+(WAMP is for Windows)
+
+WAMPServer integrates many web/server languages like PHP, MySQL, SQLitemanager, PHPMyAdmin...
+(like VScode integrates python, C, C++, javascript,....)
+
+For LINUX and MacOS => LAMPServer or MAMPServer (should use MAMPServer)
+
+Or can install MySQL + Workbench only if don't need PHP,...
+
+Remember to install all Visual Studio packages to enable running WAMP/LAMP/MAMP
+
+Choose wanted browser to run LAMP (brave browser), if it asks to use "notepad", choose "No"
+
+Start the WAMP/LAM/MAMP (double click) and let it run all of its services 
+(until the symbol turns from Red -> Yellow -> Green)
+then choose PhpMyAdmin to run WAMP/LAMP/MAMP on the browser
+
+After that, choose MySQL as "Server choice", 
+and login with username = "root", no password
+
+If still cannot activate PhpMyAdmin to access MySQL
+=> Right click the WAMP/LAMP/MAMP symbol and check the "port"
+=> The Apache's port is usually 80
+=> If some other programs also use port 80 (like IIS of windows), can lead to conflict
+=> Must change the port
+
+#-------------------------------------------------------------------#
+#------------------------- MySQL -----------------------------------#
+#-------------------------------------------------------------------#
+MySQL (developed by Oracle)
+
+MySQL can be used by accessing MySQL cloud system (server) or installing local MySQL
+
+Can operate MySQL via GUI interface or command line
+
+Can use Python to connect MySQL and make query for data
+
+In MySQL interface on PHPMyAdmin:
+	+Click "New" to add new database, type the database name and click "Create"
+	+Click the new-created database, type table name in "Name", choose "Number of columns" and click "Go" to next step
+	+In the new interface, "Name": is column's name
+			       "Type": is datatype of column (INT=integer, VARCHAR=small string, TEXT=large string,..)
+			       "Length/Values": the size of the values of that column
+	+Click "PreviewSQL" to see the command lines to create that table
+	+Click "Save" to save the table, finish creating new table in this database
+
+Delete table:
+	+Click the table name
+	+Choose "Operations"
+	+Scroll down until "Delete data or table"
+	+Choose "Delete the table (DROP)"
+
+Import table into database:
+	+In MySQL interface, choose wanted database
+	+Click "Import"
+	+Click "Choose File" and choose target table file (.csv, .xlsx, etc.)
+	+Scroll down, tick "The first line of the file contains the table column names (if this is unchecked, the first line will become part of the data)"
+	+Click "Import" (at the end of the page)
+
+Export table from database into local file:
+	+In MySQL interface, choose database, then choose table
+	+Click "Export"
+	+If having no special requirements, choose "Quick -...." then scroll down and click "Export"
+	+Else, choose "Custom -...."
+	+Then, choose format .csv, .sql, ....
+	+Scroll down, tick "Put columns names in the first row"
+	+Then click "Export"
+
+#-----------------------------------------------#
+#--------------- SQL and IBM cloud -------------#
+#-----------------------------------------------#
+Go to "cloud.ibm.com"
+
+Register an account then login
+
+Choose "Db2" service (lite, free, 200MB storage)
+
+Click "Create" to create a new Db2 Database instance (named Db2-xx where xx is an ordinal number)
+
+Click to select that Db2-xx instance, go to "Manage" then choose "Open Console"
+
+In "Db2 Console" window, choose the Menu symbol (3 gach) "=" to open Menu tab
+	+"LOAD" to load or import data like .csv or .xlsx into Db2-xx
+	+"EXPLORE" to see which tables does Db2-xx contain
+	+"RUN SQL" to run SQL commands
+
+
+"RUN SQL":
+	+From file: to upload an SQL file (*.sql) containing existed query commands and run them
+	+Blank: to open an empty script window to type new SQL query commands, then click "Run all"
+
+

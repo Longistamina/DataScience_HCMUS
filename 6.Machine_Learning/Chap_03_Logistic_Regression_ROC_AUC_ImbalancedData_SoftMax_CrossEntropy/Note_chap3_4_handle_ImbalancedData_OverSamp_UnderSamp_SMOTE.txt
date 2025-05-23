@@ -1,0 +1,121 @@
+Dataset Imbalance: assume we have a dataset with 4 output labels A, B, C and D. 
+		   But 85% of the data output is A,
+		   while B, C and D each occupy 5%
+		   => Imbalanced ouput classes/labels
+		   => Encounter Accuracy Paradox: the accuracy of model is very high, but only for one specific label, the for others is low
+
+Check the imbalance in each specific feature, not all along the dataset
+
+One of the best way to check for the imbalance is using BAR CHART
+
+Assume a feature have 2 classes / labels:
+	+Balance feature: 50/50 ~ 40/60
+	+Imbalance feature: 70/30 ~ 80/20
+
+Below are some methods to handle imbalanced dataset
+
+#---------------------------------------------------------------------------#
+#-------------------------------Collect more data---------------------------#
+#---------------------------------------------------------------------------#
+
+This is the best method to solve imbalanced dataset, also the most effective way
+
+But it is rarely preferred since it will cost more time and money to collect more data
+
+
+
+#-------------------------------------------------------------------------------------------#
+#-------------------------Resampling Data (not collect more data)---------------------------#
+#-------------------------------------------------------------------------------------------#
+
+This method is not collecting more data
+
+It is meant to use some techniques to add in some duplicate observations of the minority group,
+or eliminate some observations of the majority group
+
+This method is inferior to Collecting new data, but it helps save ressources from collecting new data
+
+Assume we have a datatset with 80% male and 20% female:
+	+Over-sampling: duplicate some female observations to increase female percentage
+	+Under-sampling: eliminate some male observations to decrease male percentage
+
+Should try both methods to see which one is better
+
+
+************************************
+*********** Under-Sampling *********
+************************************
+Use:
+	+imblearn.under_sampling.ClusterCentroids
+	+imblearn.under_sampling.RandomUnderSample
+	+sklearn.utils.resample
+
+x = df[['x1', 'x2']] #input
+y = df['output'] #output
+
+from imblearn.under_sampling import ClusterCentroids
+clust_cent = ClusterCentroids(random_state=0)
+x_resample, y_resample = clust_cent.fit_resample(x, y)
+df_new = pd.DataFrame(x_resample, columns=....)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+from imblearn.under_sampling import RandomUnderSampler
+ra_und_samp = RandomUnderSampler(random_state=0)
+x_resample, y_resample = ra_und_samp.fit_resample(x, y)
+df_new = pd.DataFrame(x_resample, columns=....)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+from sklearn.utils import resample
+df_0 = df[df['target']==0] #shape 14183x3
+df_1 = df[df['target']==1] #shape 817x3
+df_0_resample = resample(df_0, replace=False, n_samples = df_1.shape[0], random_state=0)
+df_new = pd.concat([df_0_resample, df_1], axis=0)
+df_new.shape['output'].values_count()
+
+
+************************************
+*********** Over-Sampling **********
+************************************
+Use:
+	+SMOTE (Synthetic Minority Over-sampling Technique): it uses KNN algorithm to create K data points near original ones (no overlaps)
+	+use imblearn.overer_sampling.SMOTE
+	+Or use imblearn.overer_sampling.RandomOverSampler (this duplicates original data points, so may cause overlaps)
+	+Or use sklearn.utils.resample (also causes overlap)
+
+x = df[['x1', 'x2']] #input
+y = df['output'] #output
+
+from imblearn.overer_sampling import SMOTE
+smote = SMOTE(random_state = 0, k_neighbors=...) #default k_neigbors = 5
+x_resample, y_resample = smote.fit_resample(x, y)
+df_new = pd.DataFrame(x_resample, columns=....)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+from imblearn.overer_sampling import RandomOverSampler
+ra_over_samp = RandomOverSampler(random_state=0)
+x_resample, y_resample = ra_over_samp.fit_resample(x, y)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+
+from sklearn.utils import resample
+df_0 = df[df['target']==0] #shape 894x3
+df_1 = df[df['target']==1] #shape 106x3
+df_1_resample = resample(df_1, replace=False, n_samples = df_0.shape[0], random_state=0)
+df_new = pd.concat([df_1_resample, df_0], axis=0)
+df_new.shape['output'].values_count()
+
+#-------------------------------------------------------------------------------------------#
+#-------------------------Visualize data after sampling/balancing---------------------------#
+#-------------------------------------------------------------------------------------------#
+
+sbn.scatter(data=df_new, x='x1', y='x2', hue='output') #2D scatterplot
+
+#3D scatterplot
+from mpl_toolkits.mplot3d import Axes3D
+f = plt.figure(figsize=(8,8))
+ax = f.add_subplot(111, projection='3d')
+ax.scatter(df_new['x1'], df_new['x2'], df_new['output'], c=df_new['output'])

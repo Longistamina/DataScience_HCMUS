@@ -1,0 +1,2 @@
+Go to this link: https://www.kaggle.com/datasets/mczielinski/bitcoin-historical-data
+Then, download the file: btcusd_1-min_data.csv

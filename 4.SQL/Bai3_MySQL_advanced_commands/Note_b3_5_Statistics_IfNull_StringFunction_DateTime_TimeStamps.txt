@@ -1,0 +1,46 @@
+#----------------------------------------------------------#
+#----------- Mathematics_String_IFNULL_function --------------#
+#----------------------------------------------------------#
+
+COUNT(col_name)
+SUM(col_name)
+MIN(col_name)
+MAX(col_name)
+AVG(col_name)
+STDDEV(col_name)
+ROUND(col_name) #lam tron chuoi so
+
+SELECT STDDEV(SALARY)
+FROM employyes;
+-- Tinh STD cua cot salary trong bang employees
+
+
+LENGTH(col_name) #lay do dai string tung dong
+UCASE(col_name) #chuyen thanh viet hoa
+LCASE(col_name) #chuyen thanh viet thuong
+SUBSTR(col_name) #Tra ve chuoi con co trong chuoi ban dau
+
+
+IFNULL(query/subquery, 0) #Kiem tra trong query/subquery, dong nao co gia tri NULL thi thay = 0
+
+
+#--------------------------------------------------------#
+#----------- Datetime, Timestamps function --------------#
+#--------------------------------------------------------#
+
+DAY()
+MONTH()
+YEAR()
+DAYOFMONTH() #Ngay trong thang
+DAYOFWEEK() #Ngay trong tuan
+DAYOFYEAR() #Ngay trong nam
+
+
+HOUR()
+MINUTE()
+SECOND()
+
+
+CURRENT_DATE()
+CURRENT_TIME()
+CURRENT_TIMESTAMP()

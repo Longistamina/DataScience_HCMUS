@@ -1,0 +1,111 @@
+#-------------------------------------------------#
+#-------------- Basic MySQL command -------------#
+#-------------------------------------------------#
+
+Use "--" to specify a single-line comment (like # in python)
+Use /* ...comments... */ for multi-line comment (like ''' ''' in python)
+
+Right: -- this is a comment
+Wrong: --this is a comment
+
+/* This is a
+multi-line comment
+that can span several lines */
+
+-- To execute a command or a set of commands in query box, click "GO"
+-- To go back to query box, click "Show query box"
+
+SELECT * FROM departments; -- SELECT is to select one or some specific columns from a dataset
+			   -- SELECCT * means choose all columns
+			   -- The ";" to end a command
+		           -- So this command means selecting all columns from "departments" dataset
+
+
+SELECT *
+FROM departments; -- The same output as above, it will consider both lines belong to 1 command only
+		  -- Because the SELECT * line does not end with ";"
+
+ 
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME from departments;
+-- Select these 3 columns from "departments" dataset
+-- The columns' name is separated by a comma ","
+
+
+SELECT `tien luong`, `so dien thoai` from departments;
+-- If the column's name have space character (like "tien luong"), must put it inside `...`
+-- So, the best way is naming the column's name containing no any space characters for convenience in query command
+
+
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, HIRE_DAY, JOB_ID, DEPARTMENT_ID
+from departments
+WHERE SALARY>=10000;
+-- Select these columns, but only show the rows where employee's salary >= 10000
+
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, HIRE_DAY, JOB_ID, DEPARTMENT_ID
+from departments
+WHERE SALARY>=10000
+ORDER BY SALARY DESC;
+-- Select these columns, but only show the rows where employee's salary >= 10000
+-- Show results in descending SALARY order (xep theo tien luong giam dan)
+
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, HIRE_DAY, JOB_ID, DEPARTMENT_ID
+from departments
+WHERE SALARY>=10000
+ORDER BY SALARY DESC
+LIMIT 10;
+-- Select these columns, but only show the rows where employee's salary >= 10000
+-- Show 10 first results in descending SALARY order (xep theo tien luong giam dan)
+
+SELECT *
+from `medals`
+WHERE year=2012 AND Medal='Gold' AND Gender='Men' AND CountryCode='USA'
+ORDER BY `Athlete`;
+-- Use AND to combine many conditions
+
+INSERT INTO pets VALUES (1, 'Milu', 2)
+/*Add a new row into "pets" table column1: 1
+				 column2: Milu
+				 column3: 2 */
+
+INSERT INTO pets(name, age) VALUES ('Cat', 5)
+-- Insert new values 'Cat' and 5 into columns 'id' and 'age'
+-- If the 'id' column is set as AUTO_INCREMENT, it will automatically add in new values, don't need to specify
+
+CREATE TABLE table_name(
+column_1 datatype(size) NOT NULL,
+column_2 datatype(size) NOT NULL,
+....
+);
+-- Create new column, the data size is sometime optional, sometime compulsory (like CHAR or VARCHAR)
+
+CREATE TABLE country(
+id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(50) NOT NULL,
+code CHAR(3) NOT NULL,
+....
+);
+-- PRIMARY KEY is to set "id" column as primary key
+-- AUTO_INCREMENT (Xuong hang tu dong), usually used for 'id' column
+-- NOT NULL means that column is not allowed to have null values
+
+DELETE FROM example1.pets;
+TRUNCATE TABLE example1.pets;
+-- Delete or empty the table "pets" of database "example1", not remove the table out of the database
+
+DROP TABLE example1.pets;
+DROP TABLE IF EXISTS example1.pets;
+-- Remove the table out of the database
+
+ALTER TABLE `1_1_employees`
+CHANGE `COL 1` EMPLOYEE_ID INT,
+CHANGE `COL 2` FIRST_NAME VARCHAR(50),
+CHANGE `COL 3` LAST_NAME VARCHAR(50),
+CHANGE `COL 4` EMAIL VARCHAR(100),
+CHANGE `COL 5` PHONE_NUMBER VARCHAR(20),
+CHANGE `COL 6` HIRE_DATE DATE,
+CHANGE `COL 7` JOB_ID VARCHAR(10),
+CHANGE `COL 8` SALARY DECIMAL(10,2),
+CHANGE `COL 9` COMMISSION_PCT DECIMAL(4,2),
+CHANGE `COL 10` MANAGER_ID INT,
+CHANGE `COL 11` DEPARTMENT_ID INT;
+-- Change columns' name

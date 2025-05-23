@@ -1,0 +1,54 @@
+import numpy as np
+from scipy.cluster.hierarchy import linkage
+
+data = np.array([[1], [2], [5], [6], [8]]) # 5 data points, each with a single feature
+
+linked = linkage(data, 'ward') # 'ward' method is common
+print(linked)
+
+###Output linkage matrix
+[[0.         1.         1.         2.        ]
+ [2.         3.         1.         2.        ]
+ [4.         5.         3.         3.        ]
+ [6.         7.         4.         5.        ]]
+
+Each row is one merge step
+
+The first 2 columns are the indices of datapoint (or cluster) to be merged)
+    #If the index < n_sample, then this is leaf node (at the endings of dendogram) => individual datapoints
+    #If the index > n_sample, then this is a non-leaf node or internal node (inside the dendogram) => clusters of datapoints
+    (calculate the result of index - n_sample = the number of datapoints in this cluster)
+
+The 3rd column is the distance between 2 leaf nodes (or 2 non-leaf nodes)
+
+The 4th column is the count of individual datapoints (leaf-nodes) of this merge step
+
+#-------------- Explain ---------------------#
+
+Row 1: [0, 1, 1, 2]
+    Clusters 0 (A) and 1 (B) were merged.
+    The distance between them was 1.
+    The resulting new cluster contains 2 data points.
+
+Row 2: [2, 3, 1, 2]
+    Clusters 2 (C) and 3 (D) were merged.
+    The distance between them was 1.
+    The resulting new cluster contains 2 data points.
+
+Row 3: [4, 5, 3, 3]
+    Cluster 4 (E) and cluster 5 (which is the cluster from row 1) were merged.
+    The distance between them was 3.
+    The resulting new cluster contains 3 data points.
+
+Row 4: [6, 7, 4, 5]
+    Cluster 6 (the cluster from row 2) and cluster 7 (the cluster from row 3) were merged.
+    The distance between them was 4.
+    The resulting new cluster contains 5 data points.
+
+Indices 0, 1, 2, 3, 4 are the original data points (A, B, C, D, E).
+
+Indices 5, 6, 7 are the newly formed clusters.
+
+The third column (distance) is used to determine where to cut the dendrogram for cluster selection.
+
+The fourth column (number of items in the cluster) is used by dendrogram plotting functions.

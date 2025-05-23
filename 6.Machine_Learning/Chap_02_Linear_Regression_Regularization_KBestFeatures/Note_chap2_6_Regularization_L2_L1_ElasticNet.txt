@@ -1,0 +1,94 @@
+Regularization part 1 (Ridge L2 Regression):    https://www.youtube.com/watch?v=Q81RR3yKn30&t=100s
+Regularization part 2 (Lasso L1 Regression):    https://www.youtube.com/watch?v=NGf0voTMlcs
+Regularization part 3 (Elastic Net Regression): https://www.youtube.com/watch?v=1dKRdX9bfIo
+
+
+#-------------------------------------------------------------------#
+#---------------- Regularization -----------------------------------#
+#-------------------------------------------------------------------#
+
+Regularization in machine learning is one of the most effective tools for improving the reliability of your machine learning models. 
+It helps prevent overfitting, ensuring your models perform well not just on the data they’ve seen, but on new, unseen data too.
+
+		Regularization = Loss_function + Penalty
+		
+Penalty can be:
+# L2 Regularization (Ridge): w^2 (order = 2)
+# L1 Regularization (Lasso): |w| = absolute(w) (order = 1)
+# ElasticNet Regularization: combine L2 and L1
+
+
+
+#------------------------------------------------------------------------------#
+#---------------- L2 Regularization (Ridge) -----------------------------------#
+#------------------------------------------------------------------------------#
+
+Ridge Regression Cost Function L2:
+	
+	L2 = Loss_function + (1/2)*λ*(Σw_j^2)
+	
+Here, λ controls the strength of regularization, and  are the model's weights (coefficients). 
+Increasing λ applies stronger regularization, shrinking coefficients further, which can reduce overfitting but may lead to underfitting if λ is too large. 
+Conversely, when λ is close to 0, the regularization term has little effect, and ridge regression behaves like ordinary linear regression.
+
+L2 is suitable when all features/variables are useful. It shrinks the coefficients, but does not eliminate them
+
+******** Code *************
+from sklearn.linear_model import Ridge
+
+ridge = Ridge(alpha=0.7).fit(X_train, y_train)
+
+print(f"Ridge Regression-Training set score: {ridge.score(x_train, y_train):.2f}")
+print(f"Ridge Regression-Test set score: {ridge.score(X_test, y_test):.2f}")
+
+
+#------------------------------------------------------------------------------#
+#---------------- L1 Regularization (Lasso) -----------------------------------#
+#------------------------------------------------------------------------------#
+
+Lasso Regression Cost Function L2:
+	
+	L1 = Loss_function + λ*(Σ|w_j|)
+	
+Here, λ controls the strength of regularization, and  are the model's weights (coefficients). 
+Increasing λ applies stronger regularization, shrinking coefficients further, which can reduce overfitting but may lead to underfitting if λ is too large. 
+Conversely, when λ is close to 0, the regularization term has little effect, and ridge regression behaves like ordinary linear regression.
+
+L1 is suitable when some features are not useful. It shrinks the coefficients, and also eliminates some of them
+
+******** Code *************
+from sklearn.linear_model import Lasso
+
+lasso = Lasso(alpha=1.0).fit(X_train, y_train)
+
+print(f"Lasso Regression-Training set score: {lasso.score(x_train, y_train):.2f}")
+print(f"Lasso Regression-Test set score: {lasso.score(X_test, y_test):.2f}")
+print(f"Number of features: {sum(lasso.coef_ != 0)}")
+
+
+#-----------------------------------------------------------------------------------#
+#---------------- ElasticNet (combine L2 and L1) -----------------------------------#
+#-----------------------------------------------------------------------------------#
+
+ElasticNet Cost Function:
+
+	ENet = Loss_function + (1/2)*λ*(Σw_j^2)*r + λ*(Σ|w_j|)*(1-r)
+
+
+The Elastic Net is a regularized regression technique combining ridge and lasso's regularization terms. 
+
+The r parameter controls the combination ratio. 
+#	When r = 0, the L2 term will be eliminated
+#	When r = 1, the L1 term will be removed.
+
+Although combining the penalties of lasso and ridge usually works better than only using one of the regularization techniques, 
+adjusting two parameters, λ and r, is a little tricky.
+
+
+**************** Code ****************
+from sklearn.linear_model import ElasticNet
+
+elastic_net = ElasticNet(alpha=0.01, l1_ratio=0.01).fit(x_train, y_train)
+
+print(f"Elastic Net-Training set score: {elastic_net.score(X_train, y_train):.2f}")
+print(f"Elastic Net-Test set score: {elastic_net.score(X_test, y_test):.2f}")

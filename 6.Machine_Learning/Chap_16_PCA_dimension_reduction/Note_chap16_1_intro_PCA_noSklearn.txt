@@ -1,0 +1,51 @@
+PCA = Principle Components Analysis
+
+1st step: calculate the means of objects by each feature (store in M)
+2nd step: create Center matrix by subtract origin matrix (A) by M, i.e Center = A - M
+3rd step: calculate the covariance matrix for Center matrix (store in Cov)
+4th step: do the eigendecomposition for covariance matrix Cov, assuming hav m eigenvectors as well as eigenvalues
+5th step: choose the k<m eigenvectors corresponding to k<m biggest eigenvalues
+6th step: project the Center matrix into k-dimension by multiplying Center.dot(k-eigenvectors)
+
+------------------------------------------------
+In the 4th step, can use SVD decomposition instead of eigendecomposition in some cases
+
+#-----------------------------------------------------------------------#
+#------------------Calculate PCA manually-------------------------------#
+#-----------------------------------------------------------------------#
+matrix A (100,3) whose values range from 1 to 255
+
+Matrix A(100, 3) =
+       0    1    2
+0    38  236  141
+1    73  138  204
+2   134   80  193
+3   145  130  205
+4    72  238  253
+..  ...  ...  ...
+95   75  137  110
+96  100   33    9
+97   85  206   51
+98   80  170   65
+99  109  212   25
+
+[100 rows x 3 columns]
+
+Center = A - M #Creating a Center matrix by subtracting A matrix with its means M by column
+               # so, Center matrix will store the difference between each object and the mean value
+               # by doing this, the M means become the origin of x-y-z coordinates
+
+CovA = np.cov(Center.T) #Calculate the covariance matrix between 3 features (aka 3 columns)
+                        #Covariance is a measure of joint variability between factors (do bien thien cung nhau, thuan hay nghich)
+                        #the numpy.cov() of python help to calculate the covariance matrix
+                        #since np.cov() considers rows as features and columns as objects, we have to transpose Center matrix
+
+eigval,eigvect = eig(CovA) #Do the eigendecompostion for CovA matrix
+
+Project_Center = Center.dot(eigvect[:,:2]) #To project a matrix with eigenvectos, using Matrix.Eigenvectors
+                                           #Since we retain only 2 components, use eigvet[:,:2]
+                                           #Center(100x3) @ eigvect(3x2) => Project_Center(100x2)
+
+Project_Center now has smaller size (100x2) compared to origninal matrix A (100x3)
+
+Approx_reconstruct_center_matrix = Project_Center(100x2) @ eigvect_transpose(2x3) => matrix (100x3)

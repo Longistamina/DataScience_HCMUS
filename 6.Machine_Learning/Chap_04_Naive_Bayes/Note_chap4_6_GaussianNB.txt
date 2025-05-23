@@ -1,0 +1,107 @@
+Reference link:
+
+BernoulliNB & MultinomialNB: https://www.youtube.com/watch?v=O2L2Uv9pdDA
+GaussianNB: https://www.youtube.com/watch?v=H3EjCKtlVog
+
+#------------------------------------------------------#
+#--------------------- GaussianNB ---------------------#
+#------------------------------------------------------#
+
+Gaussian Naive Bayes (GaussianNB) is a classification algorithm based on applying Bayes' theorem with the "naive" assumption of conditional independence between features. 
+Here's an explanation of how it works:
+
+Basic Principles:
+Bayes' Theorem: It uses Bayes' theorem to calculate the probability of a class given the features:
+	P(y|x₁,...,xₙ) ∝ P(y) × P(x₁,...,xₙ|y)
+
+Naive Assumption: It assumes that features are conditionally independent given the class:
+	P(x₁,...,xₙ|y) = P(x₁|y) × P(x₂|y) × ... × P(xₙ|y)
+
+Gaussian Distribution: For continuous features, GaussianNB assumes that values associated with each class follow a Gaussian (normal) distribution.
+
+How GaussianNB Works:
+
+Training Phase:
+
+For each class y, calculate the prior probability P(y)
+For each feature x given a class y, calculate the mean (μ) and variance (σ²)
+These parameters define the Gaussian probability distribution for each feature within each class
+
+
+Prediction Phase:
+
+For a new data point with features (x₁,...,xₙ), calculate the likelihood of each feature belonging to each class using the Gaussian probability density function:
+	P(xᵢ|y) = (1/√(2πσ²)) × e^(-(xᵢ-μ)²/(2σ²))
+
+Multiply these likelihoods with the prior probability to get the posterior probability
+Classify to the class with the highest posterior probability
+
+
+
+Mathematical Representation:
+The Gaussian probability density function used is:
+	P(xᵢ|y) = (1/√(2πσ²ᵢₖ)) × e^(-(xᵢ-μᵢₖ)²/(2σ²ᵢₖ))
+
+Where:
+μᵢₖ is the mean of feature i for class k
+σ²ᵢₖ is the variance of feature i for class k
+
+GaussianNB is particularly useful for continuous data and works well even with small training sets. However, its performance can be limited by the conditional independence assumption, which rarely holds in real-world scenarios.
+
+
+
+#---------------------------------------------------#
+#--------------------- Example ---------------------#
+#---------------------------------------------------#
+
+Data:
+
+Patient | Glucose | BMI | Diabetes
+--------|---------|-----|----------
+1       | 85      | 26  | 0
+2       | 168     | 35  | 1
+3       | 78      | 24  | 0
+4       | 177     | 33  | 1
+5       | 95      | 28  | 0
+6       | 160     | 32  | 1
+
+****
+Step 1: Calculate prior probabilities
+# P(Diabetes=0) = 3/6 = 0.5
+# P(Diabetes=1) = 3/6 = 0.5
+*****
+Step 2: Calculate mean and variance for each feature by class
+# For Diabetes=0:
+	Glucose: mean = (85+78+95)/3 = 86, variance = 74.67
+	BMI: mean = (26+24+28)/3 = 26, variance = 4
+
+# For Diabetes=1:
+	Glucose: mean = (168+177+160)/3 = 168.33, variance = 72.33
+	BMI: mean = (35+33+32)/3 = 33.33, variance = 2.33
+*****
+
+Step 3: Make a prediction for a new patient
+Let's say we have a new patient with:
+# Glucose = 120
+# BMI = 30
+
+Using the Gaussian probability density function:
+P(x|class) = (1/√(2πσ²)) × e^(-(x-μ)²/(2σ²))
+
+# For class 0 (No Diabetes):
+	P(Glucose=120|Diabetes=0) = (1/√(2π×74.67)) × e^(-(120-86)²/(2×74.67)) = 0.0062
+	P(BMI=30|Diabetes=0) = (1/√(2π×4)) × e^(-(30-26)²/(2×4)) = 0.0668
+	Likelihood = 0.0062 × 0.0668 = 0.0004
+
+# For class 1 (Diabetes):
+	P(Glucose=120|Diabetes=1) = (1/√(2π×72.33)) × e^(-(120-168.33)²/(2×72.33)) = 0.0078
+	P(BMI=30|Diabetes=1) = (1/√(2π×2.33)) × e^(-(30-33.33)²/(2×2.33)) = 0.0839
+	Likelihood = 0.0078 × 0.0839 = 0.0007
+
+*********
+Step 4: Apply Bayes' theorem
+
+Posterior probability for class 0 = P(Diabetes=0) × Likelihood = 0.5 × 0.0004 = 0.0002
+Posterior probability for class 1 = P(Diabetes=1) × Likelihood = 0.5 × 0.0007 = 0.00035
+
+Since 0.00035 > 0.0002, the model predicts the patient has diabetes (class 1).

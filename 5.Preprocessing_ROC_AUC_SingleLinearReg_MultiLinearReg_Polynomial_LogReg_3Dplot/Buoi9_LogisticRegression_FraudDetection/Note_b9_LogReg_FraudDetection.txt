@@ -1,0 +1,147 @@
+#-----------------------------------------------------------------------#
+#------------------------- Logistic Regression -------------------------#
+#-----------------------------------------------------------------------#
+
+Also a supervised learning like Linear Regression
+
+It returns only 2 values as output: 0 or 1 (binary)
+=> Only use for CLASSIFICATION problems
+
+It calculates the probability of an event:
+	+P >= 50%: output 1 (positive)
+	+P < 50%: output 0 (negative)
+
+
+Example: predict an email is spam or ham, a banking transaction is legal or fraud, a tumor is benign or malignant,...
+
+Formula:
+	+Step 1: use Linear Regression to calculate output Y = b + a1*X + a2*X^2 + a3*X^3 +....+ an*X^n
+	
+	+Step 2: use Y as input for Sigmoid function S(y) = 1 / [1 + e^(-y)]
+	=> result of Sigmoid always range from 0 to 1:    0 < S(y) < 1
+
+	+Step 3: set threshold 0.5, if S(y) >= 0.5 then ouput class = 1
+				    if S(y) < 0.5 then ouput class = 0
+
+
+
+Pros of Logistic Regression:
+	+Easy to expand more than 2 output classes
+	+Fast training time
+	+High accuracy for many simple datasets
+	+Robust agains overfitting
+
+Cons of Logistic Regression:
+	+Only works well with datasets whose classes can be separated by a linear line boundary
+	+If the datasets have one class/cluster inside a circle, and the others lie outside => LogReg won't be suitable
+	+The inputs must be independent each other (p-value of correlation or Chi-square test must > 0 )
+
+Steps:
+	+Choose model: sklearn.linear_model.LogisticRegression
+	+Create input and ouput sets
+	+Create train and test sets
+	+Fit/train model
+	+Validate model with test set and with unseen data
+
+********************************************************
+************** 2 output classes (binary) ***************
+********************************************************
+
+x = df[['input1', 'input2', 'input3',...]]
+y = df['output']
+
+#If the input has categorical variables => OnehotEncoder, dummy,....
+#If the input has unscaled variables => MinMaxScaler, StandardScaler,....
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.2, random_state=....)
+
+from sklearn.linear_model import LogisticRegression
+
+logreg_model = LogisticRegression().fit(x_train, y_train)
+
+y_prob_train = logreg_model.predict_proba(x_train)
+y_prob_test = logreg_model.predict_proba(x_test)
+
+#logreg_model.predict_proba() returns an array of probability
+# For example ([[0.7, 0.3],
+	      [0.05, 0.95]])
+#It means, the output predicted from x_test[0] is 70% belongs to 0, and 30% belongs to 1
+#Meanwhile, the output predicted from x_test[1] is 5% belongs to 0, and 95% belongs to 1
+
+y_pred_test = logreg_model.predict(x_test) #This returns the predicted output class to which the input x_test[i] belongs
+
+logreg_model.score(x_test, y_test) #Accuracy score on test set
+logreg_model.score(x_train, y_train) #Accuracy score on train set
+
+#predict new input and plot
+y_proba_new = logreg_model.predict_proba(x_new)
+
+plt.plot(x_new, y_proba_new[:,0], label='Output 0', linestyle='r--')
+plt.plot(x_new, y_proba_new[:,1], label='Output 1', linestyle='g-')
+plt.xlabel('Input')
+plt.ylabel('Output probability')
+plt.legend()
+plt.show()
+
+
+
+******************************************************************
+************** Multiple output classes (>2 labels) ***************
+******************************************************************
+
+#df['output'] has many values like "class1", "class2", "class3"
+
+#Can use LabelEnconder to encode the y df['output'] (this also helps trace back the original label)
+
+#Or can create numeric labels column manually like this:
+output_dict = {'class1':1, 'class2':2, 'class3':3,....}
+df['output_num'] = [output[class] for class in df['output']]
+
+x = df['input1', 'input2', 'input3',...] #or use .drop()
+y = df['output_num']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.2, random_state=....)
+
+from sklearn.linear_model import LogisticRegression
+
+logreg_model = LogisticRegression(multi_class='multinomial', solver='lbfgs')
+#Must choose multi_class='multinomial' and solver='lbfgs' if output has more than 2 classes
+
+logreg_model.fit(x_train, y_train)
+
+y_prob_train = logreg_model.predict_proba(x_train)
+y_prob_test = logreg_model.predict_proba(x_test)
+
+y_pred_test = logreg_model.predict(x_test)
+
+#predict new input and plot
+y_proba_new = logreg_model.predict_proba(x_new)
+
+plt.plot(x_new, y_proba_new[:,0], label='Output 0', linestyle='r--')
+plt.plot(x_new, y_proba_new[:,1], label='Output 1', linestyle='g-')
+plt.plot(x_new, y_proba_new[:,2], label='Output 2', linestyle='g-')
+....
+plt.xlabel('Input')
+plt.ylabel('Output probability')
+plt.legend()
+plt.show()
+
+
+
+#----------------------------------------------------------------------------------------#
+#------------------------- Fraud detection (phat hien gian lan) -------------------------#
+#----------------------------------------------------------------------------------------#
+
+Nowadays, there are many fraud in transactions (especially in baking domain)
+=> Build model helps detect these frauds
+
+Frauds are unpopular => small data size => unbalanced data
+
+Therefore, must balance the dataset by UnderSample or OverSample (SMOTE)
+=> Should combinate both UnderSample and OverSample to avoid creating too many simulated data points, or avoid deleting many data points
+
+
+
+

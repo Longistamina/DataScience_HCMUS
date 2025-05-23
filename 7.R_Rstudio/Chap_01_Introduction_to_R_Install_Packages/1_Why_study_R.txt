@@ -1,0 +1,9 @@
+R is used popularly in many countries
+
+R is free, has an enormous community and open source
+
+R has many strong tools and packages for statistics (more powerful than Python)
+
+R has ggplot2 library, which allows creating wonderful plots and visualizations (better than Seaborn of Python)
+
+R can run on all Windows, Linus/Unix or MacOS

@@ -1,0 +1,62 @@
+########### Create function ########################
+
+def groupby_mean(x):
+    return x.mean()
+
+def groupby_count(x):
+    return x.count()
+
+def purchase_duration(x):
+    return (x.max() - x.min()).days
+
+def avg_purchase_freq(x):
+    return (x.max() - x.min()).days/x.count()
+
+groupby_mean.__name__ = 'avg'
+groupby_count.__name__ = 'count'
+purchase_duration.__name__ = 'purchase_duration'
+avg_purchase_freq.__name__ = 'avg_purchase_freq'
+
+
+
+######### Groupby with many aggregate functions #################
+
+summary_df = group_df.reset_index().groupby('CustomerID').agg({
+    'Sales':['min', 'max', 'sum', groupby_mean, groupby_count],
+    'InvoiceDate':['min', 'max', purchase_duration, avg_purchase_freq]
+})
+
+summary_df
+
+
+############ use "_".join(...) to join column names of groupby table ###########
+
+summary_df.columns
+MultiIndex([(      'Sales',               'min'),
+            (      'Sales',               'max'),
+            (      'Sales',               'sum'),
+            (      'Sales',               'avg'),
+            (      'Sales',             'count'),
+            ('InvoiceDate',               'min'),
+            ('InvoiceDate',               'max'),
+            ('InvoiceDate', 'purchase_duration'),
+            ('InvoiceDate', 'avg_purchase_freq')],
+           )
+
+
+summary_df.columns = ['_'.join(col) for col in summary_df.columns]
+#(      'Sales',               'min') => join Sales_min
+summary_df
+
+
+
+
+########## Use Grouper to group with 3-month frequency #################
+
+df_3M = group_df.reset_index().groupby(['CustomerID', pd.Grouper(key='InvoiceDate', freq='3M')]).agg({
+    'Sales':['sum', groupby_mean, groupby_count]
+})
+
+df_3M.columns = ['_'.join(col) for col in df_3M.columns]
+df_3M = df_3M.reset_index()
+df_3M

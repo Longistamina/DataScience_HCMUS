@@ -1,0 +1,42 @@
+#----------------------------------------------------#
+#--------------- LIKE, Order2, UNION-----------------#
+#----------------------------------------------------#
+
+SELECT * FROM employees where LAST_NAME LIKE 'K%';
+-- Dung LIKE, tim cac nhan vien co last_name bat dau bang chu K
+-- % la bat ky tat ca ky tu nao o sau
+
+
+
+SELECT * FROM employees where LAST_NAME LIKE 'K_n%';
+-- '_' la 1 ky tu bat ky theo sau
+-- tra ve 'King', 'King', 'Kong',....
+
+
+
+SELECT * FROM employees where LAST_NAME LIKE '%an%';
+-- Dung LIKE, tim cac nhan vien co last_name chua ky tu 'an' ben trong
+
+
+
+SELECT * FROM employees ORDER BY SALARY ASC, BONUS DESC;
+-- Sap xep thu tu, uu tien ascending Salary truoc roi descending Bonus sau
+
+
+
+(SELECT * FROM employees ORDER BY SALARY ASC)
+UNION
+(SELECT * FROM employees ORDER BY BONUS DESC);
+-- dung UNION ket hop hai cau lenh
+-- phai co dong mo ngoac ( ) giua cac cau lenh
+
+
+
+SELECT CountryCode, COUNT(*) AS so_hcv,
+FROM medals
+WHERE Year=2021 AND Medal='Gold' AND CountryCode!='' --Khac empty
+GROUP BY CountryCode
+ORDER BY so_hcv DESC
+LIMIT 10;
+-- NULL tuc la o do khong dien gi
+-- Empty la o do co dien nhung ky tu nhu '?' hoac '', nhung khong chua du lieu gi

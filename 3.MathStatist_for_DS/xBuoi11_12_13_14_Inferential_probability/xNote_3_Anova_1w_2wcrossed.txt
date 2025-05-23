@@ -1,0 +1,145 @@
+#----------------------------------------------------------------------------------------------------------------#
+#------------------------------------ Anova-1-way ---------------------------------------------------------------#
+#----------------------------------------------------------------------------------------------------------------#
+
+Anova-1way is to compare many samples differing by only one factor (one categorical variable)
+ example: compare the height between 54 ethnic groups in Vietnam (the only factor here is ethnic)
+
+The Anova only let us know if there are significant differences in the group, but not exactly what group
+Therefore, after Anova, we have to conduct post-hoc analysis to define the exact groups where the differences occur
+
+from statsmodels.formula.api     import ols
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+# 1. Tạo dataframe 
+df = pd.DataFrame({'S_cars': [643, 655, 702],
+                   'M_cars': [469, 427, 525],
+                   'X_cars': [484, 456, 402]})
+
+print(df.loc[[0]])
+
+# 3. Áp dụng ANOVA
+# 3a) Chuẩn bị dữ liệu theo statsmodels
+df_melt = pd.melt(df.reset_index(), id_vars = ['index'],      #Create tall dataframe so that the anova function return a result table
+                  value_vars = ['S_cars', 'M_cars', 'X_cars'])
+
+# Đổi tên các cột
+df_melt.columns = ['index', 'cars', 'value']
+
+# Ordinary Least Squares (OLS) model
+model = ols('value ~ C(cars)', data = df_melt).fit()
+
+# 3b) Kiểm định Levene: S_cars, M_cars, X_cars có cùng phương sai
+print('-------------------------------------------------')
+print('* Kiểm định LEVENE:                              ')
+print('    H0: VAR(S_cars) = VAR(M_cars) = VAR(X_cars)  ')
+print('    Ha: Các phương sai KHÔNG BẰNG NHAU           ')
+print('-------------------------------------------------')
+
+levene, pvalue = stats.levene(df.S_cars, df.M_cars, df.X_cars)
+
+
+# 3c) Kiểm định Shapiro: phần dư mô hình anova S_cars, M_cars, X_cars có pp chuẩn
+print('--------------------------------------------------')
+print('* Kiểm định SHAPIRO                               ')
+print('    H0: S_cars, M_cars, X_cars ~ Norm(Muy, Sigma) ')
+print('    Ha: S_cars, M_cars, X_cars KHÔNG pp chuẩn     ')
+print('--------------------------------------------------')
+
+shapiro, pvalue = stats.shapiro(model.resid) #model.resid to get the residuals of model
+
+# 3d) One-way ANOVA
+print('\n* Hàm f_oneway() chỉ trả về F-statistic và p-value; KHÔNG tạo ANOVA table')
+fvalue, pvalue = stats.f_oneway(df.S_cars, df.M_cars, df.X_cars)
+
+print('\n* Hàm anova_lm() tạo ANOVA table')
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table, '\n')
+
+* Hàm f_oneway() chỉ trả về F-statistic và p-value; KHÔNG tạo ANOVA table
+   F-statistic = 25.1754, p-value = 0.0012
+
+Giá trị P-value có ý nghĩa về mặt thống kê (P < 0.05)
+do đó, có thể kết luận rằng có sự khác biệt đáng kể giữa các loại xe.
+
+* Hàm anova_lm() tạo ANOVA table
+                sum_sq   df          F    PR(>F)
+C(cars)   86049.555556  2.0  25.175411  0.001207
+Residual  10254.000000  6.0        NaN       NaN 
+
+# 3e) Kiểm định Tukey HSD
+m_comp = pairwise_tukeyhsd(endog = df_melt['value'], groups = df_melt['cars'], alpha = 0.05)
+print(m_comp)
+
+Multiple Comparison of Means - Tukey HSD, FWER=0.05   
+=========================================================
+group1 group2  meandiff p-adj    lower     upper   reject
+---------------------------------------------------------
+M_cars S_cars     193.0  0.003   89.4334  296.5666   True
+M_cars X_cars  -26.3333 0.7279 -129.8999   77.2332  False
+S_cars X_cars -219.3333 0.0015 -322.8999 -115.7668   True
+---------------------------------------------------------
+
+Ngoại trừ X_cars và M_cars, tất cả các so sánh cặp khác đều bác bỏ H0
+và chỉ ra sự khác biệt đáng kể về mặt thống kê (True là cặp đó có khác biệt).
+
+
+#----------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------ Anova-2-way 2-crossed factors ---------------------------------------------------------------#
+#----------------------------------------------------------------------------------------------------------------------------------#
+
+Anova-2-crossed-factor is to compare samples affected by two crossed factors (or two crossed categorical variables)
+ example: the influence of temperature and humidity on productivity of crops
+
+from statsmodels.formula.api     import ols
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+data   = pd.read_excel(folder + 'data.xlsx')
+d_melt = pd.melt(data, id_vars=['type'], value_vars=['cold', 'warm', 'hot'])
+d_melt.columns = ['type', 'temperature', 'value']
+
+type	temperature	value
+0	super	cold	4
+1	super	cold	5
+2	super	cold	6
+3	super	cold	5
+4	best	cold	6
+
+
+sns.boxplot(x='type', y='value', hue='temperature', data=d_melt, palette='Set3')
+
+model  = ols('value ~ C(type) + C(temperature) + C(type):C(temperature)', data=d_melt).fit() #Create model
+
+#Levene test for equal variances (p > 0.05, must accept H0 to satisfy)
+levene, pvalue = stats.levene(data['hot'], data['warm'], data['cold'])
+
+#Shapiro test for model's residuals normality
+shapiro, pvalue = stats.shapiro(model.resid) #model.resid to get the residuals of model
+
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table, '\n'
+
+* Hàm anova_lm() tạo ANOVA table
+                            sum_sq    df          F        PR(>F)
+C(type)                  20.166667   1.0   9.810811  5.758440e-03
+C(temperature)          200.333333   2.0  48.729730  5.439849e-08
+C(type):C(temperature)   16.333333   2.0   3.972973  3.722434e-02
+Residual                 37.000000  18.0        NaN           NaN 
+
+(Sự khác biệt về chất tẩy rửa và nhiệt độ có ý nghĩa thống kê,
+nhưng ANOVA không cho biết chất tẩy rửa và nhiệt độ khác nhau đáng kể với nhau.
+Để biết các cặp chất tẩy rửa và nhiệt độ khác nhau đáng kể,
+thực hiện nhiều phân tích so sánh cặp bằng cách sử dụng Tukey HSD test.)
+
+# 3c) Kiểm định Tukey HSD
+m_comp = pairwise_tukeyhsd(endog = d_melt['value'], groups = d_melt['type'], alpha=0.05)
+print(m_comp)
+
+for name, grouped_df in d_melt.groupby('type'):
+    print('type: {}'.format(name), pairwise_tukeyhsd(grouped_df['value'], 
+                                                     grouped_df['temperature'], 
+                                                     alpha=0.05))
+print()
+
+for name, grouped_df in d_melt.groupby('temperature'):
+   print('temperature: {}'.format(name), pairwise_tukeyhsd(grouped_df['value'], grouped_df['type'], alpha = 0.05))

@@ -1,0 +1,62 @@
+
+#---------------------------------------------------------------------------#
+#--------------------Change data type for NUMERIC---------------------------#
+#---------------------------------------------------------------------------#
+
+For pandas column: dataframe['column_name'].astype(datatype_name)
+
+Or use pd.to_numeric(dataframe['column_name'])
+
+#Note: .astype() is a method of pandas column, not a function
+
+pd.to_numeric(dataframe['column_name'], 
+	      errors='raise': raise the errors where data cannot be converted into numeric
+		      'coerce': replace that data point by NaN if it cannot be converted into numeric)
+
+
+#-------------------------------------------------------------------------#
+#--------------------For categorical - string ----------------------------#
+#-------------------------------------------------------------------------#
+
+In pandas dataframe, many categorical variables are stored as "object" type.
+The "object" type consumes more RAM to store, and also lower for ML to process
+
+=> Should convert their type to "category"
+
+df['comlumn'].str.(replace, split, ...).astype(numeric)
+df['comlumn'].str.method1().method2().....astype(numeric)
+
+For string type, can use regular_expression to create pattern and treat the string data
+
+#re.compile() to combile and create a pattern
+prog = re.compile("\d{3}-\d{3}-\d{3}")
+
+#check if the pattern is matched with a string or not
+result_1 = prog.match("123-456-789")
+print(result_1) => True
+
+result_2 = prog.match("1123-4456-789")
+print(result_2) => False
+
+#re.match(pattern, string) to check if a pattern match a string
+bool( re.match(pattern="\d{3}-\d{3}-\d{3}", string="123-456-789") ) => True
+
+bool( re.match(pattern="\$\d*.\d{2}", string="$123.45") ) => True
+
+bool( re.match(pattern="[A-Z]\w*", string="Australia") ) => True
+
+#re.findall(pattern, string) to find all matched element with the pattern and return them as a list
+matches = re.findall("\d+", "She has 10 apples, 3 pears and 5 plums")
+print(matches) => ['10', '3', '5']
+
+#-------------------------------------------------------------------------#
+#--------------------For duplicate data ----------------------------------#
+#-------------------------------------------------------------------------#
+Duplicate values can restrain the power of the model, so need to remove them too (if necessary)
+
+use data_frame.drop_duplicates()
+
+df.drop_duplicates(subset=['col1', 'col2',...]: name of the columns to subset check for duplicate values,
+		   keep=False : remove all duplicate rows
+			='first' : remove duplicate rows but keep the first one as a unique version
+			='last': remove duplicate rows but keep the last one as a unique version)

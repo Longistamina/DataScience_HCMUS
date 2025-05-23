@@ -1,0 +1,55 @@
+Tidying data: thu gon du lieu
+
+Some cases that need to tidy the data:
+	1) The column name is actually a value, not a variable name
+	2) The values of many variables are stored within 1 column (example: dataset diemthi_THPTQG_2016)
+	3) The same variable appears in both column and row
+	4) Many samples (observation groups) are stored in one same table (data of basketball players and football players in the same table)
+	5) One unique sample is stored accross many tables (the sales of one product is stored in 12 files, each file = 1 month)
+
+How a tidied and ready-to-use dataset should be?
+	+Each measurement variable must stand as a separate column
+	+Each observation of one variable must lie on different row
+	+Each table serves only one type of dataset only (ex: do not store data of customers and employees in the same table)
+	+If there are many tables, they should share at least 1 common column for connecting them
+
+#--------------------------------------------------------------------------------------------------------#
+#------------The column name is actually a value, not a variable name------------------------------------#
+#--------------------------------------------------------------------------------------------------------#
+
+-----pd.melt()--------
+Convert a "wide" dataframe into a "tall" dataframe, by transforming columns in to values in each row
+
+Use pandas.melt(frame = data_name,
+		id_vars = "(list) name of the column(s) to be kept originally" or ['col1', 'col2',...],
+		value_vars = "(list) column names that need to be changed into values",
+		var_name = "name of the column containing the value_vars as values (default is "variable") ",
+		value_name = "name of the column that will contain original values in tall format" )
+
+(or just need to define id_vars and var_name, the pd.melt() will understand all other columns as value_vars )
+
+pd.melt() usually results in a "tall" dataframe
+
+--------data_name.pivot()----------
+The "tall" dataframes facilitates analytical tasks, but are not preferred for reporting.
+
+So, in case of reporting, should use "wide" dataframe, and use tall_data_name.pivot() method
+
+.pivot() is to convert "tall" dataframe into "wide" one, by transforming values in each row into columns
+
+tall_data_frame.pivot(index= "name of the column to be kept originally and serves as index",
+		      columns= "name of the column whose values in each row will be converted into unique separate column",
+		      value_name= "name of the column whose values are taken to fill in the new pivotal able")
+
+---------data_name.pivot_table()----------
+In case the original dataset have some Indexes containing duplicate entries, the data_name.pivot() will promt error
+So, have to use data_name.pivot_table() instead since it offers using aggfnc to deal with duplicate entries
+
+
+tall_data_frame.pivot_table(index= "name of the column to be kept originally and serves as index",
+		            columns= "name of the column whose values in each row will be converted into unique separate column",
+		            value_name= "name of the column whose values are taken to fill in the new pivotal able",
+			    aggfnc= "the function using to handle duplicate entries of an Index")
+
+(for ex:, if aggfnc = np.max, it will choose the biggest entry to fill in the pivot table)
+

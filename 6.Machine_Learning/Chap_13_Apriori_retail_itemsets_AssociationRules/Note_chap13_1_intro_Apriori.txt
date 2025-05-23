@@ -1,0 +1,211 @@
+https://www.youtube.com/watch?v=WGlMlS_Yydk&t=195s
+
+#---------------------------------------------------------#
+#------------ Apriori Algorithm Explained ----------------#
+#---------------------------------------------------------#
+
+The Apriori algorithm is a fundamental algorithm in data mining used for frequent itemset mining and association rule learning. It works on the principle that:
+
+"If an itemset is frequent, then all of its subsets must also be frequent."
+
+After deploying the Apriori, we will know which item is usually bought along with which item
+=> But them closer in the shelf, so that customers can see them both and make them want to buy them both
+=> Enhance sales
+
+Key Definitions and Metrics:
+----------------------------
+
+1. **Support**:
+   Support(X) = (Number of transactions containing X) / (Total number of transactions)
+   The frequency of item X across all transactions
+
+2. **Confidence**:
+   Confidence(X => Y) = Support(X ∪ Y) / Support(X)
+   The likelihood of buying item Y along with a transaction containing item X (buy X, then buy Y for the same transaction)
+
+3. **Lift**:
+   Lift(X => Y) = Confidence(X => Y) / Support(Y)
+   Interpretation: Lift > 1 implies positive correlation, < 1 implies negative, = 1 implies independence.
+
+4. **Leverage**:
+   Leverage(X => Y) = Support(X ∪ Y) - (Support(X) * Support(Y))
+   Interpretation: The difference between actual and expected co-occurrence.
+
+5. **Conviction**:
+   Conviction(X => Y) = (1 - Support(Y)) / (1 - Confidence(X => Y))
+   Interpretation: Measures the degree of implication; higher values suggest stronger rules.
+
+
+Lift > 1:
+    - A and B appear together more often than expected.
+    - Positive correlation.
+    - The presence of A increases the likelihood of B.
+    - Strong association.
+
+Lift = 1:
+    - A and B appear together exactly as expected under independence.
+    - No correlation.
+    - The presence of A has no effect on the likelihood of B.
+
+Lift < 1:
+    - A and B appear together less often than expected.
+    - Negative correlation.
+    - The presence of A decreases the likelihood of B.
+    - Weak or inverse relationship.
+
+
+Apriori Algorithm Steps
+-----------------------
+
+1. Set a minimum support threshold.
+2. Find all frequent 1-itemsets that meet the minimum support.
+3. Generate candidate 2-itemsets from frequent 1-itemsets.
+4. Count the support of candidate 2-itemsets.
+5. Prune those with support less than the threshold.
+6. Repeat the process to generate 3-itemsets, 4-itemsets, etc., until no more frequent itemsets can be found.
+7. Generate association rules from the frequent itemsets using the confidence and lift thresholds.
+
+
+{Bread, Butter} ⇒ Milk
+LHS = Left-Hand Side of the rule = {Bread, Butter}
+RHS = Right-Hand Side of the rule = Milk
+
+Apriori Algorithm - Full Manual Calculation
+===========================================
+
+Transaction Dataset:
+--------------------
+T1: {Milk, Bread, Butter}
+T2: {Milk, Bread}
+T3: {Milk, Butter}
+T4: {Bread, Butter}
+T5: {Milk, Bread, Butter}
+
+Total Transactions (N) = 5
+
+Item Frequencies:
+-----------------
+Milk:   4/5 = 0.80
+Bread:  4/5 = 0.80
+Butter: 4/5 = 0.80
+
+
+========================
+2-Itemsets and Rules
+========================
+
+## Itemset: {Milk, Bread}
+Support: 3/5 = 0.60 (Moderate-High Support)
+
+Rule: Milk => Bread
+  Confidence: 3/4 = 0.75 (High)
+  Lift: 0.75 / 0.80 = 0.9375 (Below 1: Weak association)
+  Leverage: 0.60 - (0.80 * 0.80) = -0.04 (Negative: Appears together less than expected)
+  Conviction: (1 - 0.80) / (1 - 0.75) = 0.20 / 0.25 = 0.8  (Low predictive power)
+→ Comment: Despite high confidence, Lift and Leverage indicate no real dependency.
+
+Rule: Bread => Milk (same as above
+
+
+## Itemset: {Milk, Butter}
+Support: 3/5 = 0.60 (Moderate-High Support)
+
+Rule: Milk => Butter
+  Confidence: 0.75 (High)
+  Lift: 0.9375 (Weak association)
+  Leverage: -0.04 (Negative)
+  Conviction: 0.8 (Low)
+ → Comment: Like previous, confidence is high but correlation is not meaningful.
+
+Rule: Butter => Milk
+  Same values as above
+
+
+## Itemset: {Bread, Butter}
+Support: 3/5 = 0.60 (Moderate-High Support)
+
+Rule: Bread => Butter
+  Confidence: 0.75 (High)
+  Lift: 0.9375 (Weak association)
+  Leverage: -0.04 (Negative)
+  Conviction: 0.8 (Low)
+→ Comment: Frequent pair, but Lift and Leverage show weak/no dependency.
+
+Rule: Butter => Bread
+  Same values as above
+
+
+========================
+3-Itemset: {Milk, Bread, Butter}
+Support: 2/5 = 0.40 (Moderate Support)
+
+Subsets:
+--------
+{Milk, Bread}: 3/5
+{Milk, Butter}: 3/5
+{Bread, Butter}: 3/5
+
+Rule: {Milk, Bread} => Butter
+  Confidence: 2/3 = 0.6667 (Moderate)
+  Lift: 0.6667 / 0.80 = 0.8333 (Low correlation)
+  Leverage: 0.40 - 0.48 = -0.08 (More negative)
+  Conviction: (1 - 0.80) / (1 - 0.6667) ≈ 0.6 (Very low)
+→ Comment: Adding a third item reduces confidence; association is weak.
+
+
+Rule: {Milk, Butter} => Bread
+  Same as above
+  → Comment: No improvement in predictability with third item.
+
+
+Rule: {Bread, Butter} => Milk
+  Same as above
+  → Comment: Adding Milk does not strongly follow from Bread+Butter.
+
+
+Rule: Milk => {Bread, Butter}
+  Confidence: 2/4 = 0.50 (Low)
+  Support({Bread, Butter}) = 3/5
+  Lift: 0.50 / 0.60 = 0.8333
+  Leverage: 0.40 - 0.48 = -0.08
+  Conviction: 0.40 / 0.50 = 0.8
+  → Comment: Weak rule with poor predictive power.
+
+
+Rule: Bread => {Milk, Butter}
+  Same as above
+
+Rule: Butter => {Milk, Bread}
+  Same as above
+
+
+========================
+Summary Table
+========================
+
+Rule                          	 | Support | Confidence | Lift   | Leverage | Conviction   | Comment
+---------------------------------|---------|------------|--------|----------|--------------|-------------------------------
+Milk => Bread                    | 0.60    | 0.75       | 0.9375 | -0.04    | 0.8          | High confidence, weak lift
+Bread => Milk                	 | 0.60    | 0.75       | 0.9375 | -0.04    | 0.8          | Symmetrical, same weakness
+Milk => Butter             	 | 0.60    | 0.75       | 0.9375 | -0.04    | 0.8          | High confidence, low predictive gain
+Butter => Milk            	 | 0.60    | 0.75       | 0.9375 | -0.04    | 0.8          | Symmetrical
+Bread => Butter             	 | 0.60    | 0.75       | 0.9375 | -0.04    | 0.8          | Weak association despite frequency
+Butter => Bread              	 | 0.60    | 0.75       | 0.9375 | -0.04    | 0.8          | Same
+{Milk, Bread} => Butter          | 0.40    | 0.6667     | 0.8333 | -0.08    | ~0.6         | Slight drop in confidence, low lift
+{Milk, Butter} => Bread          | 0.40    | 0.6667     | 0.8333 | -0.08    | ~0.6         | Weak 3-itemset rule
+{Bread, Butter} => Milk          | 0.40    | 0.6667     | 0.8333 | -0.08    | ~0.6         | Same
+Milk => {Bread, Butter}          | 0.40    | 0.50       | 0.8333 | -0.08    | 0.8          | Low confidence, weak association
+Bread => {Milk, Butter}          | 0.40    | 0.50       | 0.8333 | -0.08    | 0.8          | Same
+Butter => {Milk, Bread}          | 0.40    | 0.50       | 0.8333 | -0.08    | 0.8          | Same
+
+
+========================
+Conclusions
+========================
+
+- All item pairs have strong individual supports (>= 0.60).
+- However, most rule metrics suggest weak or negative correlation (Lift < 1, Leverage < 0).
+- Confidence scores are decent (~0.75 for pairs), but Lift and Conviction indicate the items do not improve prediction over chance.
+- The 3-itemsets are less confident and even weaker in association.
+
+Apriori can reveal that even frequent co-occurrence does not imply strong association.

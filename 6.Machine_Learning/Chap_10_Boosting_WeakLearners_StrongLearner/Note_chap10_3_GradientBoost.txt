@@ -1,0 +1,244 @@
+Gradient Boost part 1 (regression):     https://www.youtube.com/watch?v=3CC4N4z3GJc
+Gradient Boost part 2 (reg detail):     https://www.youtube.com/watch?v=2xudPOBz-vs
+Gradient Boost part 3 (classification): https://www.youtube.com/watch?v=jxuNLH5dXCs
+Gradient Boost part 4 (classif detail): https://www.youtube.com/watch?v=StWY5QWMXCw
+
+Gradient Boost:
+    Y_predict = Initial_predict_1 + learning_rate*(residual_2 + residual_3 + .... + residual_n)
+
+#-----------------------------------------------#
+#---------- Gradient Boost ---------------------#
+#-----------------------------------------------#
+
+### Gradient Boosting Explanation
+
+Gradient Boosting is an ensemble learning technique that builds models sequentially, with each new model improving upon the previous ones by correcting their errors. It works by training weak learners (typically decision trees) on the residual errors of previous models.
+
+Key Steps:
+1. Initialize with a base model (usually the mean for regression or log-odds for classification).
+2. Compute residuals (errors) between actual and predicted values.
+3. Train a weak learner (small decision tree) to predict the residuals.
+4. Update the model by adding the new tree with a small weight (learning rate).
+5. Repeat until a stopping criterion is met.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+### Example 1: Regression Task (Predicting House Prices)
+
+#### Dataset:
+| House | Size (sqft)| Price (target)|
+|-------|------------|---------------|
+| A     | 1          | 100           |
+| B     | 2          | 150           |
+| C     | 3          | 200           |
+
+#### Step 1: Initialize with the Mean
+- Mean target value = (100 + 150 + 200) / 3 = 150
+- Initial prediction for all houses: 150
+
+#### Step 2: Compute Residuals
+| House | Actual Price | Initial Prediction| Residual (Error) |
+|-------|-------------|--------------------|------------------|
+| A     | 100         | 150                | -50              |
+| B     | 150         | 150                | 0                |
+| C     | 200         | 150                | +50              |
+
+#### Step 3: Train a Weak Learner
+A simple decision stump (a small tree with one split) might predict:
+- If Size ≤ 2 → Predict -50
+- Elif Size > 2 → Predict +50
+
+#### Step 4: Update Predictions
+New prediction = Initial + Learning Rate * New Tree
+
+Assume a learning rate of 0.5:
+- House A: 150 + 0.5(-50) = 125
+- House B: 150 + 0.5(0) = 150
+- House C: 150 + 0.5(50) = 175
+
+#### Step 5: Compute New Residuals
+| House | Actual Price | New Prediction| New Residual |
+|-------|-------------|----------------|--------------|
+| A     | 100         | 125            | -25          |
+| B     | 150         | 150            | 0            |
+| C     | 200         | 175            | +25          |
+
+Repeat the process, fitting new trees to the new residuals until convergence (where prediction = ground truth value).
+
+
+#### Step 6: New Prediction
+
+Y_new = model_1(Xnew) + LRate*residual_model_2(Xnew) + LRate*residual_model_3(Xnew) + ... + LRate*residual_model_n(Xnew)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+### Example 2:  Gradient Boosting for Multi-Class Classification (Using Softmax)
+
+Gradient Boosting for multi-class classification predicts multiple logits (one per class) and then converts them into probabilities using the softmax function. 
+Each tree is trained to correct residuals based on the negative gradient of the loss function.
+
+---
+
+### Example: Predicting Weather Type
+
+We have three weather types:  
+- **Sunny (Class 0)**
+- **Rainy (Class 1)**
+- **Cloudy (Class 2)**  
+
+Our dataset contains two features: **Temperature (°C)** and **Humidity (%)**.
+
+| Day  | Temperature| Humidity | Weather Type (Class)|
+|------|------------|----------|---------------------|
+| D1   | 30         | 40       | Sunny (0)           |
+| D2   | 20         | 80       | Rainy (1)           |
+| D3   | 25         | 60       | Cloudy (2)          |
+
+---
+
+### Step 1: Initialize with Log-Odds
+
+For each class, we estimate the initial probabilities as:  
+p_k = (count of class k) / (total samples)  
+
+Since we have one sample per class, the probability for each class is:  
+p_k = 1/3 = 0.333  
+
+Convert these probabilities to log-odds using:  
+log-odds_k = log(p_k / (1 - p_k))  
+= log(0.333 / 0.667)  
+= log(1/2)  
+= -0.693  
+
+So, the initial logits for all classes are:  
+
+| Day  | Logit (Sunny)| Logit (Rainy)| Logit (Cloudy)|
+|------|--------------|--------------|---------------|
+| D1   | -0.693       | -0.693       | -0.693        |
+| D2   | -0.693       | -0.693       | -0.693        |
+| D3   | -0.693       | -0.693       | -0.693        |
+
+Convert to initial probabilities using the softmax function:
+
+Softmax formula:  
+  
+    p_k = exp(logit_k) / (exp(logit_0) + exp(logit_1) + exp(logit_2))  
+
+Since all logits are equal:
+p_k = exp(-0.693) / (exp(-0.693) + exp(-0.693) + exp(-0.693))  
+    = 0.5 / (0.5 + 0.5 + 0.5)  
+    = 1/3  
+
+Thus, the initial predicted probabilities are:
+
+| Day  | Sunny | Rainy | Cloudy |
+|------|-------|-------|--------|
+| D1   | 0.33  | 0.33  | 0.33   |
+| D2   | 0.33  | 0.33  | 0.33   |
+| D3   | 0.33  | 0.33  | 0.33   |
+
+---
+
+### Step 2: Compute Residuals (Negative Gradient of Log-Loss)
+
+Residuals = Actual Class (One-Hot Encoding) - Predicted Probabilities  
+
+| Day  | Sunny Residual   | Rainy Residual   | Cloudy Residual  |
+|------|------------------|------------------|------------------|
+| D1   | 1 - 0.33 = 0.67  | 0 - 0.33 = -0.33 | 0 - 0.33 = -0.33 |
+| D2   | 0 - 0.33 = -0.33 | 1 - 0.33 = 0.67  | 0 - 0.33 = -0.33 |
+| D3   | 0 - 0.33 = -0.33 | 0 - 0.33 = -0.33 | 1 - 0.33 = 0.67  |
+
+---
+
+### Step 3: Train Weak Learners (Decision Stumps)
+
+We train separate decision trees for each class using the residuals.
+
+Example decision stumps:
+- If Temperature > 25 → Increase probability of Sunny.
+- Elif Humidity > 70 → Increase probability of Rainy.
+- Otherwise → Increase probability of Cloudy.
+
+These decision trees will output small correction values.
+
+---
+
+### Step 4: Update Logits
+
+New logits = Previous logits + (Learning Rate * Weak Learner Prediction)  
+
+Assume a learning rate of 0.5 and weak learners predict:
+
+| Day  | Sunny Correction | Rainy Correction | Cloudy Correction |
+|------|------------------|------------------|-------------------|
+| D1   | +0.4             | -0.2             | -0.2              |
+| D2   | -0.2             | +0.4             | -0.2              |
+| D3   | -0.2             | -0.2             | +0.4              |
+
+Updating the logits:
+
+| Day  | Updated Logit (Sunny)          | Updated Logit (Rainy)          | Updated Logit (Cloudy)         |
+|------|--------------------------------|--------------------------------|--------------------------------|
+| D1   | -0.693 + (0.5 * 0.4) = -0.493  | -0.693 + (0.5 * -0.2) = -0.793 | -0.693 + (0.5 * -0.2) = -0.793 |
+| D2   | -0.693 + (0.5 * -0.2) = -0.793 | -0.693 + (0.5 * 0.4) = -0.493  | -0.693 + (0.5 * -0.2) = -0.793 |
+| D3   | -0.693 + (0.5 * -0.2) = -0.793 | -0.693 + (0.5 * -0.2) = -0.793 | -0.693 + (0.5 * 0.4) = -0.493  |
+
+---
+
+### Step 5: Convert to Probabilities Using Softmax
+
+Softmax formula:
+
+p_k = exp(logit_k) / (exp(logit_0) + exp(logit_1) + exp(logit_2))
+
+Applying this:
+
+| Day  | Sunny Probability | Rainy Probability | Cloudy Probability |
+|------|-------------------|-------------------|--------------------|
+| D1   | exp(-0.493) / (exp(-0.493) + exp(-0.793) + exp(-0.793))    |
+| D2   | exp(-0.793) / (exp(-0.793) + exp(-0.493) + exp(-0.793))    |
+| D3   | exp(-0.793) / (exp(-0.793) + exp(-0.793) + exp(-0.493))    |
+
+Approximating exponentiation:
+
+- exp(-0.493) ≈ 0.61
+- exp(-0.793) ≈ 0.45
+
+Total sum per row: 0.61 + 0.45 + 0.45 = 1.51
+
+Final probabilities:
+
+| Day  | Sunny            | Rainy            | Cloudy           |
+|------|------------------|------------------|------------------|
+| D1   | 0.61/1.51 = 0.40 | 0.45/1.51 = 0.30 | 0.45/1.51 = 0.30 |
+| D2   | 0.45/1.51 = 0.30 | 0.61/1.51 = 0.40 | 0.45/1.51 = 0.30 |
+| D3   | 0.45/1.51 = 0.30 | 0.45/1.51 = 0.30 | 0.61/1.51 = 0.40 |
+
+---
+
+### Step 6: Repeat Until Convergence
+
+Additional weak learners will continue to correct the residuals, improving classification accuracy.
+
+---
+### Step 7: New Prediction
+Y_new = model_1(Xnew) + LRate*residual_model_2(Xnew) + LRate*residual_model_3(Xnew) + ... + LRate*residual_model_n(Xnew)
+
+Y_new will be a list of Log(odds) for each class => get the class having the highest Log(odds) => final predict
+
+
+---
+
+### Summary
+
+1. Initialize logits from class probabilities.
+2. Compute residuals (negative gradient of softmax loss).
+3. Train weak learners on residuals.
+4. Update logits using weak learners.
+5. Convert logits to probabilities with softmax.
+6. Iterate until convergence.
+
+This method ensures improved multi-class classification performance.

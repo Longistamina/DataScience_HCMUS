@@ -1,0 +1,25 @@
+#---------------------------------------------------------------------#
+#---------------------Eigen decompostion------------------------------#
+#---------------------------------------------------------------------#
+
+mtrA = eigenvectors @ diag(eigenvalues) @ transpose(eigenvectors)
+or mtrA = eigenvectors @ diag(eigenvalues) @ inv(eigenvectors)
+
+This only works if all eigenvalues of A are > 0
+
+mtrB = mtrA@np.transpose(mtrA) #mtrA @ mtrA.T
+#Create matrix B = A @ A.T (THIS KIND OF MATRIX CAN ALWAYS APPLY Eigendecomposition)
+
+eigval, eigvect = numpy.linalg.eig(mtrB)
+#the eig(mtrB) returns two arrays
+#The first one is an array of eigenvalues
+#The second one is a matrix containing eigenvectors listed one by one in columns (VERTICALLY)
+
+for j in range(len(eigvalB)):
+    r = eigvalB[j].real #get the real part of eigenvalue
+    i = eigvalB[j].imag #get the imaginary part of eigenvalue
+    print('Eigenvalues['+str(j)+'] of mtrB = ('+str(r)+' ; '+str(i)+')')
+
+print('\nRecreate mtrB from eigvect @ diag(eigvalues) @ inv(eigvect) =\n', eigvect.dot(diag(eigval)).dot(inv(eigvect)))
+
+

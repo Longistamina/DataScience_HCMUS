@@ -1,0 +1,73 @@
+from hdbscan import HDBSCAN
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer
+from imblearn.pipeline import Pipeline
+
+min_cluster_sizes = []
+min_samples = []
+silh_score = []
+
+data = shopping.drop('CustomerID', axis = 1)
+
+
+for min_cluster_size in np.arange(4, 20, 2):
+    for min_sample in np.arange(4, 16, 1):
+        hdbscan_pipe = Pipeline([
+            ('Encoder', make_column_transformer((OneHotEncoder(drop='first', handle_unknown='ignore'), ['Genre']), remainder='passthrough')),
+            ('Scaler', MinMaxScaler()),
+            ('HDBSCAN', HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_sample))
+        ])
+        hdbscan_pipe.fit(data)
+        labels = hdbscan_pipe.fit_predict(data)
+
+        col_names = hdbscan_pipe.named_steps['Encoder'].get_feature_names_out()
+
+        data_evaluate = (
+            pd.DataFrame(hdbscan_pipe[:-1].transform(data), columns=col_names)            
+            .assign(Group = labels)
+            .pipe(lambda df: df[df['Group'] != -1]) #Noise filter
+        )
+        
+        min_cluster_sizes.append(min_cluster_size)
+        min_samples.append(min_sample)
+        
+        if data_evaluate.empty or data_evaluate['Group'].nunique() < 2:
+            silh_score.append('Not_enough_cluster_for_scoring')
+            continue
+        else:
+            labels = data_evaluate['Group']
+            data_evaluate = data_evaluate.drop('Group', axis = 1)
+            silh_score.append(silhouette_score(data_evaluate, labels))
+
+df_min_clust_sample_score = pd.DataFrame({
+    'min_cluster_sizes':min_cluster_sizes,
+    'min_samples':min_samples,
+    'silhoutte_score': silh_score
+})
+
+print(df_min_clust_sample_score[df_min_clust_sample_score['silhoutte_score'] == 'Not_enough_cluster_for_scoring'].head())
+
+df_final_score = (
+    df_min_clust_sample_score[df_min_clust_sample_score['silhoutte_score'] != 'Not_enough_cluster_for_scoring']
+    .sort_values(by='silhoutte_score', ascending=False)
+)
+
+print()
+print(df_final_score)
+
+
+#############################
+
+labels = hdbscan_pipe.fit_predict(data)
+
+col_names = hdbscan_pipe.named_steps['Encoder'].get_feature_names_out()
+
+data_clustered = (
+    data.pipe(lambda df: pd.DataFrame(hdbscan_pipe.named_steps['Encoder'].transform(df), columns = col_names))
+    .assign(Group = labels)
+    .pipe(lambda df: df.set_axis(
+        df.columns.str.replace('onehotencoder__', '', regex=False).str.replace('remainder__', '', regex=False),
+        axis = 1
+    ))
+)

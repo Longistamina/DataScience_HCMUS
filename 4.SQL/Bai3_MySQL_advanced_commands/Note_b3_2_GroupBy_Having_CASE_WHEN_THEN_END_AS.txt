@@ -1,0 +1,49 @@
+#---------------------------------------------------------------------#
+#------------- GroupBy, Having, CASE_WHEN_THEN_END_AS ----------------#
+#---------------------------------------------------------------------#
+
+SELECT `CountryCode`, `Medal`, COUNT(*)
+FROM `medals` WHERE Year=2012 AND CountryCode!=''
+GROUP BY `CountryCode`, `Medal`
+ORDER BY `CountryCode`,
+	CASE
+    	WHEN `Medal`='Gold' THEN 1
+        WHEN `Medal`='Silver' THEN 2
+        ELSE 3
+    END;
+-- Dung CASE_WHEN_ELSE de thay doi thu tu sap xep khac voi A-Z (Gold->Silver->Bronze)
+
+
+
+-- thong ke tong luong, tong so nhan vien, chia thanh 3 nhom
+-- nhom 1: <= 5000 la luong thap
+-- nhom 2: 5000 < luong <= 10000 la luong trung binh
+-- nhom 3: >1000 la luong cao
+SELECT
+	CASE
+    	WHEN SALARY<=5000 THEN 'luong_thap'
+        WHEN (SALARY>5000) AND (SALARY<=10000) THEN 'luong_trung_binh'
+        ELSE 'luong_cao'
+    END AS SALARY_group,
+    SUM(SALARY) as Sum_Salary, COUNT(*)as Employee_count
+    FROM employees
+GROUP BY SALARY_group;
+
+
+
+-- Chon ma quoc gia, dem so huy chuong vang, groupby ma quoc gia
+-- dung HAVING de loc ra cac nuoc co so hcv >= 30
+SELECT `CountryCode`, COUNT(*) as SO_HCV
+FROM `medals`
+WHERE Year=2012 AND Medal='GOLD' AND CountryCode!=''
+GROUP BY `CountryCode`
+HAVING SO_HCV>=30
+ORDER BY SO_HCV DESC;
+
+
+-- Dung HAVING chon ra nhung Last_name bi trung (xuat hien nhieu hon 1 lan)
+SELECT `LAST_NAME`, COUNT(*) AS Emp_Count FROM employees
+GROUP BY `LAST_NAME`
+HAVING Emp_Count>1;
+
+-- HAVING phai nam sau GROUP BY va nam truoc ORDER BY

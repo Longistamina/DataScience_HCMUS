@@ -1,0 +1,121 @@
+K Means Clustering: https://www.youtube.com/watch?v=4b5d3muPQmA
+
+#-------------------------------------------------------------------------------------------#
+#--------------------- K-Means Clustering Algorithm Explained ------------------------------#
+#-------------------------------------------------------------------------------------------#
+
+K-Means clustering is a popular unsupervised machine learning algorithm used to partition a dataset into K distinct, non-overlapping subsets (clusters) 
+where each data point belongs to the cluster with the nearest mean (cluster center or centroid).
+
+Here's a step-by-step explanation:
+
+1.  **Initialization:**
+    * Choose the number of clusters, K.
+    * Randomly initialize K cluster centroids. Common methods include randomly selecting K data points from the dataset.
+
+2.  **Assignment:**
+    * For each data point, calculate the distance to each centroid.
+    * Assign the data point to the cluster with the nearest centroid. Common distance metrics include Euclidean distance.
+
+3.  **Update:**
+    * Recalculate the centroids of each cluster. The new centroid is the mean of all data points assigned to that cluster.
+
+4.  **Iteration:**
+    * Repeat steps 2 and 3 until the centroids no longer change significantly or a maximum number of iterations is reached.
+
+
+################### Example: ###########################
+
+Let's cluster the following 2D data points into 2 clusters (K=2):
+
+Data points: (2, 10), (2, 5), (8, 4), (5, 8), (7, 5), (6, 4), (1, 2), (4, 9)
+
+**Manual Calculation:**
+
+1.  **Initialization:**
+    * Let's randomly choose the first two data points as initial centroids:
+        * Centroid 1 (C1): (2, 10)
+        * Centroid 2 (C2): (2, 5)
+
+2.  **Assignment (Iteration 1):**
+    * Calculate Euclidean distances:
+        * Distance between (2, 10) and C1: 0
+        * Distance between (2, 10) and C2: sqrt((2-2)^2 + (10-5)^2) = 5
+        * Distance between (2, 5) and C1: 5
+        * Distance between (2, 5) and C2: 0.
+        * Distance between (8, 4) and C1: sqrt((8-2)^2 + (4-10)^2) = sqrt(36 + 36) = sqrt(72) = 8.48
+        * Distance between (8, 4) and C2: sqrt((8-2)^2 + (4-5)^2) = sqrt(36+1) = sqrt(37) = 6.08
+        * Distance between (5, 8) and C1: sqrt((5-2)^2 + (8-10)^2) = sqrt(9+4) = sqrt(13) = 3.60
+        * Distance between (5, 8) and C2: sqrt((5-2)^2 + (8-5)^2) = sqrt(9+9) = sqrt(18) = 4.24
+        * Distance between (7, 5) and C1: sqrt((7-2)^2 + (5-10)^2) = sqrt(25+25) = sqrt(50) = 7.07
+        * Distance between (7, 5) and C2: sqrt((7-2)^2 + (5-5)^2) = sqrt(25) = 5
+        * Distance between (6, 4) and C1: sqrt((6-2)^2 + (4-10)^2) = sqrt(16+36) = sqrt(52) = 7.21
+        * Distance between (6, 4) and C2: sqrt((6-2)^2 + (4-5)^2) = sqrt(16+1) = sqrt(17) = 4.12
+        * Distance between (1, 2) and C1: sqrt((1-2)^2 + (2-10)^2) = sqrt(1+64) = sqrt(65) = 8.06
+        * Distance between (1, 2) and C2: sqrt((1-2)^2 + (2-5)^2) = sqrt(1+9) = sqrt(10) = 3.16
+        * Distance between (4, 9) and C1: sqrt((4-2)^2 + (9-10)^2) = sqrt(4+1) = sqrt(5) = 2.23
+        * Distance between (4, 9) and C2: sqrt((4-2)^2 + (9-5)^2) = sqrt(4+16) = sqrt(20) = 4.47
+
+    * Assign points to clusters:
+        * Cluster 1: (2, 10), (5, 8), (4,9)
+        * Cluster 2: (2, 5), (8, 4), (7, 5), (6, 4), (1, 2)
+
+3.  **Update (Iteration 1):**
+    * Recalculate centroids:
+        * C1: ((2+5+4)/3, (10+8+9)/3) = (11/3, 27/3) = (3.67, 9)
+        * C2: ((2+8+7+6+1)/5, (5+4+5+4+2)/5) = (24/5, 20/5) = (4.8, 4)
+
+4.  **Assignment (Iteration 2):**
+    * Repeat distance calculations with new centroids and assign points to clusters.
+    * Continue this process until centroids stabilize.
+
+This manual calculation is tedious, but it demonstrates the core logic of the K-Means algorithm. In practice, computers and libraries like scikit-learn in Python are used for efficiency.
+
+The last clusters are "sensitive" to the initial centroids.
+
+#---------------------------------------------------------------------#
+#------- Choosing the Number of Clusters (K) in K-Means --------------#
+#---------------------------------------------------------------------#
+
+Determining the optimal number of clusters (K) is a crucial step in K-Means clustering. There's no single perfect method, but several techniques can help you make an informed decision. Here's a breakdown:
+
+1.  **The Elbow Method:**
+    * This is the most common technique.
+    * It involves calculating the within-cluster sum of squared errors (WCSS) for different values of K. WCSS measures the compactness of the clusters.
+    * Plot the WCSS against the number of clusters (K).
+    * The "elbow" point in the graph, where the rate of decrease in WCSS sharply changes, is considered a good estimate for K.
+    * Essentially, you're looking for the point where adding more clusters doesn't significantly reduce the WCSS.
+    * Example: if the graph looks like a downward sloping arm, the elbow is the bend in the arm.
+
+2.  **Silhouette Score:**
+    * The silhouette score measures how similar a data point is to its own cluster compared to other clusters.
+    * It ranges from -1 to 1:
+        * 1 indicates that the data point is well-clustered.
+        * 0 indicates that the data point is close to the decision boundary between two clusters.
+        * -1 indicates that the data point is likely assigned to the wrong cluster.
+    * Calculate the silhouette score for different values of K and choose the K that maximizes the score.
+
+3.  **Gap Statistic:**
+    * The gap statistic compares the WCSS of the clustered data to the expected WCSS of a reference null distribution (data with no inherent clustering).
+    * It estimates the optimal K by finding the value that maximizes the gap between the observed WCSS and the expected WCSS.
+    * This method is more computationally intensive than the elbow method or silhouette score.
+
+4.  **Domain Knowledge:**
+    * In some cases, you might have prior knowledge about the data that suggests a particular number of clusters.
+    * For example, if you're clustering customer data, you might know that there are typically three distinct customer segments.
+
+5.  **Information Criterion:**
+    * Methods like the Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC) can be used. These methods penalize the number of clusters, helping to avoid overfitting.
+    * These methods are more common in model selection in general, and less often used for simple K-means.
+
+Practical Considerations:
+
+* **Computational Cost:** Larger values of K increase the computational cost of K-Means.
+* **Interpretability:** Smaller values of K often result in more interpretable clusters.
+* **Data Characteristics:** The optimal K depends heavily on the characteristics of your data.
+
+
+In Summary:
+# The elbow method and silhouette score are the most commonly used techniques. 
+# It's often helpful to use both methods to get a more robust estimate of the optimal K. 
+# Domain knowledge should also be considered when available.

@@ -1,0 +1,72 @@
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer
+from imblearn.pipeline import Pipeline
+
+eps = []
+minPts = []
+silh_score = []
+
+data = shopping.drop('CustomerID', axis = 1)
+
+
+for epsilon in np.arange(0.1, 0.5, 0.005):
+    for min_points in np.arange(3, 15, 1):
+        dbscan_pipe = Pipeline([
+            ('Encoder', make_column_transformer((OneHotEncoder(drop='first', handle_unknown='ignore'), ['Genre']), remainder='passthrough')),
+            ('Scaler', MinMaxScaler()),
+            ('DBSCAN', DBSCAN(eps=epsilon, min_samples=min_points))
+        ])
+        dbscan_pipe.fit(data)
+        labels = dbscan_pipe.fit_predict(data)
+
+        col_names = dbscan_pipe.named_steps['Encoder'].get_feature_names_out()
+
+        data_evaluate = (
+            pd.DataFrame(dbscan_pipe[:-1].transform(data), columns=col_names)
+            .assign(Group = labels)
+            .pipe(lambda df: df[df['Group'] != -1])
+                )
+                
+        eps.append(epsilon)
+        minPts.append(min_points)
+        
+        if data_evaluate.empty or data_evaluate['Group'].nunique() < 2:
+            silh_score.append('Not_enough_cluster_for_scoring')
+            continue
+        else:
+            labels = data_evaluate['Group']
+            data_evaluate = data_evaluate.drop('Group', axis = 1)
+            silh_score.append(silhouette_score(data_evaluate, labels))
+
+df_eps_minPts_score = pd.DataFrame({
+    'epsilon':eps,
+    'min_points_samples':minPts,
+    'silhoutte_score': silh_score
+})
+
+print(df_eps_minPts_score[df_eps_minPts_score['silhoutte_score'] == 'Not_enough_cluster_for_scoring'].head())
+
+df_final_score = (
+    df_eps_minPts_score[df_eps_minPts_score['silhoutte_score'] != 'Not_enough_cluster_for_scoring']
+    .sort_values(by='silhoutte_score', ascending=False)
+)
+
+print()
+print(df_final_score)
+
+###################################
+
+labels = dbscan_pipe.fit_predict(data)
+
+col_names = dbscan_pipe.named_steps['Encoder'].get_feature_names_out()
+
+data_clustered = (
+    data.pipe(lambda df: pd.DataFrame(dbscan_pipe.named_steps['Encoder'].transform(df), columns= col_names))
+    .assign(Group = labels)
+    .pipe(lambda df: df.set_axis(
+        df.columns.str.replace('onehotencoder__', '', regex=False).str.replace('remainder__', '', regex=False),
+        axis=1
+    ))
+)

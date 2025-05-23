@@ -1,0 +1,176 @@
+# sklearn.impute is a package for handling missing values
+
+from sklearn.impute import SimpleImputer, KNNImputer, IterativeImputer, MissingIndicator
+import numpy as np
+
+#--------------------------------------------------------------------------------------#
+#------------------------------- sklearn.impute Modules -------------------------------#
+#--------------------------------------------------------------------------------------#
+
+# Sample data with missing values
+X = np.array([[1, 2, np.nan],
+              [3, np.nan, 6],
+              [np.nan, 8, 9],
+              [5, 2, 3]])
+              
+print("Original Data:\n", X)            
+Original Data:
+[[ 1.  2. nan]
+ [ 3. nan  6.]
+ [nan  8.  9.]
+ [ 5.  2.  3.]]
+
+#-----------------------------------------------------------------------------#
+#------------------------------- SimpleImputer -------------------------------#
+#-----------------------------------------------------------------------------#
+
+SimpleImputer: Fills missing values using a specified simple strategy.
+
+# Imputed with mean:
+imputer_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
+X_mean = imputer_mean.fit_transform(X)
+[[1.         2.         6.        ]
+ [3.         4.66666667 6.        ]
+ [3.         8.         9.        ]
+ [5.         2.         3.        ]]
+
+
+# Imputed with median:
+imputer_median = SimpleImputer(missing_values=np.nan, strategy='median')
+X_median = imputer_median.fit_transform(X)
+[[1.  2.  6.]
+ [3.  2.  6.]
+ [3.  8.  9.]
+ [5.  2.  3.]]
+
+
+# Imputed with most frequent:
+imputer_freq = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
+X_freq = imputer_freq.fit_transform(X)
+[[1. 2. 6.]
+ [3. 2. 6.]
+ [2. 8. 9.]
+ [5. 2. 3.]]
+
+# Imputed with constant (-99):
+imputer_constant = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=-99)
+X_constant = imputer_constant.fit_transform(X)
+[[  1.   2. -99.]
+ [  3. -99.   6.]
+ [-99.   8.   9.]
+ [  5.   2.   3.]]
+ 
+ Parameters:
+- missing_values: The placeholder for the missing values (default=np.nan).
+- strategy: The imputation strategy.
+  - 'mean': Replace missing values using the mean along each column.
+  - 'median': Replace missing values using the median along each column.
+  - 'most_frequent': Replace missing using the most frequent value along each column.
+  - 'constant': Replace missing values with a specified 'fill_value'.
+- fill_value: When strategy='constant', this is the value to use (default=None).
+- verbose: Controls the verbosity of the imputer.
+- copy: If True, a copy of X will be created. If False, imputation will be done in-place (if possible).
+- add_indicator: If True, a MissingIndicator will be stacked onto the output of the imputer.
+
+
+#--------------------------------------------------------------------------#
+#------------------------------- KNNImputer -------------------------------#
+#--------------------------------------------------------------------------#
+
+KNNImputer: Imputes missing values using k-Nearest Neighbors.
+For each missing value, it finds the k nearest neighbors in the feature space
+and uses the mean value from these neighbors to fill the gap.
+
+
+# Imputed with KNN (k=2):
+knn_imputer = KNNImputer(n_neighbors=2)
+X_knn = knn_imputer.fit_transform(X)
+[[1.  2.  7.5]
+ [3.  5.  6. ]
+ [4.  8.  9. ]
+ [5.  2.  3. ]]
+
+Parameters:
+- n_neighbors: Number of neighbors to use for imputation (default=5).
+- weights: Weight function used in prediction.
+  - 'uniform': All neighbors weights equally.
+  - 'distance': Weight neighbors by the inverse of their distance.
+  - callable: A user-defined function which accepts an array of distances.
+- metric: Distance metric to use for finding nearest neighbors (default='nan_euclidean').
+  - Supports various metrics like 'euclidean', 'manhattan', 'nan_euclidean', etc.
+- copy: If True, a copy of X will be created. If False, imputation will be done in-place (if possible).
+- add_indicator: If True, a MissingIndicator will be stacked onto the output of the imputer.
+- missing_values: The placeholder for the missing values (default=np.nan).
+
+
+#--------------------------------------------------------------------------------#
+#------------------------------- IterativeImputer -------------------------------#
+#--------------------------------------------------------------------------------#
+
+IterativeImputer: Imputes missing values using a model-based approach (can pass any model having .fit() and .predict() for imputing).
+Each feature with missing values is modeled as a function of other features.
+The imputer then uses this model to predict the missing values.
+This process is done iteratively.
+
+from sklearn.experimental import enable_iterative_imputer  # This enables the experimental feature
+from sklearn.impute import IterativeImputer
+
+# Imputed with IterativeImputer:
+imp = IterativeImputer(max_iter=10, random_state=0, estimator=BayesianRidge())
+X_iterative = imp.fit_transform(X)
+[[1.93939394 2.         5.06060606]
+ [3.         5.54545455 6.        ]
+ [3.45454545 8.         9.        ]
+ [5.         2.         3.        ]]
+
+Parameters:
+- estimator: The estimator to use for predicting the missing values (default=BayesianRidge()).
+  - Any estimator that implements the fit() and predict() methods can be used.
+- missing_values: The placeholder for the missing values (default=np.nan).
+- sample_posterior: If True, sample from the posterior predictive distribution (default=False).
+- max_iter: Maximum number of imputation rounds to perform (default=10).
+- tol: Tolerance of the stopping condition. Iterations will stop when the change in imputed values is less than tol (default=1e-3).
+- n_nearest_features: Number of other features to use to estimate the missing values.
+  If None, all other features are used (default=None).
+- initial_strategy: Strategy to use to initialize the missing values before the first iteration.
+  Can be 'mean', 'median', 'most_frequent', or 'constant' (default='mean').
+- fill_value: When initial_strategy='constant', this is the value to use (default=None).
+- imputation_order: The order in which features with missing values are imputed.
+  - 'ascending': From features with the fewest missing values to the most.
+  - 'descending': From features with the most missing values to the fewest.
+  - 'roman': Left to right.
+  - 'arabic': Right to left.
+  - 'random': A random order for each round (default='ascending').
+- skip_complete: If True, features with no missing values will be skipped (default=False).
+- min_value: Minimum possible value for imputed values (default=None).
+- max_value: Maximum possible value for imputed values (default=None).
+- verbose: Controls the verbosity of the imputer.
+- random_state: Controls the randomness of the estimator and the imputation order.
+- add_indicator: If True, a MissingIndicator will be stacked onto the output.
+"""
+
+
+#--------------------------------------------------------------------------------#
+#------------------------------- MissingIndicator -------------------------------#
+#--------------------------------------------------------------------------------#
+
+MissingIndicator: Binary indicator for missing values.
+It transforms the data to a binary matrix indicating the presence of missing values.
+
+# Missing Value Indicator:
+indicator = MissingIndicator(missing_values=np.nan)
+missing_mask = indicator.fit_transform(X)
+[[False False  True]
+ [False  True False]
+ [ True False False]
+ [False False False]]
+
+Parameters:
+- missing_values: The placeholder for the missing values (default=np.nan).
+- features: Which features to indicate missing values for.
+  - 'missing-only': Only features containing missing values at fit time are indicated.
+  - 'all': All features are indicated.
+- error_on_new: Whether to raise an error if missing values are encountered in new data
+  for features that did not have missing values during fit (default=False).
+- sparse: Whether the output should be a sparse matrix (default=False).
+- copy: If False, the missing mask will be computed in-place and might overwrite the input.

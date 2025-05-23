@@ -1,0 +1,83 @@
+#--------------------------------------------------#
+#-------------- cursor() methods ------------------#
+#--------------------------------------------------#
+
+.callproc() is a method to execute an SQL procedure (procedure in SQL is like module in python)
+            when the commands are needed, just call out this method, instead of executing long command string
+            # .callproc('procedure_name', arguments...)
+
+
+.execute() to execute an sql commands stored in a command string
+
+.executemany() like execute but with many commands separated by ';'
+
+
+.fetchone() to read the query results line-by-line
+            #show the result of current line
+            #doc ket qua theo tung dong, doc toi dau xu ly toi do, hien ra toi do
+            #rat huu ich khi du lieu nhieu dong
+
+.fetchmany() to read the query results in many groups, each group contains many lines
+             #example: .fetchmany(5) is equal to 5 .fetchone(), starts from the 1st result
+             #doc ket qua theo tung block
+
+.fetchall() to read the query in one only group containing all lines
+            #show the result of .fetchone() from the 1st line to the last line
+            #doc toan bo ket qua, doc xong roi moi xu ly
+            #vi doc het roi moi xu ly nen neu du lieu co qua nhieu dong, ket qua se tra ve cham
+
+
+.close() to close the cursor
+
+##example:
+
+row = cursor.fectchone() #get the first row of query
+
+while row: #If row is not None, then run while loop, else don't run while loop
+	print(row)
+	row = cursor.fetchone() #get the next row of query
+
+#-----------------------------------------------------#
+#-------------- cursor() attributes ------------------#
+#-----------------------------------------------------#
+
+cursor = connection.cursor()
+cursor.execute(.....)
+
+cursor.column_names: return the list of column names in query result
+
+cursor.with_rows: True if the query has data, False if the query has no data
+
+cursor.description: returns the informations of query columns like name, type_code, display_size,...
+
+cursor.lastrowid: returns the Id of the latest Update or Insert row, returns None if nothing is updated or inserted
+
+cursor.statement: returns the content of the latest executed query command
+
+cursor.rowcount: the number of rows of the query
+
+
+#------------------------------------------------#
+#------------- Procedure ------------------------#
+#------------------------------------------------#
+
+Procedure is like module/function in python.
+A procedure object will store a bunch of sql commands, then run it and return an output.
+
+For example, the commands below are used to create a Procedure named find_customer_by_phone.
+This procedure will takes p_phone (phone number) as input 
+and returns the p_firstname + p_lastname as outputs.
+
+###
+DELIMITER $$ 
+CREATE PROCEDURE find_customer_by_phone(IN p_phone VARCHAR(14),   
+             OUT p_firstname VARCHAR(255), OUT p_lastname VARCHAR(255))
+BEGIN
+       SELECT firstname, lastname INTO p_firstname, p_lastname 
+       FROM customers
+       WHERE phone = p_phone;
+END $$
+DELIMITER ;
+###
+
+When querying an SQL server via python, .callproc('procedure_name', arguments...)

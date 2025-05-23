@@ -1,0 +1,24 @@
+#--------------------------------------------#
+#------------- VIEW: bang ao ----------------#
+#--------------------------------------------#
+
+VIEW: la bang ao, la ket qua cua mot query dua tren table that
+
+VIEW co the duoc dung de tao ra mot bang ao nham che day nhung thong tin nhay cam nhu salary
+
+Thay vi cap quyen cho users xem thong tin trong cac table, gio day chi can tao ra cac Views tu cac tables,
+roi cap quyen users truy cap vao cac Views
+
+Cac bang ao View co kha nang lam tuoi (refresh), tuc la neu data tu table goc co thay doi, 
+chi can chay lai nhung cau lenh tao ra View thi data trong View cung duoc cap nhat theo table goc
+
+-----------------------------------
+CREATE VIEW myview
+AS
+	SELECT EMPLOYEE_ID,FIRST_NAME, LAST_NAME, JOB_ID, HIRE_DATE, DEPARTMENT_ID
+    FROM employees;
+-- Tao mot bang ao ten la myview chua cac cot nhu tren lay tu employees
+----------------------------------
+
+Sau khi tao bao ao xong, vao muc "Views" ngay trong database hien hanh,
+roi bam vao ten bang ao de xem ket qua (vi du 'myview' trong truong hop nay)

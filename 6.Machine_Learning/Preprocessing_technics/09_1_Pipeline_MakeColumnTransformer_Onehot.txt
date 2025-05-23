@@ -1,0 +1,46 @@
+#--------------------------------------------------------------#
+#----------------- make_column_transformer --------------------#
+#--------------------------------------------------------------#
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=1)
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import OneHotEncoder, RobustScaler
+from sklearn.compose import make_column_transformer
+from imblearn.pipeline import Pipeline
+
+logreg_pipe = Pipeline([
+   ('Label_Enconder', make_column_transformer( (OneHotEncoder(handle_unknown='ignore', drop='first'), ['Geography', 'Gender']), remainder='passthrough', force_int_remainder_cols=False)),
+   ('Robust_Scaler', RobustScaler()),
+   ('Logistic_Regression', LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=1000))
+])
+
+logreg_pipe.fit(x_train, y_train)
+
+
+#--------------------------------------------------------#
+#----------------- ColumnTransformer --------------------#
+#--------------------------------------------------------#
+
+sklearn.compose.ColumnTransformer(transformers, *, remainder='drop', sparse_threshold=0.3, n_jobs=None, transformer_weights=None, verbose=False, verbose_feature_names_out=True, force_int_remainder_cols=True)
+
+
+from sklearn.naive_bayes import BernoulliNB
+from imblearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+
+Onehot_transformer = ColumnTransformer(
+    transformers=[('Onehot_Encoder', OneHotEncoder(handle_unknown='ignore'), x.columns)],
+    remainder='passthrough'
+)
+
+nbBer_pipe = Pipeline([
+    ('Onehot_Encoder', Onehot_transformer),
+    ('Bernoulli_Naive_Bayes', BernoulliNB())
+])
+
+nbBer_pipe.fit(x,y)
+
+print(f'BernoulliNB accuracy score on train set: {nbBer_pipe.score(x, y)}')

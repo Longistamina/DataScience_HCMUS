@@ -1,0 +1,37 @@
+--4a.---------------------------------
+SELECT `empid` as `Ma_nhan_vien`, 
+CONCAT(`firstname`, `lastname`) as `Ho_ten`, 
+`title` as `Chuc_danh`, 
+DATE_FORMAT(`hiredate`, '%d/%m/%Y') as `Ngay_vao_lam`
+FROM Employees;
+
+
+--4b.-----------------------------
+SELECT DISTINCT `title` as `Chuc_danh`FROM Employees;
+
+------ Tim cac nhan vien duoc nhan vao lam ngay Chu Nhat --------------------
+SELECT `empid` as `Ma_nhan_vien`, 
+CONCAT(`firstname`, `lastname`) as `Ho_ten`, 
+`title` as `Chuc_danh`, 
+DATE_FORMAT(`hiredate`, '%d/%m/%Y') as `Ngay_vao_lam`
+FROM Employees WHERE DAYOFWEEK(hiredate)=2;
+
+
+SELECT DAYOFWEEK(hiredate) from Employees;
+-----------------------------
+
+--4c.--------------------------------------
+SELECT `Products`.`productid`, 
+LPAD(`productid`, 10, '0') AS New_ID FROM `Products`;
+
+
+--5a.------------------------------
+SELECT * FROM `Orders` WHERE (MONTH(`orderdate`)<=6 AND YEAR(`orderdate`)=2008)
+ORDER BY `orderdate` DESC;
+
+
+--5b.-------------------------------------
+SELECT * FROM `Orders` WHERE (MONTH(`orderdate`)=6 AND YEAR(`orderdate`)=2007 AND `shipcountry`='Germany') 
+ORDER BY `orderdate` DESC;
+
+

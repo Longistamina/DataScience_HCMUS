@@ -1,0 +1,93 @@
+#-----------------------------------------------------------------------#
+#----------- Nested-Subquery_ALL_ANY --------------#
+#-----------------------------------------------------------------------#
+
+Nested Query mean running a query, then use the output of that query for an 'outer' query
+Nested-query done first and only 1 time, then main query done later
+
+SELECT * FROM
+(
+SELECT `CountryCode`, COUNT(*) as SO_HCV
+FROM `medals`
+WHERE Year=2012 AND Medal='GOLD' AND CountryCode!=''
+GROUP BY `CountryCode`
+ORDER BY SO_HCV DESC
+) subquery
+WHERE SO_HCV>=30;
+-- The commands inside the (...) return a query whose alias is 'subquery' 
+-- Then, use that subquery to make another query with SO_HCV>=30
+
+
+SELECT * FROM employees 
+WHERE LAST_NAME IN
+(
+SELECT `LAST_NAME` FROM employees
+GROUP BY `LAST_NAME`
+HAVING COUNT(*)>1
+);
+-- Dung nested query de chon ra nhung dong co last name bi trung > 1
+-- roi query lan nua de hien thi ra tat ca thong tin lien quan
+
+
+SELECT LAST_NAME, SALARY FROM `employees`
+WHERE SALARY > ALL(SELECT SALARY FROM `employees` WHERE `LAST_NAME`='King');
+-- Dung subquery de tim luong nhung nguoi ten 'King'
+-- Vi subquery tra ve nhieu hon 1 ket qua, phai kem theo ALL hoac ANY di truoc
+-- Hien ra last_name va salary cua tat ca nhan vien co salary lon hon TAT CA nguoi ten King
+
+
+SELECT LAST_NAME, SALARY FROM `employees`
+WHERE SALARY > ANY(SELECT SALARY FROM `employees` WHERE `LAST_NAME`='King');
+-- Hien ra last_name va salary cua tat ca nhan vien co salary lon hon mot trong nhung nguoi ten King
+
+
+SELECT * FROM `employees`
+WHERE EMPLOYEE_ID IN (SELECT DISTINCT MANAGER_ID FROM `employees` WHERE MANAGER_ID!=0);
+-- Dung subquery de lay danh sach manager_id
+-- Roi dung query de tim cac nhan vien lam quan ly (co employee_id khop voi manager_id)
+
+
+####### Luu y, Neu trong nested-query co gia tri NULL thi khi dung NOT IN se khong truy van duoc du lieu
+####### do do, trong nested-query phai loai bo null bang IS NOT NULL
+SELECT * FROM `employees`
+WHERE DEPARTMENT_ID NOT IN (SELECT DISTINCT DEPARTMENT_ID FROM `employees` WHERE DEPARTMENT_ID IS NOT NULL);
+-- Dung subquery lay department_id (khong lay 0 hay NULL)
+-- Roi dung query va NOT IN de tim nhan vien chua co phong (tuc department_id khong thuoc list do subquery tra ve)
+
+
+
+SELECT * FROM `employees`
+WHERE DEPARTMENT_ID=50
+AND SALARY=(SELECT MAX(SALARY) FROM `employees` WHERE DEPARTMENT_ID=50);
+-- Hien ra nhan vien co slary lon nhat (max) cua department 50
+
+
+
+#-----------------------------------------------#
+#----------- Correlative-Subquery --------------#
+#-----------------------------------------------#
+
+Correlative-subquery is a subquery that runs in parallel with the main query
+Corr-subquery may repeat many time
+
+
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME,
+(SELECT SUM(SALARY) FROM `employees` WHERE DEPARTMENT_ID=dep.DEPARTMENT_ID) AS Sum_salary
+FROM departments dep;
+-- 'departments dep' tuc la dat alias cho 'department' la dep
+-- roi dung alias 'dep' de chay subquery ben trong mot cach song song
+-- dep.DEPARTMENT_ID hay 'departments`.DEPARTMENT_ID quet du lieu toi dau thi subquery tinh toan toi do
+
+
+SELECT FIRST_NAME, LAST_NAME, EMPLOYEE_ID, MANAGER_ID,
+	(SELECT FIRST_NAME FROM `employees` WHERE EMPLOYEE_ID=emp.MANAGER_ID) AS MANAGER_NAME
+FROM employees emp;
+-- Dung correlative-subquery de tim manger first name cua mot employee nao do (tra ve cot MANAGER_NAME)
+
+
+
+SELECT FIRST_NAME, LAST_NAME, SALARY, DEPARTMENT_ID,
+	(SELECT DEPARTMENT_NAME FROM `hr`.`departments` dep WHERE emp.DEPARTMENT_ID=dep.DEPARTMENT_ID) AS DEPARTMENT_NAME
+FROM employees emp;
+-- dung corr-subquery de ket hop tra cuu trong ca hai bang khac nhau la `employees` (emp) va `departments` (dep)
+-- lay emp.DEPARTMENT_ID de so voi dep.DEPARTMENT_ID roi tra ve DEPARTMENT_NAME tuong ung

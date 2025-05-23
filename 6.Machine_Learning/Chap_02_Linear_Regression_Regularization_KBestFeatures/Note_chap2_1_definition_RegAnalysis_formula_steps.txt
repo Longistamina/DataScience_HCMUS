@@ -1,0 +1,80 @@
+In the 1800s, the scientists for the first time came up with the idea of identifying the relation between 2 variables
+=> Use Ordinary Least Square (OLS) to optimize the regression line
+=> Set foundations for linear regression
+
+
+Regression Analysis: is a predictive modeling technique, help determine the relation between dependent target (Y)
+and the independent variable(s) (X)
+=> Used for forecasting (du bao), modeling time-series data....
+
+In Regression Analysis: the output or dependent target (Y) is a NUMBER
+(the inputs are number, if they are categorical, then must encode into numerical type)
+
+Regression Analysis is also a SUPERVISED task (supervised learning)
+
+
+Applications:
+	+Predict an average house price of a specific region
+	+Predict the demand of a new product
+	+Predict the degree of power consumption
+	+Predict the temperature of a geographical region
+
+
+#----------------------------------------------------------#
+#---------------------- Formula ---------------------------#
+#----------------------------------------------------------#
+
+Formula: a + X1*a1 + X2*a2 + X3*a3 +....+ Xn*an = Y_pred
+
+Loss function = 1/n * sum[(yi - y_pred_i)^2]   (OLS)
+=> Find the a, a1, a2, a3, ... an where Loss is minimum (optimization)
+
+
+a, a1, a2, a3,... an here are parameters, coefficients, or weights...
+
+
+Simple linear: b + X*a = Y
+
+
+#----------------------------------------------------------------#
+#---------------------- Pros and Cons ---------------------------#
+#----------------------------------------------------------------#
+
+Pros:
+	+The algorithm is easy to understand
+	+High popularity
+	+Fast training process
+	+If the inputs and output (or response) are linearly correlated => this model will have good accuracy
+
+
+Cons:
+	+Very sensitive to noise or outliers
+	+Hard to modelise complicated problems
+	+Does not work well with non-linear data
+
+
+#--------------------------------------------------------#
+#---------------------- Steps ---------------------------#
+#--------------------------------------------------------#
+
+1) Choose model: Linear Regression
+2) Check the correlation coefficient between variables to see if they are linearly correlated or not
+3) Create input and output sets
+4) Split datasets into train_set and test_set (80:20)
+5) Train the model with train_set
+6) Test the model with test_set
+7) Compare the R^2 (accuracy) score of train_set and test_set to check the overfitting status
+8) Calculate Mean-Squared-Error of output test and output predict
+9) Visualize training results (Y_true and Y_pred), give comments
+10) If all results are good, then use trained model to predict new values.
+    Else, modify its parameters or other things.
+
+
+
+#-----------------------------------------------------------------------#
+#---------------------- Visualize the result ---------------------------#
+#-----------------------------------------------------------------------#
+
+Draw the distribution plot (or density line) of Y_true and Y_predict, 
+if they align well on each other (overlap) => good result
+Else => bad result

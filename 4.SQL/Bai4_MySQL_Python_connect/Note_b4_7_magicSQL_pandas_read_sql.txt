@@ -1,0 +1,87 @@
+#-----------------------------------------------------------------#
+#------------- Magic SQl (%sql commands) -------------------------#
+#-----------------------------------------------------------------#
+
+Using %sql without creating connection() or cursor()
+
+pip3 install ipython-sql
+pip3 install pymysql
+
+%load_ext sql #load the library in
+
+user='root'
+password=''
+hostname='localhost:8888' #Get from the jupyter lab tab
+database='salesdb'
+
+connection_string = f"mysql+pymysql://{user}:{password}@{hostname}/{database}?charset=utf8"
+#Create a connection string
+
+%sql $connection_string #Run this command to connect python to sql
+
+
+#If encounter KeyError: 'DEFAULT', then run this
+%config SqlMagic.style = '_DEPRECATED_DEFAULT'
+
+
+%sql select * from customers limit 10 #Run sql commands with %sql
+#The syntax like in MySQL, just have to put the %sql before the command
+
+
+query_result = %sql select * from customer where country='code'
+df = query_result.DataFrame() 
+#Store the query result from sql server into query_result variable
+#Then, create a dataframe from it using .DataFrame(), and store into df
+
+
+%sql query_result << select * from customer where country='code'
+df = query_result.DataFrame()
+
+
+### Multiple-line query command
+
+%%sql select *
+from customers
+where City='Berlin';
+
+
+
+
+#---------------------------------------------------------#
+#--------------- pandas.read_sql() -----------------------#
+#---------------------------------------------------------#
+
+Using pandas.read_sql() will have acquire also the table's column names
+
+from mysql.connector import connect
+import pandas as pd
+import numpy as np
+from sqlalchemy.engine import create_engine
+
+
+user='root'
+password=''
+hostname='localhost:8888' 
+database='salesdb'
+
+connection_string = f"mysql+pymysql://{user}:{password}@{hostname}/{database}?charset=utf8"
+#Create a connection string
+
+connect_engine = create_engine(connection_string)
+
+sql_command = 'select * from orders where year(OrderDate)=2012'
+
+sql_command2 = '''
+select CustomerId, count(*) as Total_orders from orders
+where year(OrderDate)=2012
+group by CustomerId
+order by Total_orders DESC;
+'''
+
+df = pd.read_sql(sql_command, connect_engine)
+
+df2 = pd.read_sql(sql_command2, connect_engine)
+
+#or df = pd.read_sql('select * from orders limit *', connect_engine)
+
+print(df)

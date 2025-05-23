@@ -1,0 +1,62 @@
+#---------------------------------------------------------------------------------------------------#
+#------------- COUNT, DISTINCT, SUM, MIN, MAX, AVG, STDDEV, GROUP BY, LIKE -------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+SELECT COUNT(*) FROM `hr`.employees;
+-- Dung COUNT(*) de dem tat ca cac dong (observations)
+
+SELECT COUNT(*), COUNT(COMMISSION_PCT) FROM `employees`;
+-- COUNT(column_name) de dem cac dong NOT NULL cua column do
+
+SELECT DISTINCT DEPARTMENT_ID FROM `hr`.employees;
+-- Dung Distinct de hien thi cac gia tri duy nhat cua cot
+
+SELECT COUNT(*),
+SUM(SALARY), #Tinh tong sum
+MIN(SALARY), #Tim min
+MAX(SALARY), #Tim max
+AVG(SALARY),  #Tim average
+STDDEV(SALARY) #Tim STD
+FROM `hr`.employees;
+
+
+SELECT DEPARTMENT_ID, SUM(SALARY) AS SUM_SALARY
+FROM `hr`.employees
+GROUP BY DEPARTMENT_ID
+ORDER BY SUM_SALARY DESC;
+-- Ap dung GROUP BY
+-- Tinh tong luong theo Department_ID, sap xep giam dan
+
+
+SELECT DEPARTMENT_ID, SUM(SALARY) AS SUM_SALARY
+FROM `hr`.employees
+GROUP BY DEPARTMENT_ID
+ORDER BY SUM_SALARY DESC
+LIMIT 1;
+-- Tinh tong luong theo Department_ID, sap xep giam dan
+-- Dung LIMIT 1 de chi hien ra ket qua dau tien (cung la ket qua lon nhat)
+
+
+
+SELECT DEPARTMENT_ID, SUM(SALARY) AS SUM_SALARY, AVG(SALARY) AS AVG_SALARY, COUNT(*) as EMPLOYEE_COUNT
+FROM `hr`.employees
+WHERE DEPARTMENT_ID IS NOT NULL
+GROUP BY DEPARTMENT_ID
+ORDER BY DEPARTMENT_ID;
+-- Dung IS NOT NULL de loc bo khong hien cac gia tri NULL
+
+
+
+SELECT DEPARTMENT_ID, SUM(SALARY) AS SUM_SALARY, AVG(SALARY) AS AVG_SALARY, COUNT(*) as EMPLOYEE_COUNT
+FROM `hr`.employees
+WHERE DEPARTMENT_ID IS NOT NULL
+GROUP BY DEPARTMENT_ID
+HAVING COUNT(*)>=20
+ORDER BY DEPARTMENT_ID;
+-- Them HAVING COUNT(*)>=20 de loc ra nhung quan sat co nhieu hon 20 nhan vien (employee_count)
+
+
+SELECT * FROM `olympics`.`country` WHERE `CountryCode` LIKE 'VI%'
+-- Dung LIKE de chon nhung rows ma column CountryCode co chua VI-, sau VI- la mot ky tu bat ky (VIE hoac VIN...)
+-- LIKE: so sanh gan dung
+-- =: so sanh tuyet doi

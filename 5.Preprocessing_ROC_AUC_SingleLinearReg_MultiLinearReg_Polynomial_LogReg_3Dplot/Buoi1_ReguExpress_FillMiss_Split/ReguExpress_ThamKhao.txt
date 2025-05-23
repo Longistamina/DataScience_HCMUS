@@ -1,0 +1,2 @@
+1. Guru: https://www.guru99.com/python-regular-expressions-complete-tutorial.html
+2. W3Schools: https://www.w3schools.com/python/python_regex.asp

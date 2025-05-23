@@ -1,0 +1,42 @@
+#----------------------------------------------------------------------------------------------#
+#----------- Danh so thu tu ROW_NUMBER() RANK() DENSE_RANK() OVER() PARTITION BY --------------#
+#----------------------------------------------------------------------------------------------#
+
+SELECT ROW_NUMBER() OVER(ORDER BY SALARY DESC) AS STT,
+	FIRST_NAME, LAST_NAME, SALARY
+FROM `employees`;
+-- dung ROW_NUMBER() OVER() de danh so thu tu theo thu tu SALARY giam dan
+-- ROW_NUMBER() khong co tham so
+
+
+SELECT RANK() OVER(ORDER BY SALARY DESC) AS STT,
+	FIRST_NAME, LAST_NAME, SALARY
+FROM `employees`;
+-- dung RANK() OVER() de danh xep hang theo thu tu SALARY giam dan
+-- Ham RANK() se xep dong hang cac gia tri bang nhau (con ham ROW_NUMBER() thi khong)
+-- Output: 1 2 2 4 5 5 7
+
+
+SELECT DENSE_RANK() OVER(ORDER BY SALARY DESC) AS RANK,
+	FIRST_NAME, LAST_NAME, SALARY
+FROM `employees`;
+-- DENSE_RANK() giong RANK(), nhung output tra ve hoi khac
+-- Output: 1 2 2 3 4 5 5 6 7
+
+
+
+SELECT RANK() OVER( PARTITION BY DEPARTMENT_ID ORDER BY SALARY DESC) AS STT,
+	FIRST_NAME, LAST_NAME, DEPARTMENT_ID, SALARY
+FROM `employees`;
+-- Ket hop them PARTITION BY department_id de danh so thu tu theo nhom (department)
+-- Nghia la, moi department se duoc ranking rieng
+-- Output: 1 1 1 2 3 1 2 3 4 5 1 1
+
+
+SELECT * FROM
+(SELECT DENSE_RANK() OVER(PARTITION BY DEPARTMENT_ID ORDER BY SALARY DESC) AS Emp_rank,
+	FIRST_NAME, LAST_NAME, DEPARTMENT_ID, SALARY
+FROM `employees` 
+WHERE DEPARTMENT_ID IS NOT NULL) as q
+WHERE Emp_rank=1;
+-- Cho biet nhan vien co luong cao nhat moi phong (chi hien dong co Emp_rank = 1)

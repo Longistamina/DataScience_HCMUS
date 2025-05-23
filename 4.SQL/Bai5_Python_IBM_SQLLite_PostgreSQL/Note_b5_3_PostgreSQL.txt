@@ -1,0 +1,40 @@
+Download PostgreSQL: https://www.postgresql.org/download/
+
+#--------------------------------------------#
+#--------------- create database ------------#
+#--------------------------------------------#
+
+Use dvdrental.tar database for demo in PostgreSQL
+
+In PostgreSQL, create a database named 'dvdrental'
+
+Click to 'dvdrental' database, choose "Restore", then choose 'dvdrental.tar' => click "Restore"
+
+Then goes to "Schemas" => "Tables" to see the imported tables
+
+
+#------------------------------------------------------#
+#--------------- Connect Python PostgreSQL ------------#
+#------------------------------------------------------#
+
+pip3 install psycopg2
+
+import psycopg2
+
+connection = psycopg2.connect(
+	user="postgre",
+	password="123456",
+	host="localhost", #or IP address
+	port="5432",
+	database="dvdrental"
+)
+
+curs = connection.cursor()
+
+curs.execute("SELECT version();")
+
+record = curs.fetchone()
+print(record)
+
+curs.close()
+connection.close()

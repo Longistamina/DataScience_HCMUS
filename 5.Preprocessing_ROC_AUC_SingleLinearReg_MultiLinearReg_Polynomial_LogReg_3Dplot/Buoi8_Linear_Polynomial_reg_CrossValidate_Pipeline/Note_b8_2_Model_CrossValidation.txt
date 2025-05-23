@@ -1,0 +1,30 @@
+In case the dataset is so small, not enough to split into train-test set
+=> Use cross validation
+
+x = df[['input1', 'input2', 'input3', 'input4',...]]
+y = df['output']
+
+from sklearn.linear_model import LinearRegression
+multi_lr_model = LinearRegression().fit(x, y) #Train with the whole original dataset 
+
+from sklearn.model_selection import cross_val_score
+
+### R^2 (R-squared) scores
+R_cross = cross_val_score(multi_lr_model, x, y, cv=4)
+
+#cv=4 means it will cross-validate the model 4 times, here how it does:
+# In advance, cross_validation will split the dataset into 4 equal parts (or nearly equal)
+# 1st validate: it use the 1st, 2nd and 3rd parts as train set, and 4th part as test set
+# 2nd validate: it use the 2nd, 3rd and 4th parts as train set, and 1st part as test set
+# 3rd validate: it use the 3rd, 4th and 1st parts as train set, and 2nd part as test set
+# 4th validate: it use the 4th, 1st and 2nd parts as train set, and 3rd part as test set
+# each validation returns an R_score
+# so cross_val_score(multi_lr_model, x, y, cv=4) will return an array containing 4 R^2_scores of 4 validations
+
+Mean of R^2 = R_cross.mean()
+std of R^2 = R_cross.std()
+
+### MSE scores
+MSE_cross = cross_val_score(multi_lr_model, x, y, cv=4, scoring='neg_mean_squared_error')
+
+MSE_model = MSE_cross.mean()

@@ -1,0 +1,150 @@
+import numpy as np
+import scipy.stats as stats
+
+f1 = open('data_Buoi7&8/count_cars.txt')
+cars = f1.read().replace('\n',' ').split(' ')
+cars_array = np.array([eval(number) for number in cars])
+f1.close()
+
+#---Plot-----#
+sbn.histplot(cars_array, color='green', kde=True)
+sbn.boxplot(cars_array, color='green')
+
+#-----------------------------------------------------------------------------------#
+#-------Mean, GMean, HMean, Median, Max, Min, Mode, Percentil, Q1, Q3, IQR----------#
+#-----------------------------------------------------------------------------------#
+
+print(f'\nMean of cars_array = {np.mean(cars_array)}')
+print(f'Geometric mean of cars_array = {stats.gmean(cars_array)}')
+print(f'Harmonic mean of cars_array = {stats.hmean(cars_array)}')
+
+print(f'\nMedian of cars_array = {np.median(cars_array)}')
+print(f'\nMax of cars_array = {np.max(cars_array)}')
+print(f'\nMin of cars_array = {np.min(cars_array)}')
+
+mode_cars = stats.mode(cars_array)
+#scipy.stats.mode(x) returns a tuple having 2 elements
+#The first element [0] is the value of that mode
+#The second one [1] is the count (frequency) of that mode value
+
+print(f'\nMode value of cars_array = {mode_cars[0]}')
+print(f'Mode frequency of cars_array = {mode_cars[1]}')
+
+percentiles = [5, 15, 25, 50, 75, 90] #x axis
+perc_values = np.percentile(cars_array, percentiles) #y axis
+
+Q1 = np.percentile(cars_array, 0.25)
+Q3 = np.percentile(cars_array, 0.75)
+IQR = Q3 - Q1 = stats.iqr(cars_array)
+
+#-------------------------------------#
+#-------------Var, Std----------------#
+#-------------------------------------#
+
+cars_var = np.var(cars_array)
+cars_std = np.std(cars_array)
+
+#-------------------------------------#
+#---------------Skewness---------------#
+#-------------------------------------#
+
+To calculate skewness (do nghieng) of a sample/population, we can use median
+
+Formula: skewness = 3(mean(x) - median(x)) / std
+
+If mean > median, the skewness > 0 and the tail (mean) of the density line will be to the right of median
+If mean < median, the skewness < 0 and the tail (mean) of the density line will be to the left of median
+ (the tail and the mean always go along)
+
+If mean = median, the skewness = 0 and the density line is symmetrical (no tail)
+
+cars_skew = stats.skew(cars_array)
+print(f'\nSkewness of cars_array = {cars_skew}')
+
+#-------------------------------------#
+#----------Kurtosis-------------------#
+#-------------------------------------#
+
+Kurtosis = do nhon
+It measures the tailedness of a distribution
+
+The kurtosis of normal distribution is always = 3
+ => so, to calculate the excess kurtosis, use kurtosis - 3
+
+print('\nKurtosis of normal distribution = 3')
+
+cars_kurt = stats.kurtosis(cars_array, fisher=False) #set fisher = False to calculate the original kurtosis of cars_array
+print(f'\nKurtosis of cars_array = {cars_kurt}')
+====>   kurt = 3.9396339028047
+
+cars_kurt_exc = stats.kurtosis(cars_array, fisher=True) #set fisher = True to calculate the excess kurtosis of cars_array (kurt -3)
+print(f'\nExcess kurtosis of cars_array = {cars_kurt_exc}')
+=====> excess kurt = kurt - 3 = 0.9396339028047
+
+By default, the fisher = True if not explained
+
+
+#------------------------------------------------------------------#
+#----------Covariance matrix, Correlation matrix-------------------#
+#------------------------------------------------------------------#
+
+cov_matrix = np.cov(versicolor_petal_length, versicolor_petal_width)
+Covariance matrix of versicolor_petal_length and versicolor_petal_width:
+ [[0.22081633 0.07310204]
+ [0.07310204 0.03910612]]
+
+corr_matrix = np.corrcoef(versicolor_petal_length, versicolor_petal_width)
+Correlation matrix of versicolor_petal_length and versicolor_petal_width:
+ [[1.         0.78666809]
+ [0.78666809 1.        ]]
+
+#--------------------------------------------------#
+#------------z-score to find outliers--------------#
+#--------------------------------------------------#
+
+z-score is a standardized form of a sample/population
+
+Formula:      z[i] = [x[i] - mean(x)] / standard_deviation
+===> By doing this, the x now becomes z, with mean(z) = 0 and std(z) = 1
+
+Conventionally, the x values that corresponds to z where (z <= -2.5) or (z >= 2.5) are considered outliers
+(3-SIGMA RULE)
+For example, if the z[5] > 2.5 then x[5] is an outlier
+
+z_cars = stats.zscore(cars_array) #This scipy.stats.zscore() will compute the z-score for each value in cars_array
+print(f'\nThe z-score of cars_array is:\n{z_cars}')
+
+cars_out_index = np.where((z_cars <= -2.5) | (z_cars >= 2.5)) #must use | instead of or
+                                                              #Return the tuple indices of z_cars where z_cars <= -2.5 or >= 2.5
+                                                              # cars_out_index[0][0] => 1st index (not cars_out_index[0])
+print()
+for i in cars_out_index[0]:
+    print(f'Outlier cars_array[{i}]: {cars_array[i]}')
+
+
+#---------------------------------------------------------#
+#------------IQR, Q1 and Q3 to find outliers--------------#
+#---------------------------------------------------------#
+
+If (x < Q1 - 1.5*IQR) or (x > Q3 + 1.5*IQR), then x is an outlier
+
+
+#-----------------------------------------#
+#------------Frequency table--------------#
+#-----------------------------------------#
+
+freq_table = pd.DataFrame()
+
+freq_table['120-129'] = [(np.extract((batt_life_arr>=120) & (batt_life_arr<=129), batt_life_arr)).size]
+freq_table['130-139'] = [(np.extract((batt_life_arr>=130) & (batt_life_arr<=139), batt_life_arr)).size]
+freq_table['140-149'] = [(np.extract((batt_life_arr>=140) & (batt_life_arr<=149), batt_life_arr)).size]
+freq_table['150-159'] = [(np.extract((batt_life_arr>=150) & (batt_life_arr<=159), batt_life_arr)).size]
+freq_table['160-169'] = [(np.extract((batt_life_arr>=160) & (batt_life_arr<=169), batt_life_arr)).size]
+#numpy.extract(condition, array) will return the elements of an array that satisfies the given condition
+
+freq_table = freq_table.transpose() #transpose so that the intervals like 120-129 will become the indices
+freq_table.columns=['frequency'] #Change colname from 0 to 'frequency'
+print(freq_table)
+
+plt.bar(freq_table.index, freq_table.frequency)
+sbn.barplot(x=freq_table.index, y=freq_table.frequency, color='green')

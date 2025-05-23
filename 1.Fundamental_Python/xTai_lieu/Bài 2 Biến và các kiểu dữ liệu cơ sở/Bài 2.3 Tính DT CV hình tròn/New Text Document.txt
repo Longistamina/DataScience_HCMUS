@@ -1,0 +1,9 @@
+Viết chương trình tính diện tích và chu vi hình tròn với yêu cầu sau:
+- Bán kính của hình tròn được nhập vào từ bàn phím (Input)
+- Chương trình sẽ tính:
+Chu vi = 2 x Bán kính x PI
+Diện tích = PI x Bán kính x Bán kính
+và in ra Chu vi và Diện tích (Output)
+Lưu ý:
+- Khai báo hằng số PI = 3.14
+- Nếu kết quả chu vi và diện tích là số thực, để xuất giá trị có 2 số thập phân ta phải định dạng chuỗi xuất ra (%.2f)

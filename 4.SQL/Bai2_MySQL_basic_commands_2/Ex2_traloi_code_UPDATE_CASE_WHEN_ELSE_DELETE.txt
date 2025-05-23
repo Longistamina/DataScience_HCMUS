@@ -1,0 +1,70 @@
+--4.a----------------------------------------
+SELECT `Ma_sinh_vien`,
+CONCAT(`Ho`, ' ', `Ten`) as Ho_ten,
+`Ngay_sinh`, `Gioi_tinh`, `Hoc_bong`
+FROM `ex2_sinh_vien`;
+
+
+--4b.-----------------------------------------------------
+SELECT `Ma_sinh_vien`, CONCAT(`Ho`, ' ', `Ten`) as Ho_ten, 
+`Ngay_sinh`, `Gioi_tinh`, `Hoc_bong`, `Ma_khoa`
+FROM `ex2_sinh_vien` WHERE `Ma_khoa`='CN' AND `Hoc_bong`>1000000;
+
+
+--4c.------------------------------------------------------------
+SELECT `Ma_sinh_vien`, `Ho`, `Ten`, `Ngay_sinh`, `Gioi_tinh`, `Hoc_bong`
+FROM `ex2_sinh_vien` WHERE `Hoc_bong` BETWEEN 1000000 AND 2000000;
+
+
+--4.d-----------------------------------------------------------------
+SELECT `Ma_sinh_vien`, `Ho`, `Ten`, `Ngay_sinh`, `Gioi_tinh`, `Hoc_bong`
+FROM `ex2_sinh_vien` WHERE `Hoc_bong`!=0
+AND (`Ngay_sinh` BETWEEN '1998-06-01' AND '1999-06-30');
+
+
+--4.e-----------------------------------------------------------------
+SELECT * FROM `ex2_sinh_vien` WHERE `Hoc_bong`!=0
+LIMIT 10;
+
+
+--5.a-----------------------------------------------------------------
+UPDATE ex2_sinh_vien
+SET `Ngay_sinh`='1999-07-05'
+WHERE `Ho`='Hoàng Nam' AND `Ten`='Tuấn';
+
+
+--5.b-----------------------------------------------------------------
+UPDATE ex2_sinh_vien
+SET `Hoc_bong`=`Hoc_bong`*105/100
+WHERE `Ma_khoa`='CN' AND `Hoc_bong`!=0;
+
+
+--5.c-----------------------------------------------------------------
+UPDATE ex2_sinh_vien
+SET `Hoc_bong`=500000
+WHERE `Ma_khoa`='CN' AND `Hoc_bong`=0 AND `Gioi_tinh`='False';
+
+
+--5.d-----------------------------------------------------------------
+UPDATE ex2_ket_qua
+SET Diem = 
+CASE
+    WHEN Diem < 9.5 THEN Diem + 0.5
+    ELSE 10
+END
+WHERE Ma_mon = 'TTNT';
+
+
+--5.e-----------------------------------------------------------------
+DELETE FROM `ex2_ket_qua`
+WHERE Ma_sinh_vien='C0001';
+
+
+--5.g-----------------------------------------------------------------
+DELETE FROM `ex2_sinh_vien`
+WHERE Gioi_tinh='True';
+
+
+--5.h-----------------------------------------------------------------
+DELETE FROM `ex2_ket_qua`
+WHERE Diem<5;

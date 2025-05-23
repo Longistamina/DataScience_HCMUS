@@ -1,0 +1,52 @@
+nndb = pd.read_csv('Data/nndb_flat.csv')
+
+from sklearn.preprocessing import MinMaxScaler, FunctionTransformer
+from sklearn.compose import ColumnTransformer
+from sklearn.decomposition import PCA
+from imblearn.pipeline import Pipeline
+
+numeric_cols = nndb.columns
+
+#Build LogScaler
+LogScaler = ColumnTransformer(
+    [('LogTransformer', FunctionTransformer(func = lambda x: np.log(x+0.5), inverse_func = lambda x: np.exp(x)-0.5, validate = True), numeric_cols)],
+    remainder = 'passthrough'
+)
+
+#Build PCA pipeline with scaling steps
+pca_pipe = Pipeline([
+    ('LogScaler', LogScaler),
+    ('MinMaxScaler', MinMaxScaler()),
+    ('PCA', PCA(0.9))
+])
+
+pca_pipe.fit(nndb)
+
+
+#Create pca reduced dataframe
+nndb_pca = pd.DataFrame(
+    pca_pipe.transform(nndb),
+    columns = [f'PC{i+1}' for i in range(pca_pipe.named_steps['PCA'].n_components_)]
+)
+
+print(nndb_pca)
+
+print('Explained Variance Raito:\n',pca_pipe.named_steps['PCA'].explained_variance_ratio_)
+
+
+#2D visualize
+sbn.scatterplot(data = nndb_pca, x = 'PC1', y = 'PC2', edgecolors = 'black')
+plt.show()
+
+
+#3D visualize
+from mpl_toolkits.mplot3d import Axes3D
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = '3d')
+
+ax.scatter(xs = nndb_pca['PC1'], ys = nndb_pca['PC2'], zs = nndb_pca['PC3'], edgecolors='black')
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_zlabel('PC3')
+plt.show()

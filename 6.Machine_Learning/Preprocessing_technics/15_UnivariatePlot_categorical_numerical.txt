@@ -1,0 +1,56 @@
+import matplotlib.pyplot as plt
+import seaborn as sbn
+
+df_data = ....
+
+categ_cols = [........]
+#categ_cols = df_data.select_dtypes('object').columns.tolist()
+
+numeric_cols = list(set(df_data.columns) - set(categ_cols))
+numeric_cols
+
+sbn.set_theme(style='darkgrid')
+
+## Visualize categorical variables
+col = 3
+row = (len(categ_cols)//col) if ( (len(categ_cols)%col) == 0) else ((len(categ_cols)//col) + 1)
+
+print(f'Number of categorical fields: {len(categ_cols)}\n')
+print(f'All categorical fields: {categ_cols}\n')
+
+plt.figure(figsize=(20,20))
+plt.subplots_adjust(wspace=0.2, hspace=0.3)
+for i in range(1, len(categ_cols)+1):
+    try:
+        plt.subplot(row, col, i)
+        sbn.countplot(data = df_heart_disease, x = categ_cols[i-1], hue = categ_cols[i-1], palette = 'rainbow')
+        plt.title(categ_cols[i-1], size = 20)
+    except Exception:
+        print('Error {}'.format(categ_cols[i-1]))
+        break
+plt.show()
+
+print()
+print('==============================================================================================================\n'*2)
+
+## Visualize numerical variables
+
+numeric_cols = [.........]
+
+col = 3
+row = (len(numeric_cols)//col) if ( (len(numeric_cols)%col) == 0) else ((len(numeric_cols)//col) + 1)
+
+print(f'Number of numerical fields: {len(numeric_cols)}\n')
+print(f'All numerical fields: {numeric_cols}\n')
+
+plt.figure(figsize=(20,20))
+plt.subplots_adjust(wspace=0.2, hspace=1)
+for i in range(1, len(numeric_cols)+1):
+    try:
+        plt.subplot(row, col, i)
+        sbn.boxplot(data = mkt_cleaned, x = numeric_cols[i-1], notch = True)
+        plt.title(numeric_cols[i-1], size = 20)
+    except Exception:
+        print('Error {}'.format(numeric_cols[i-1]))
+        break
+plt.show()

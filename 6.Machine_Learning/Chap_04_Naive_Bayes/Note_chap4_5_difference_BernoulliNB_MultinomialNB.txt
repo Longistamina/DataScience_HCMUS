@@ -1,0 +1,29 @@
+Example to Illustrate the Difference Between BernoulliNB and MultinomialNB
+Vocabulary: [football, game, movie, actor]
+New Document: "football game game"
+
+
+************ BernoulliNB *****************
+Binarize the Document: The document "football game game" is represented as binary features:
+
+# football: 1 (present)
+# game:     1 (present)
+# movie:    0 (absent)
+# actor:    0 (absent)
+
+Binary feature vector: [1, 1, 0, 0].
+
+Compute P(x∣y) = P(football=1 ∣ y) * P(game=1 ∣ y) * P(movie=0 ∣ y) * P(actor=0 ∣ y)
+
+
+************ MultinomialNB *****************
+Use Word Counts: The document "football game game" is represented as word counts:
+
+# football: 1 (occurs once)
+# game:     2 (occurs twice)
+# movie:    0 (absent)
+# actor:    0 (absent)
+
+Word count vector: [1, 2, 0, 0].
+
+Compute P(x∣y) = P(football ∣ y)^1 * P(game ∣ y)^2 * P(movie ∣ y)^0 * P(actor ∣ y)^0

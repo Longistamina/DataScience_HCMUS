@@ -1,0 +1,27 @@
+#--------------------------------------------------#
+#------------- Executemany ------------------------#
+#--------------------------------------------------#
+
+server ='localhost'
+db = 'salesdb'
+username = 'root'
+pwd = ''
+conn = connect(host=server, database=db, user=username, password=pwd)
+curs = conn.cursor()
+
+sql1 = '''
+update products
+set UnitPrice = %(unit_price)s 
+where ProductName = %(name)s and SupplierId = %(sid)s;
+'''
+
+data_list = [
+    {'unit_price': 20.0, 'sid': 1, 'name': 'Chang'},
+    {'unit_price': 31.5, 'sid': 4, 'name': 'Ikura'},
+    {'unit_price': 23.5, 'sid': 6, 'name': 'Tofu'},
+]
+
+curs.executemany(sql1, data_list) #Use EXECUTEMANY()
+
+curs.close()
+conn.close()

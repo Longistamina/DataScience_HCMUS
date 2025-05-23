@@ -1,0 +1,47 @@
+import numpy as np
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
+import matplotlib.pyplot as plt
+
+def plot_dendrogram(model, **kwargs):
+    """
+    Plots a dendrogram from an AgglomerativeClustering model.
+
+    Args:
+        model: AgglomerativeClustering model.
+        **kwargs: Keyword arguments to pass to scipy.cluster.hierarchy.dendrogram.
+    """
+    # Create linkage matrix from the model's children.
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # Leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram.
+    dendrogram(linkage_matrix, **kwargs)
+    plt.show()
+
+# Example usage:
+X = np.array([[5, 3], [10, 15], [15, 12], [24, 10], [30, 45], [85, 70], [71, 80], [60, 78], [55, 52], [80, 91]])
+
+# Fit the AgglomerativeClustering model
+model = AgglomerativeClustering(distance_threshold=0, n_clusters=None, linkage='ward', compute_distances=True)
+model = model.fit(X)
+
+# Plot the dendrogram
+plt.title('Hierarchical Clustering Dendrogram')
+# plot the top three levels of the dendrogram
+plot_dendrogram(model, truncate_mode='level', p=3)
+
+#The example includes truncate_mode='level', p=3 in the plot_dendrogram call. 
+#This allows you to control the depth (p=3) of the dendrogram, making it easier to visualize large datasets.

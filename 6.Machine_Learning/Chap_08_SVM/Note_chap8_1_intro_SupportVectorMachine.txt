@@ -1,0 +1,75 @@
+SVM part 1 - Main ideas: https://www.youtube.com/watch?v=efR1C6CvhmE
+SVM part 2 - Polynomial kernel: https://www.youtube.com/watch?v=Toet3EiSFcM
+SVM part 3 - The Radial (RBF) kernel: https://www.youtube.com/watch?v=Qc5IyLW_hns
+
+#---------------------------------------------------------------#
+#------------------ Support Vector Machine (SVM) ---------------#
+#---------------------------------------------------------------#
+
+SVM can be used for both regression and classification tasks
+
+SVM can also help detect outliers
+
+SVM is very stable => many people like it (including me :> )
+
+Steps:
+# Start SVM with low-dimension data
+# If it doesn't work, then "Move" the data into a higher dimension (using Kernel functions)
+# Do SVM with "high-dimension" data
+
+
+
+Support Vector Machine (SVM) is a powerful supervised learning algorithm used for both classification and regression tasks. 
+The core idea behind SVM is to find the optimal hyperplane that maximizes the margin between different classes (for classification) or that best fits the data (for regression).
+
+
+SVM for Classification
+In classification, SVM finds a hyperplane that separates data points of different classes with the maximum margin. 
+The data points that lie closest to this hyperplane are called "support vectors" because they support or define the position of the hyperplane.
+
+
+SVM for Regression (SVR)
+For regression, SVM introduces an ε-insensitive loss function. 
+Predictions within ε of the actual value incur no penalty, while those outside this tube are penalized linearly.
+
+
+
+Key SVM Concepts
+#	Kernel Trick: For non-linearly separable data, SVM uses kernel functions (like polynomial, RBF) to map data to higher dimensions where it becomes linearly separable.
+#	C parameter: Controls the trade-off between maximizing the margin and minimizing the classification error.
+#	Support Vectors: The data points closest to the hyperplane that influence its position and orientation.
+#	Margin: The distance between the hyperplane and the closest data points (support vectors).
+
+=> SVMs are particularly valuable when dealing with high-dimensional data, as they're effective at finding the optimal separating hyperplane even in complex feature spaces.
+
+
+########### Support Vector Classifier/Regressor = a hyperlane used to predict outcomes
+
+If data is 1-D => the Support Vector Classifier/Regressor is a point
+
+If data is 2-D => the Support Vector Classifier/Regressor is a 1-D line
+
+If data is 3-D => the Support Vector Classifier/Regressor is a 2-D plane
+
+If data is 4-D => the Support Vector Classifier/Regressor is a 3-D hyperplane.....
+
+
+#-----------------------------------------------------#
+#-------------------- Pros of SVM --------------------#
+#-----------------------------------------------------#
+
+Very useful when we haven't had any idea about how is the data yet
+Can work well with non-structred or semi-strutred datasets like image or text
+Its powerful Kernel Functions are very useful
+Handle well multi-dimension data
+Low risk of overfitting
+
+
+#-----------------------------------------------------#
+#-------------------- Cons of SVM --------------------#
+#-----------------------------------------------------#
+
+Hard to choose suitable Kernel Functions (and its parameters like gamma or degree)
+The training is very time-consuming for large datasets
+Hard to explain the final model/weights
+Since it's hard to perceive the model, hard to adjust the model too

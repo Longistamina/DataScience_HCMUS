@@ -1,0 +1,35 @@
+#-----------------------------------------#
+#---------- Boosting ---------------------#
+#-----------------------------------------#
+
+Boosting (Hoc tang cuong) is a tool that helps enhance the accuracy of weak learners/models/algorithms
+
+Boosting will train many weak learners, then combine them into one unique STRONG LEARNER
+# Weak learner: model(s) having low accuracy
+# Strong learner: model(s) having high accuracy
+
+For example, to identify a cat image, Boosting will:
+# train model 1 -> identify the ears
+# train model 2 -> identify the tail
+# train model 3 -> identify the fur
+.....
+=> Combine them to identify the cat image
+
+
+Boosting will train the "base learning algorithm" many times with "different distributions".
+Each time, it will generate a new "weak prediction rule".
+After all training rows, it will combine all "weak prediction rules" into one "Strong Prediction Rule"
+
+
+Boosting operating steps:
+# Step 1: it train the base learner with the equal weights for all observations in the dataset
+# Step 2: then, it will check the mis-predicted cases and increase their weights, 
+          so that the model will emphasize more these mis-predicted cases in the next training rows
+# Step 3: repeating step 2 with many training rows and weight modifications until achivien a more accurate model (or reaching the limit of base algorithm)
+# Step 4: combine all the "weak learners" into one unique "strong learner"
+
+
+There are 3 popular Boosting methods:
+# AdaBoost (Adaptive Boosting)
+# XGBoost
+# Gradient Tree Boosting (consult the Deep Learning module)

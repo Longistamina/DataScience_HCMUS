@@ -1,0 +1,44 @@
+#--------------------------------------------------------#
+#---------- code AdaBoostClassifier ---------------------#
+#--------------------------------------------------------#
+
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+model_base = DecisionTreeClassifier(criterion = ..., min_sample_splits = ...)
+
+model_boost = AdaBoostClassifier(n_estimators = 50,
+				base_estimator = model_base,
+				learning_rate = 1,
+				random_state = 1)
+#n_estimators: the number of weak learners
+#learning_rate: Weight applied to each classifier at each boosting iteration. A higher learning rate increases the contribution of each classifier. 
+#               There is a trade-off between the learning_rate and n_estimators
+
+model_boost.fit(x_train, y_train)
+
+y_test_pred = model_boost.predict(x_test)
+y_test_proba = model_boost.predict_proba(x_test)
+
+
+#-------------------------------------------------------#
+#---------- code AdaBoostRegressor ---------------------#
+#-------------------------------------------------------#
+
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.linear_model import LinearRegression
+
+model_base = LinearRegression()
+
+model_boost = AdaBoostRegressor(n_estimators = 50,
+				base_estimator = model_base,
+				learning_rate = 1,
+				loss = 'square')
+#n_estimators: the number of weak learners
+#loss: loss function to use
+#learning_rate: Weight applied to each classifier at each boosting iteration. A higher learning rate increases the contribution of each classifier. 
+#               There is a trade-off between the learning_rate and n_estimators
+
+model_boost.fit(x_train, y_train)
+
+y_test_pred = model_boost.predict(x_test)

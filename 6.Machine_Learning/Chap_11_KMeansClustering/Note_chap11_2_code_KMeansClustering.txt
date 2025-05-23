@@ -1,0 +1,86 @@
+K Means Clustering: https://www.youtube.com/watch?v=4b5d3muPQmA
+
+#----------------------------------------------------------------------------#
+#--------------------- K-Means Clustering Code ------------------------------#
+#----------------------------------------------------------------------------#
+
+data = pd.read_...
+
+inputs = data[['col1', 'col2', 'col3']]
+
+#If data has only 2 features, can use scatterplot to visualize them
+
+from sklearn.cluster import KMeans
+from sklearn import metrics
+from scipy.spatial.distance import cdist
+
+
++++++++++++++++++++ Determine K-Means using Elbow method +++++++++++++++++++++++
+distortions = []
+
+k_nums = range(1, 8) #Can set more k values to try out
+
+for k in k_nums:
+	kmeansModel = KMeans(n_cluster = k)
+	kmeansModel.fit(inputs)
+	distortions.append(sum(np.min(cdist(inputs, kmeanModel.cluster_centers_, 'euclidean'), axis = 1))) / inputs.shape[0])
+			      #If we have k = 3, meaning we have 3 centroids
+			      #The cdist will calculate the distance between each observation to each centroids => return 3 distance results
+			      #Then, the np.min() will help pick out the shortest distance, aka the distance between the closest centroid to that observation
+			      #Sum all these shortest distances to get the distortions (sum of variances)
+
+#Plot the Elbow
+plt.plot(k_nums, distortions, 'bx-')
+plt.xlabel('Number of K')
+plt.ylabel('Distortions')
+plt.title('The Elbow Method showing optimal K')
+plt.show()
+
+#Choose the K value where if we increase K+1, the distortion does not decrease significantly (the elbow point)
+
+
++++++++++++++++ Build official K-Means Model ++++++++++++++++++++++++++++++++++++++
+#Take k=3 for example
+
+kmeansModel = KMeans(n_clusters = 3)
+kmeansModel.fit(inputs)
+
+centroids = kmeansModel.cluster_centers_ #Return the coordinates of all centroids
+labels = kmeansModel.labels_             #Return the centroid's label classified for each observation
+
+print(f'Coordinate of all centroids:\n {centroids}')
+print()
+print(f'Classified centroid for each observation or datapoint:\n {labels}')
+
+
+inputs['Group'] = pd.Series(labels) #Add the classified group/label column to see the group where each observation belongs to
+print(inputs)
+
+
+#--------------------------------------------------------#
+#------ Find optimal K with Silhoutte Score -------------#
+#--------------------------------------------------------#
+from sklearn.metrics import silhouette_score
+distortions = []
+
+k_nums = range(1, 8) #Can set more k values to try out
+
+for k in k_nums:
+	kmeansModel = KMeans(n_cluster = k)
+	kmeansModel.fit(inputs)
+	print(f'Silhouette score for k = {k}: {silhouette_score(inputs, kmeansModel.labels_)}')
+
+#Choose k value where the silhouette score is HIGHEST
+
+#--------------------------------------------------------------#
+#------ Visualize result for data with 2 features -------------#
+#--------------------------------------------------------------#
+
+plt.scatter(centroids[:,0], centroids[:,1], marker = 's', s = 15, color = 'red')
+plt.scatter(inputs['col1'], inputs['col2'], c = inputs['Group'])
+plt.show()
+
+#Describe result
+# Group 1: x < x1, y < y1
+# Group 2: x1 < x < x2, y1 < y < y2
+# Group 3: x > x2, y > y2

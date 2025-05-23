@@ -1,0 +1,22 @@
+Thực hành vẽ Area plot, Box plot trên 2 tập dữ liệu khác nhau với các yêu cầu trong file đính kèm.
+
+Part 1: Area Plot
+• Cho Dữ liệu số giờ nắng từ tháng 1 đến tháng 12 trong năm 2016, 2017 tại trạm quan trắc Vũng Tàu. Hiển thị nội dung của df.
+Hours_2017: 183.4, 211.8, 286.4, 287.5, 238.8, 200.3, 187.4, 233.8, 225.5, 149.1, 180.2,198.3
+Hours_2016: 272.8, 254.0, 296.0, 298.0, 240.1, 197.8, 240.3, 219.5, 212.7, 134.7, 215.3, 109.1
+• Trên cùng một biểu đồ, hãy vẽ:
+ Area plot cho 12 tháng nắng trong năm 2016
+ Line plot cho 12 tháng nắng trong năm 2017
+• Bạn nhận xét gì về biểu đồ vừa vẽ ?
+
+Part 2: Boxplot
+• Cho dữ liệu baseball.csv
+ Đọc dữ liệu từ baseball.csv và lưu vào biến data,
+ In 10 dòng nội dung đầu của data,
+ Cho biết thông tin thống kê chung của data
+• Vẽ boxplot cho dữ liệu height và weight
+• Kiểm tra xem dữ liệu có outliers hay không? Nếu có thì loại bỏ các outliers. Vẽ lại boxplot.
+
+
+https://drive.google.com/file/d/19sJdhNusuYhzwyeuAaPm_E39vodOSvz2/view
+https://drive.google.com/file/d/1LJlN-XPQeIN_8wbmbopJWPIebITQzUf5/view

@@ -1,0 +1,14 @@
+Trong bài 6, chúng ta được tìm hiểu và học các kiến thức về trực quan hóa dữ liệu với Matplotlib:
+- Line plot
+- Các thành phần trên biểu đồ: axes, text, legend, label, font, color, annotation…
+- Area plot, Histogram
+- Bar chart, Pie chart
+- Box plot, Scatter plot
+- Plotting cell phone data
+- Waffle chart với pywaffle library
+- Word clouds
+
+Để ôn bài, chúng ta cùng làm bài trắc nghiệm sau.
+
+
+https://docs.google.com/forms/d/e/1FAIpQLScegDeoBTrcN5Lus1cIxqOnauGJnrfCO07gPq_BrySUO4dqGQ/viewform

@@ -1,0 +1,256 @@
+Build ML or DL models to predict some outputs from a bunch of inputs
+
+A dataset should contain at least 1000 observations (rows) to enhance the model power.
+The more the better
+
+Test set should be about 20% of original set
+If the original set is large enough, could elevate test set up to 30%
+
+Validation:
+	+Validate with train set
+	+Validate with test set
+	+Validate with realistic new data
+	
+About scaling, scaling before or after building model is not truly important
+
+#---------------------------------------------------------------------------------------------------------------#
+#-----------------------------Linear Regression (Supervised Learning)-------------------------------------------#
+#---------------------------------------------------------------------------------------------------------------#
+Simple linear regression: X ~ Y (Y = aX + b)
+Multiple linear regression: X1, X2, X3,... Xn ~ Y (Y = a1X1 + a2X2 + ... anXn + b)
+
+"b" is bias or intercept: is the value of Y when X = 0 (or all Xn = 0)
+"a, a1, a2,... an" are slopes
+
+Both independent variables (X) and dependent variable (Y) must be numeric/continuous
+
+If some of X are categorical, use encoder to encode them into numeric labels
+
+Linear Regression => Straight line
+
+Must check for correlation before using linear regression
+
+Pros of LR:
+	+Easy to understand
+	+Most popular
+	+Fast computing time
+	+If the inputs and outputs have linear relationship => LR model will return good results
+
+Cons of LR:
+	+Very sensitive to outliers (must remove outliers before using LR)
+	+Is not suitable for complicated problem
+	+Do not work well with non-linear dataset
+
+Steps:
+	+Choose model: Linear Regression
+	+Create Input and Output
+	+Create train set and test set from input and output (80/20 or 70/30)
+	+Train model with train set
+	+Validate model with test set
+	+Compare R^2 (accuracy score) of model in train set and test set to see if the model is overfitting or underfitting
+	+Calculate Mean Squared Error of ouput_Test and output_Predict
+	+Visualize the model (the line) and comment (use regplot, scatterplot, residual plot...)
+
+Residual: the error between predicted outputs and realistic outputs
++ If the residual points distribute randomly around x-axis of residual plot => meaning the variance remain unchanged => the model is suitable
++ Elif the residual points distribute unevenly, to much above x-axis or too much below x-axis => the model is not suitable
+
+Draw histogram/density line of predicted outputs and realistic outputs
+
+Mean Squared Error = MSE = 1/n*sum((y_i - y_predict_i)^2)
+(The smaller MSE is, the better the model is)
+
+R^2 = the proximity of predicted outputs with realistic outputs (the larger R^2 is, the better the model is)
+      (0 < R^2 < 1)
+    = 1 - sum((y_i - y_predict_i)^2) / sum((y_i - mean_y)^2)
+
+***************************************
+************** Simple Linear **********
+***************************************
+sbn.regplot(data=df, x='input', y='output')
+sbn.residplot(x=df['input'], y=df['output'])
+
+from sklearn.model_selection import train_test_split
+x = df['input']
+y = df['output']
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+
+from sklearn.linear_model import LinearRegression
+lr_model = LinearRegression() #create model
+lr_model.fit(x_train, y_train) #train model with x_train and y_train
+
+y_pred_train = lr_model.predict(x_train) #Let model predict outputs from the train set
+#compare y_pred_train and y_train to see the errors between them
+
+y_pred_test = lr_model.predict(x_test) #Let model predict outputs from the test set
+#compare y_pred_test and y_test to see the errors between them
+
+bias = lr_model.intercept_ #Return a number
+slope = lr_model.coef_ #Return a array containing 1 or many slopes
+
+R_square = lr_model.score(x,y) #On full dataset
+	   lr_model.score(x_train, y_train) #On train set only
+	   lr_model.score(x_test, y_test) #On test set only
+
+#Calculate MSE, MAE
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+mse = mean_squared_error(y_train, y_pred_train)
+      mean_squared_error(y_test, y_pred_test)
+
+mae = mean_absolute_error(y_test, y_pred_test)
+
+plt.scatter(y_pred_test, y_test)
+plt.plot([np.min(y_test), np.max(y_test)], [np.min(y_test), np.max(y_test)]) #reference line
+#If the scatter dots lie too far from the reference line => model is not suitable
+
+lr_model.predict(x_new) #Use model to predict new input (not from train and test set)
+
+***************************************************************
+************** NOTES Before building Multiple Linear **********
+******************************8********************************
+
+Should build the 1st multiple LR model with all input variables/columns
+
+Then, check correlation within feature pairs:
+	+If inputXi and inputXj are strongly correlated => remove both Xi and Xj
+	+If inputXi and output are weakly correlated (< 0.3) => remove them
+
+Then, build new multiple LR model with less input features, and compare the results
+
+*****************************************
+************** Multiple Linear **********
+*****************************************
+
+x = df[['input1', 'input2', 'input3', 'input4',...]]
+y = df['output']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+
+from sklearn.linear_model import LinearRegression
+multi_lr_model = LinearRegression().fit(x_train, y_train)
+
+y_pred_train = multi_lr_model.predict(x_train)
+y_pred_test = multi_lr_model.predict(x_test)
+bias = multi_lr_model.intercept_
+slopes = multi_lr_model.coef_
+
+R^2 = multi_lr_model.score(y_test, y_pred_test)
+mse = mean_squared_error(y_test, y_pred_test)
+mae = mean_absolute_error(y_test, y_pred_test)
+
+plt.scatter(y_pred_test, y_test)
+plt.plot([np.min(y_test), np.max(y_test)], [np.min(y_test), np.max(y_test)]) #reference line
+#If the scatter dots lie too far from the reference line => model is not suitable
+
+sbn.displot(y_test, color='r', label='Actual test output')
+sbn.displot(y_pred_test, color='b', label='Predicted test output')
+plt.legend()
+
+multi_lr_model.predict(x_new) #Use model to predict new input (not from train and test set)
+
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+#-----------------------------Polynomial Regression (Supervised Learning)-------------------------------------------#
+#-------------------------------------------------------------------------------------------------------------------#
+
+*******************************************
+************** Simple Polynomial **********
+*******************************************
+
+
+Hoi quy da thuc
+
+This is a non-linear regression
+
+Denpends on the "shape" of the dataset, we will choose the order of the polynomial (generally <= 4)
+
+2nd order: y_pred = a1*X + a2*X^2 + b
+3rd order: y_pred = a1*x + a2*X^2 + a3*X^3 + b
+.....
+
+x = df['input']
+y = df['output']
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+
+polyf = PolynomialFeatures(degree=2) #2nd order polynomial
+
+x_pf = pf.fit_transform(x)
+
+x_train, x_test, y_train, y_test = train_test_split(x_pf, y, test_size=0.2, random_state=0)
+
+lr_model = LinearRegression() #create model
+lr_model.fit(x_train, y_train) #train model with x_train and y_train
+
+y_pred_train = lr_model.predict(x_train) #Let model predict outputs from the train set
+#compare y_pred_train and y_train to see the errors between them
+
+y_pred_test = lr_model.predict(x_test) #Let model predict outputs from the test set
+#compare y_pred_test and y_test to see the errors between them
+
+same for MSE, MAE, R^2, intercept, coef,...
+plots also same
+
+*******************************************
+************** Multi Polynomial ***********
+*******************************************
+
+x = df[['input1', 'input2', 'input3', 'input4',...]]
+y = df['output']
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+
+polyf = PolynomialFeatures(degree=2) #2nd order polynomial
+
+x_pf = pf.fit_transform(x)
+
+x_train, x_test, y_train, y_test = train_test_split(x_pf, y, test_size=0.2, random_state=0)
+
+lr_model = LinearRegression() #create model
+lr_model.fit(x_train, y_train) #train model with x_train and y_train
+
+y_pred_train = lr_model.predict(x_train) #Let model predict outputs from the train set
+#compare y_pred_train and y_train to see the errors between them
+
+y_pred_test = lr_model.predict(x_test) #Let model predict outputs from the test set
+#compare y_pred_test and y_test to see the errors between them
+
+same for MSE, MAE, R^2, intercept, coef,...
+plots also same
+
+
+*********************************************
+************* Visualization *****************
+*********************************************
+x_draw = np.linspace(min(x_test_pf[:,1]),max(x_test_pf[:,1]),60)
+x_draw_pf = PolynomialFeatures(degree=3).fit_transform(x_draw.reshape(-1,1))
+
+sbn.lineplot(x=x_draw, y=linreg_pf.predict(x_draw_pf))
+sbn.scatterplot(x = x_test_pf[:,1], y = y_test_pf)
+plt.show()
+
+
+
+***********************************************
+************** NOTES for Polynomial ***********
+***********************************************
+
+Must apply the same degree = n for all input columns/variables
+
+in case, we choose polynomial degree = n
+then build model polynomial reg model with this degree = n
+
+if the R^2 on test set < 0
+=> The model has been OVERFITTED
+=> must reduce the degree n
+
+if the R^2 only nearly equal 50-60% (not high)
+=> may be UNDERFITTED
+=> increase degree n, or add more input variables (columns), or more observations (rows)

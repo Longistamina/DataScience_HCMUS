@@ -1,0 +1,37 @@
+Data analysis: is to explore the raw data, and extract useful information from it, in order to solve a specific problem
+
+Some analysis techniques:
+	+Correlation Analysis: positive, negative or no correlation
+	+Regression Analysis: predict, modelization
+	+Data Visualization
+	+Scenario Analysis
+	+Data Mining (Data Exploration)
+	+Neural Networks
+	+A/B testing: create at least 2 versions of a model/product then examine their effectiveness, and choose the best one as final product
+
+3 rules of Data Analysis:
+	1) Identify what we want to know/extract from the raw data
+	2) Estimate the raw data's Central Tendency (via mean, median,...)
+	3) Identify outliers or abnormal values within the raw data, should retain them or remove them?
+	
+Some problems may reduce the effectiveness of Data Analysis results:
+	+Lack of domain knowledge
+	+Use wrong tools (for ex: use z-score although the data is not normally distributed)
+	+Let the bias influence the reasoning of result (de dinh kien chi phoi cach suy luan ket qua)
+	+Cannot find out the meaning of the statistics (khong tim ra y nghia thong ke)
+	+Declare the wrong null hypothesis (H0) and alternative hypothesis (Ha)
+	+Use incorrect / inappropriate graphs or charts, causing misunderstanding
+	
+Step of Data Analysis:
+	1) Business Understanding: understand the problem, the domain we are working on
+	2) Data Requirements: identify what types of data to collect, which features does it contain
+	3) Data Collection: collect data that meets the requirements
+	4) Data Preprocessing: cleaning, handle missing value, transformation, scaling, etc
+	5) Data exploration and analysis: univariate analysis, bivariate analysis
+	6) Modeling and Algorithm: choose suitable model to train and solve proposed problems
+	7) Data Product: what we achieve after model building, training, testing, validating, modifying
+	8) Communication: report/present the result for related people in the project
+
+
+
+

@@ -1,0 +1,136 @@
+Reference link:
+
+BernoulliNB & MultinomialNB: https://www.youtube.com/watch?v=O2L2Uv9pdDA
+GaussianNB: https://www.youtube.com/watch?v=H3EjCKtlVog
+
+#--------------------------------------------------------------------------#
+#---------------- MultinomialNB NEW Formual and Principle -----------------#
+#--------------------------------------------------------------------------#
+
+Assuming we have Y as class, and X as input (text, document), we want to classify the X into class Y
+=> Calculate the probability P(Y.X)
+
+          P(Y.X) = P(Y)*P(X|Y) = P(X)*P(Y|X)
+Explain:
+	=> To calculate the probability where event Y and event X both occur P(Y.X)
+	=> First, calculate the probability for event Y to occur P(Y)
+	=> Then, calculate the probability for event X to occur after the occurrence of event A, P(X|Y)
+	   (This is also the conditional probability)
+	=> Then multiply P(Y)*P(X|Y), the result is P(Y.X) or P(X.Y)
+	   (do the same for P(X)*P(Y|X))
+
+If Y and X share no overlap elements, meaning they are independent each other
+	=> P(X.Y) = P(X)*P(Y)
+
+
+More general formual, assume X is the data with many independent elements (like a large text have many words):
+	P(y1.X) = P(y1|X)*P(y1) =  [P(y1|x1)*P(y1|x2)*P(y1|x3)*P(y2|x4)...P(y1|xn)]*P(y1)
+	P(y2.X) = P(y2|X)*P(y2) = [P(y2|x1)*P(y2|x2)*P(y2|x3)*P(y2|x4)...P(y2|xn)]*P(y2)
+
+
+############### Calculate the P(y_i | x_i) #####################################
+=> To avoid the probability becomes 0, we add a "black box" count for every feature (word)
+This "black box" count is called alpha, and usually set as 1
+
+               ----------------------------------------------------------------
+	      |	P(y_i | x_i) = [count(x_i | y_i) + alpha] / [Tc_y_i + alpha*V] |
+               ----------------------------------------------------------------
+
+# count(x_i | y_i) = the number of words x_i existing in class y_i
+# Tc_y_i           = the total number of all words existing in class y_i
+# alpha            = the "black box" count added to avoid the 0 probability (usually alpha = 1) (aka Laplace Smoothing parameter)
+# V                = Vocabulary size, i.e the number of unique words across all the texts of training dataset 
+
+#################### Training/Fitting and Predicting ##############################
+
+So, when fitting the data into model, we will calculate the P(y1|X) and P(y2|X) probabilities
+
+Then when the new input comes up (X_new), we will calculate the ouput is P(y1.X_new) and P(y2.X_new)
+
+=> The P(y1.X_new) is the probability of observation X_new belong to class y1
+   The P(y2.X_new) is the probability of observation X_new belong to class y2
+   (and so on if have more classes)
+
+After calculating the P(y1.X_new) and P(y2.X_new), we compare which one is higher
+=> For example if P(y2.X_new) > P(y1.X_new), then we will classify the X_new into class y2
+
+
+Assuming we have:
+	+Y classes: y1 - "mien_Bac", y2 - spam
+	+X words in text: x1 - "Dear",
+
+
+#------------------------------------------------------#
+#---------------- Example NEW formula -----------------#
+#------------------------------------------------------#
+
+Given a text data with label like this:
+
+	Id	Text				banhbo    banhgio    buncha    chaolong    hanoi     hutiu    omai    pho   saigon      Class       
+	1	"hanoi pho chaolong hanoi"     	   0	     0	       0           1         2         0        0      1      0         mien_Bac
+	2	"hanoi buncha pho omai"		   0	     0         1           0         1         0        1      1      0         mien_Bac
+	3	"pho banhgio omai"                 0         1         0           0         0         0        1      1      0         mien_Bac 
+	4	"saigon hutiu banhbo pho"          1         0         0           0         0         1        0      1      1         mien_Nam
+
+
+We have ouput 2 classes:
+	+y1 = "mien_Bac"     => P(y1) = 3/4 = 0.75
+	+y2 = "mien_Nam"     => P(y2) = 1/4 = 0.25
+
+We have total number of words in:
+	+class y1 = "mien_Bac":  Tc_y1 = count_text1 + count_text2 + count_text3 = 4 + 4 + 3 = 11
+	+class y1 = "mien_Nam":  Tc_y2 = count_tex3                                          = 4
+
+We have total number of unique words = V = 9
+
+
+Choose alpha = 1
+
+
+We have input X:
+	+x1 = "banhbo"         => P(x1|y1) = [count(x1|y1) + alpha] / [Tc_y1 + alpha*V] = [(0+0+0) + 1] / [11 + 1*9] = 1/20
+				  P(x1|y2) = [count(x1|y2) + alpha] / [Tc_y2 + alpha*V] = [   1    + 1] / [ 4 + 1*9] = 2/13
+
+	+x2 = "banhgio"        => P(x2|y1) = [count(x2|y1) + alpha] / [Tc_y1 + alpha*V] = [(0+0+1) + 1] / [11 + 1*9] = 1/20
+				  P(x2|y2) = [count(x2|y2) + alpha] / [Tc_y2 + alpha*V] = [   0    + 1] / [ 4 + 1*9] = 1/13
+	
+	+x3 = "buncha"	       => P(x3|y1) = [count(x3|y1) + alpha] / [Tc_y1 + alpha*V] = [(0+1+0) + 1] / [11 + 1*9] = 2/20
+				  P(x3|y2) = [count(x3|y2) + alpha] / [Tc_y2 + alpha*V] = [   0    + 1] / [ 4 + 1*9] = 1/13
+
+	+x4 = "chaolong"       => P(x4|y1) = [count(x4|y1) + alpha] / [Tc_y1 + alpha*V] = [(1+0+0) + 1] / [11 + 1*9] = 2/20
+				  P(x4|y2) = [count(x4|y2) + alpha] / [Tc_y2 + alpha*V] = [   0    + 1] / [ 4 + 1*9] = 1/13
+
+	+x5 = "hanoi"          => P(x5|y1) = [count(x5|y1) + alpha] / [Tc_y1 + alpha*V] = [(2+1+0) + 1] / [11 + 1*9] = 3/20
+				  P(x5|y2) = [count(x5|y2) + alpha] / [Tc_y2 + alpha*V] = [   0    + 1] / [ 4 + 1*9] = 1/13
+
+	+x6 = "hutiu"          => P(x6|y1) = [count(x6|y1) + alpha] / [Tc_y1 + alpha*V] = [(0+0+0) + 1] / [11 + 1*9] = 1/20
+				  P(x6|y2) = [count(x6|y2) + alpha] / [Tc_y2 + alpha*V] = [   1    + 1] / [ 4 + 1*9] = 2/13
+
+	+x7 = "omai"           => P(x7|y1) = [count(x7|y1) + alpha] / [Tc_y1 + alpha*V] = [(0+1+1) + 1] / [11 + 1*9] = 2/20
+				  P(x7|y2) = [count(x7|y2) + alpha] / [Tc_y2 + alpha*V] = [   0    + 1] / [ 4 + 1*9] = 1/13
+
+	+x8 = "pho"	       => P(x8|y1) = [count(x8|y1) + alpha] / [Tc_y1 + alpha*V] = [(2+1+0) + 1] / [11 + 1*9] = 3/20
+				  P(x8|y2) = [count(x8|y2) + alpha] / [Tc_y2 + alpha*V] = [   1    + 1] / [ 4 + 1*9] = 2/13
+
+	+x9 = "saigon"         => P(x9|y1) = [count(x9|y1) + alpha] / [Tc_y1 + alpha*V] = [(0+0+0) + 1] / [11 + 1*9] = 1/20
+				  P(x9|y2) = [count(x9|y2) + alpha] / [Tc_y2 + alpha*V] = [   1    + 1] / [ 4 + 1*9] = 2/13 
+
+
+Now, if we have a new_text like this "hanoi buncha buncha pho"
+=> Calculate: P(new_text.y1)   = P(y1) * P("hanoi"|y1) * P("buncha"|y1)^2 * P("pho"|y1)
+			       = P(y1) * P(x5|y1)      * P(x3|y1)^2       * P(x8|y1)
+			       = 0.75  * (3/20)        * (2/20)^2         * (3/20)
+			       = 0.00016875
+ln(P(new_text.y1))             = ln(0.00016875)    = -8.68709222821
+
+=> Calculate: P(new_text.y2)   = P(y2) * P("hanoi"|y2) * P("buncha"|y2)^2 * P("pho"|y2)
+			       = P(y2) * P(x5|y2)      * P(x3|y2)^2       * P(x8|y2)
+			       = 0.25  * (1/13)        * (1/13)^2         * (2/13)
+			       = 0.00001750638
+ln(P(new_text.y2))             = ln(0.00001750638) = -10.952945172
+
+
+since the  ln(P(new_text.y1)) > ln(P(new_text.y2))
+           (-8.68709222821 > -10.952945172)
+
+=> The new_text will be classified into class y1 = "mien_Bac"

@@ -1,0 +1,159 @@
+DBSCAN: https://www.youtube.com/watch?v=RDZUdRSDOok
+
+#--------------------------------------------------------------#
+#------------------- DBSCAN explain ---------------------------#
+#--------------------------------------------------------------#
+
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise)
+
+DBSCAN is a density-based clustering algorithm that groups together closely packed points and identifies outliers in low-density regions.
+
+Key Concepts:
+
+1. Epsilon (eps): The maximum distance between two data points for them to be considered neighbors. Think of it as the radius of a circle around a point.
+
+2. Minimum Points (MinPts): The minimum number of neighbors a point must have within its eps radius to be considered a "core point".
+
+Point Types:
+
+1. Core Point: A point with at least MinPts neighbors (including itself) within the eps distance. It's in a dense area.
+
+2. Border Point: A point that is not a core point itself, but it falls within the eps radius of at least one core point. It's on the edge of a dense area.
+
+3. Noise Point (Outlier): A point that is neither a core point nor a border point. It's isolated in a low-density area.
+
+Algorithm Steps:
+
+1. Pick an unvisited data point.
+2. Find all its neighbors within the eps distance.
+3. If the number of neighbors is at least MinPts, this point is a core point. Start a new cluster with this point and all its neighbors. Then, recursively find the neighbors of these neighbors and add them to the cluster if they are also core points or within the eps of a core point.
+4. If the number of neighbors is less than MinPts, this point is initially marked as noise. It might later become a border point if it's within the eps of a core point found later.
+5. If the point has already been visited, move to the next unvisited point.
+6. Repeat until all points have been visited.
+
+Formulas (in a more comprehensible way):
+
+1. Distance Calculation: We need a way to measure how far apart two points are. Common ways include:
+
+   - Euclidean Distance (straight-line distance in 2D or 3D space):
+     Distance between point A and point B 
+		
+		d(A,B) = sqrt( (A_x - B_x)^2 + (A_y - B_y)^2) (for 2D points)
+     
+	For more dimensions, you just add the squared differences for each coordinate under the square root.
+
+   - Manhattan Distance (distance if you can only move horizontally or vertically):
+     Distance between point A and point B 
+
+		d(A,B) = |A_x - B_x| + |A_y - B_y| (for 2D points)
+
+     For more dimensions, you add the absolute differences for each coordinate.
+
+  - The choice of distance depends on your data.
+
+2. Epsilon (eps) Neighborhood: For a point P, its eps-neighborhood is all the points Q in our dataset that are within the eps distance from P.
+   Think of drawing a circle (or a sphere in 3D, or a hyper-sphere in more dimensions) with radius eps around P. 
+   All points inside or on this boundary are in P's eps-neighborhood.
+
+
+		N_ε(p) = {q belongs to D | dist(p,q) =< ε}
+	
+	# p: A data point in dataset D
+	# ε: A radius parameter (how close points need to be to be considered neighbors)
+	# dist(p,q): distance between point p and point q
+	# N_ε(p): the set of all points q in dataset D such that the dist(p,q) is less than or equal to ε
+
+3. Core Point Condition: 
+   A point P is a core point if the number of points in its eps-neighborhood (including P itself) is greater than or equal to MinPts.
+   Count the number of neighbors within the eps radius. If this count is >= MinPts, then P is a core point.
+   (else, < MinPts, then it's a noise or a border point)
+
+
+
+#----------------------------------------------------------#
+#------------------ Example -------------------------------#
+#----------------------------------------------------------#
+
+Consider the following 2D dataset:
+A(1, 2), B(1.5, 1.8), C(0.8, 2.1), D(1, 1.6), E(3, 4), F(3.2, 3.8), G(3.5, 4.1), H(5, 6)
+
+Let's set:
+eps = 1.0
+MinPts = 2
+Distance Metric: Euclidean Distance
+
+Step-by-step execution:
+
+1. Visit point A(1, 2):
+   - Calculate distances to all other points:
+     - dist(A, B) = sqrt{(1-1.5)^2 + (2-1.8)^2} = sqrt{(-0.5)^2 + (0.2)^2}  ~ 0.539 (greater than eps)
+     - dist(A, C) = sqrt{(1-0.8)^2 + (2-2.1)^2} = sqrt{(0.2)^2 + (-0.1)^2}  ~ 0.224 (less than or equal to eps)
+     - dist(A, D) = sqrt{(1-1)^2 + (2-1.6)^2}   = sqrt{0^2 + (0.4)^2}       = 0.4   (less than or equal to eps)
+     - dist(A, E) = sqrt{(1-3)^2 + (2-4)^2}     = sqrt{(-2)^2 + (-2)^2}     ~ 2.828 (greater than eps)
+     - dist(A, F) = sqrt{(1-3.2)^2 + (2-3.8)^2} = sqrt{(-2.2)^2 + (-1.8)^2} ~ 2.843 (greater than eps)
+     - dist(A, G) = sqrt{(1-3.5)^2 + (2-4.1)^2} = sqrt{(-2.5)^2 + (-2.1)^2} ~ 3.265 (greater than eps)
+     - dist(A, H) = sqrt{(1-5)^2 + (2-6)^2}     = sqrt{(-4)^2 + (-4)^2}     ~ 5.657 (greater than eps)
+   - Neighbors of A within eps: {C, D}. 
+     Number of neighbors (2) is less than MinPts (3) => So, A is initially marked as noise.
+     Add A to Cluster 1, but NOT use it to extend epsilon_radius
+
+2. Visit point B(1.5, 1.8) (already in Cluster 1):
+   - Find neighbors within distance 1.0: {A, D}. 
+     Number of neighbors (2) is greater than or equal to MinPts (2) => B is a core point. 
+     Its neighbors are already in the cluster.
+     => Assign point B to be inside Cluster 1, and use B to extend epsilon_radius and "catch" other points and core points
+
+3. Visit point C(0.8, 2.1) (already in Cluster 1):
+   - Find neighbors within distance 1.0: {A}. 
+     Number of neighbors (1) is less than MinPts (2) => C is a border point (because it's a neighbor of the core point A).
+     Add C to Cluster 1, but NOT use it to extend epsilon_radius
+
+4. Visit point D(1, 1.6) (already in Cluster 1):
+   - Find neighbors within distance 1.0: {A, B}. 
+     Number of neighbors (2) is greater than or equal to MinPts (2) => D is a core point. 
+     Its neighbors are already in the cluster.
+     => Add point D to Cluster 1, and use D to extend epsilon_radius and "catch" other points and core points
+
+(Set initial core point for a cluster, extend epsilon_radius to catch more core points in that cluster.
+If all core points are caught, then catch the non-core points, but don't use non-core points to extend epsilon_radius.
+After finishing the first cluster, move to other clusters until all data points are scanned)
+
+Cannot add any more points to Cluster 1 
+==> Start Cluster 2 = {E, F, G}.
+
+5. Visit point E(3, 4):
+   - Find neighbors within distance 1.0:
+     - dist(E, F) ~ 0.283 (within 1.0)
+     - dist(E, G) ~ 0.539 (within 1.0)
+   - Neighbors of E within eps: {F, G}. 
+     Number of neighbors (2) is greater than or equal to MinPts (2) => So, E is a core point.
+
+
+6. Visit point F(3.2, 3.8) (already in Cluster 2):
+   - Find neighbors within distance 1.0: {E, G}. 
+     Number of neighbors (2) is greater than or equal to MinPts (2) => F is a core point. 
+     Its neighbors are already in the cluster.
+
+7. Visit point G(3.5, 4.1) (already in Cluster 2):
+   - Find neighbors within distance 1.0: {E, F}. 
+     Number of neighbors (2) is greater than or equal to MinPts (2) => G is a core point. 
+     Its neighbors are already in the cluster.
+
+8. Visit point H(5, 6):
+   - Find neighbors within distance 1.0: {}. 
+     Number of neighbors (0) is less than MinPts (2) => H is a noise point.
+
+Final Clusters:
+Cluster 1: {A(1, 2), B(1.5, 1.8), C(0.8, 2.1), D(1, 1.6)}
+Cluster 2: {E(3, 4), F(3.2, 3.8), G(3.5, 4.1)}
+Noise Points (outliers): {H(5, 6)}
+
+####
+
+This example shows how DBSCAN groups dense regions into clusters and identifies isolated points as noise.
+
+(Set initial core point for a cluster, extend epsilon_radius to catch more core points in that cluster.
+If all core points are caught, then catch the non-core points, but don't use non-core points to extend epsilon_radius.
+After finishing the first cluster, move to other clusters until all data points are scanned)
+
+The choice of eps and MinPts is crucial for the algorithm's performance.

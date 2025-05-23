@@ -1,0 +1,186 @@
+#----------------------------------------------------------------------------#
+#---------------- Introduction _ Formula _ Loss function --------------------#
+#----------------------------------------------------------------------------#
+
+Logistic regression is a classification algorithm, belongs to the supervised learning group
+
+Binary classification => 2 labels => Yes/No, Positive/Negative,...
+Multi-class classification => more than 2 labels
+
+First, calculate score z = b0 + b1*x1 + b2*x2 +.... (linear regression)
+Then, calculate y_predict = 1 / [1 + e^(-z)] (Sigmoid function)
+=> The y_predict now is ranged from 0 to 1, indicating the probability of an instance to have label = 1
+
+Set a threshold = 0.5
+=> if probability of output > 0.5, then return 1
+=> else (probability of output < 0.5), return 0
+
+
+*************** Accuracy _ Optimization ***************************
+
+If the Y_true is 1, then the accuracy of the prediction is also Y_predict
+If the Y_true is 0, then the accuracy of the prediction is (1 - Y_predict) #since Y_predict is the probability to be label 1
+							                   #So to calculate for label 0, use (1 - Y_predict)
+
+
+Therefore, if our data have 5 observations => 5 accuracy values for each observation
+	+Y_true_1 => acc_1
+	+Y_true_2 => acc_2
+	+Y_true_3 => acc_3
+	+Y_true_4 => acc_4
+	+Y_true_5 => acc_5
+
+Target:
+	+Find the parameters b0, b1, b2,... where the (acc_1 * acc_2 *...*acc_5) is largest
+	+But, the accuracy values are probalbility, so the multiplication among them will get smaller and smaller
+
+=> Find the parameters b0, b1, b2,... where the [ln(acc_1) + ln(acc_2) +...+ ln(acc_5)] is smallest (absolute(ln()) to change the sign)
+
+(Since the accuracy range from 0 - 1, the more acc closed to 1, the smaller ln(acc) is
+				      the more acc closed to 0, the larger ln(acc) is
+therefore, when change from acc to ln(acc), must optimize the sum of ln(acc) to be smallest, not largest))
+
+=> This is the idea of logistic regression
+
+
+With this idea, they have established the loss function for Logistic Regression like below
+(2 formulas are the same)
+
+	1) For each datapoint:	 E(y, ŷ) = -[y*ln(ŷ) + (1-y)*ln(1-ŷ)]
+
+	2) For the entire training set: J(θ) = -1/m ∑[yi*ln(ŷi) + (1-yi)*ln(1-ŷi)]
+	   (θ represents the model parameters)
+
+(Since 0 < ŷ < 1, the ln(ŷ) will < 0, so the minus sign "-" is added to change the value sign into positive)
+(Same for the ln(1-ŷ) case)
+
+
+
+#-------------------------------------------------------------------------------------------#
+#------------------- For Multinomial Classes (more than 2 classes) -------------------------#
+#-------------------------------------------------------------------------------------------#
+
+1. Calculate the Z score by using multiple linear regression
+------------------------------------------------------------
+
+Assume we have a dataset with 4 classes as outputs, and X input contain i observations + j features
+
+=> In the linear regression part, the output Z now must have 4 columns (each column for each classes)
+=> so the score Z dimension is (i,4)
+
+But, we have:
+	+ X @ W = Z
+	+ X dimension is (i, 1+j)
+	+ and Z dimensions is (i,4)
+	+ Therefore, => W dimension is now (1+j, 4)
+	+ So that X @ W = (i, 1+j) @ (1+j, 4) = Z(i,4)
+
+=> There will be 4 weight vectors (weight = parameter = beta.....)
+   Because (i, 1+j) @ (1+j, 4) = Z(i,4)
+
+___            X (i, 1+j)   ____           ___        W (j+1, 4)        ____         ___      Z (i, 4)           ___
+|  1   x_11   x_12  ...  x_1j  |          |   w_01    w_02     w_03    w_04 |       |  z_11   z_12    z_13    z_14 |
+|                              |          |                                 |       |                              |
+|  1   x_21   x_22  ...  x_2j  |          |   w_11    w_12     w_13    w_14 |       |  z_21   z_22    z_23    z_24 |
+|  .                           |    @     |                                 |   =   |  .                           |
+|  .                           |          |   w_21    w_22     w_23    w_24 |       |  .                           |
+|  .                           |          |   .  .  .  .  .  .  .  .   .    |       |  .                           |
+|  1  x_i1   x_i2  ...  x_ij   |          |   w_j1    w_j2     w_j3    w_j4 |       |  z_i1   z_i2    z_i3    z_i4 |
+------                     -----          ----                            __|       ----                         ---
+
+Let calculate the score z of each Class for the first observation (i = 1), or X_1j
+
+=> Class_1: z_11 = w_01  + x_11*w_11  + x_12*w_21 + ... + x_1j*w_j1
+   
+   Class_2: z_12 = w_02  + x_11*w_12  + x_12*w_22 + ... + x_1j*w_j2
+   
+   Class_3: z_13 = w_03  + x_11*w_13  + x_12*w_23 + ... + x_1j*w_j3
+   
+   Class_4: z_14 = w_04  + x_11*w_14  + x_12*w_24 + ... + x_1j*w_j4
+
+For multiple classes, we will use softmax function to calculate the propability for each class (not sigmoid)
+   
+2. Softmax Function: Calculate the Probability for Each Class from Z score
+--------------------------------------------------------------------------
+
+First, you use the softmax function to convert the raw scores (also called logits) into probabilities for each class.
+
+Given an input x, you calculate the score z_j for each class j (as described earlier), and then apply the softmax function:
+  +Class_1:   P(y_pred = 1 | X_1j) = e^(z_11) / [e^(z_11) + e^(z_12) + e^(z_13) + e^(z_14)]
+  +Class_2:   P(y_pred = 2 | X_1j) = e^(z_12) / [e^(z_11) + e^(z_12) + e^(z_13) + e^(z_14)]
+  +Class_3:   P(y_pred = 3 | X_1j) = e^(z_13) / [e^(z_11) + e^(z_12) + e^(z_13) + e^(z_14)]
+  +Class_4:   P(y_pred = 4 | X_1j) = e^(z_14) / [e^(z_11) + e^(z_12) + e^(z_13) + e^(z_14)]
+
+
+3. Cross-Entropy Loss: Measure the Difference Between Predicted and True Labels
+-------------------------------------------------------------------------------
+
+Formula for each observation:  error = -ln(P(y_pred = class | x))
+
+So, for the above example, with the first observation X_1j, assume its y_true_class is 3
+=> error_X_1j = 3*ln(P(y_pred = 3 | X_1j)) 
+              = 3*ln(e^(z_13) / [e^(z_11) + e^(z_12) + e^(z_13) + e^(z_14)])
+
+Do the same for other observations X_2j, X_3j, X_4j,....... X_ij
+=> We have the the total loss function:
+   
+   L(w,w0) = -(1/N) * sum(ln(P(y = j | x_ij)))
+
+
+*****************************************************************
+********* with One-hot encoder (or get-dummies) in Python *******
+*****************************************************************
+
+The loss function for multinomial logistic regression (also called softmax regression) is the categorical cross-entropy loss, which is defined as:
+L(y, ŷ) = -∑(i=1 to N) ∑(c=1 to C) y_i,c × ln(ŷ_i,c)
+Where:
+
+N is the number of samples
+C is the number of classes
+y_i,c is 1 if sample i belongs to class c and 0 otherwise (one-hot encoding)
+ŷ_i,c is the predicted probability that sample i belongs to class c
+
+The predicted probabilities ŷ_i,c are computed using the softmax function:
+ŷ_i,c = exp(z_i,c) / ∑(j=1 to C) exp(z_i,j)
+Where z_i,c is the logit (raw score) for sample i and class c, typically calculated as z_i,c = w_c^T × x_i + b_c where w_c and b_c are the weight vector and bias term for class c.
+This loss function encourages the model to assign high probabilities to the correct classes and low probabilities to incorrect ones. When minimized, it produces a model that effectively discriminates between multiple classes.
+
+Example:
+-------
+
+For just one observation (N=1), the multinomial logistic regression loss function becomes:
+L(y, ŷ) = -∑(c=1 to C) y_c × ln(ŷ_c)
+Where:
+
+C is the number of classes
+y_c is 1 if the observation belongs to class c and 0 otherwise
+ŷ_c is the predicted probability for class c
+
+Let's use a concrete example with 4 classes (C=4):
+Assume we have one observation that belongs to class 2, so the true labels are:
+y = [0, 1, 0, 0]
+And our model predicts the following probabilities:
+ŷ = [0.1, 0.7, 0.1, 0,1]
+The loss would be:
+L = -(0×ln(0.2) + 1×ln(0.7) + 0×ln(0.1)) + 0×ln(0.1))
+L = -ln(0.7)
+L = -(-0.357)
+L = 0.357
+This single value represents how well our model predicted the correct class for this one observation. Lower values indicate better predictions. In this case, our model assigned a fairly high probability (0.7) to the correct class, resulting in a relatively low loss value.
+
+
+
+#-------------------------------------------#
+#---------------- Steps --------------------#
+#-------------------------------------------#
+
+1) Choose model: Logistic Regression
+2) Collecting data, loading data into computer, preprocessing
+3) Create X[features] as inputs, and Y[label] as output
+4) Split X and Y into train set and test set
+5) Train model with training set
+6) Test model with test set
+7) Validate the model's accuracy (For classification: accuracy score, precision, recall, F1-score, confusion matrix...)
+8) Visualize the results
+9) Apply model to predict new values
+

@@ -1,0 +1,196 @@
+GRADIENT DESCENT: another way to find local minimum of f(x), find x0 where f'(x0) = 0
+
+As usual, to find local minimum or local maximum, we solve f'(x) = 0 equation to find x
+However, sometimes, it is impossible to solve that equation (too much data, too many dimensions,...)
+In that case, have to use Gradient Descent method to find x where f'(x) = 0
+
+The idea is:
+    If f'(x0) > 0, we have to decrease x to reach f'(x) = 0, meaning x_new = x0 - delta
+    If f'(x0) < 0, we have to increase x to reach f'(x) = 0, meaning x_new = x0 + delta
+In both cases, delta is always has the opposite sign of f'(x) (trai dau)
+Therefore, we can replace delta with -p.f'(x)
+    (p is learning rate)
+
+Formula: x_new = x0 - p.f'(x0)
+
+Keep repeat this formula to find x_new from x0, then find another x_new2 from the old x_new
+....repeat until f'(x0) = 0 ===> x_new = x0 (converge point)
+Use the x at converge point to calculate local minimum of f(x)
+
+Choose the p wisely
+If p is too large, we will be bouncing back and forth around converge point without reaching it
+If p is too small, it will take more loops to reach the converge point, hence take more time
+
+#-------Gradient Descent for Linear Regression------------#
+In Linear regression, we often use Leas-square Method (LSM) to find the linear line y^ = ax + b
+which means that we have to find a and b satisfying sum((yi -y^i)**2) or sum((yi - a.xi -b )**2) to be the minimum
+let f(x) = sum((yi - a.xi -b )**2), the problem is now solving f'(x) = 0 
+but it's not possible to do that since the size of x and y are too much
+ ==> Use Gradient Descent to find the local minimum satisfying LSM
+
+#-------------------------------------------------------------------------------------#
+#----------------------Method 1: Calculate manually-----------------------------------#
+#-------------------------------------------------------------------------------------#
+
+def gradient_descent_linearXY (x,y, tolerance=10**(-30)):
+    import numpy as np
+    import sympy as sp
+    
+    m = sp.symbols('m') #to define m as a symbolic variable (theta[0] slope)
+    b = sp.symbols('b') #to define b as a symbolic variable (theta[1] bias)
+
+    theta = np.array([b,m])
+    print('Theta vector =',theta)
+    
+    x_1 = np.c_[np.ones(x.shape[0]),x]
+    #np.ones(x.shape[0]) to create an array containing only 1 digit with the len of x.shape[0]
+    #np.c_ is to stack 1-D array into another 1-D or 2-D array (add the 1-digit columns to the left of x, creating x_1 matrix)
+    
+    y_hypo = np.dot(x_1,theta) 
+    #theta = [b m] and x_1[i] = [1 xi] so np.dot(x_1,theta) = y_hypo = b + m*xi
+
+    print('\nThe y_hypothesis = x_1.dot(theta) (first 5 lines):')
+    for i in range(0,5):
+        print(f'y_hypo_{i+1} = {y_hypo[i]}')
+
+    #Create loss function = sum((y[i] - y_hypo[i])**2)
+    loss = (1/(y.shape[0]))*sum((y[i] - y_hypo[i])**2 for i in range(y_hypo.shape[0]))
+
+    df_loss_m = sp.diff(loss,m)
+    print(f'\nDifferentiation of loss(m,b) respect to m = {df_loss_m}')
+
+    df_loss_b = sp.diff(loss,b)
+    print(f'\nDifferentiation of loss(m,b) respect to b = {df_loss_b}')
+
+    #***************Gradient descent part**************************#
+    b_temp = 5 #set initial bias value
+    m_temp = 5 #set initial slope value
+    learn_rate = 10       #set initial learning rate
+
+    df_point_b = float(df_loss_b.subs({b:b_temp, m:m_temp}))
+    df_point_m = float(df_loss_m.subs({b:b_temp, m:m_temp}))
+    
+    loop = 1
+    while True:        
+        b_new = b_temp - learn_rate*df_point_b
+        m_new = m_temp - learn_rate*df_point_m
+        
+        if (np.abs(m_new-m_temp) <= tolerance) and (np.abs(b_new-b_temp) <= tolerance): break 
+        #if the gap between point_new and point <= tolerance, stop the loop      
+        
+        else:
+            df_point_b_old = df_point_b
+            df_point_m_old = df_point_m
+            
+            df_point_b = float(df_loss_b.subs({b:b_new, m:m_new}))
+            df_point_m = float(df_loss_m.subs({b:b_new, m:m_new}))
+            
+            b_temp = b_new #update b_temp as b_new for next loop
+            m_temp = m_new
+            
+            if np.sign(df_point_b) != np.sign(df_point_b_old) or np.sign(df_point_m) != np.sign(df_point_m_old):
+                learn_rate = learn_rate/2
+            else: pass
+            #if f'(x) change sign, then reduce the lear_rate
+            
+            loop +=1 #count the number of loops needed to find convergence_point
+            
+    theta1 = m_new #slope            
+    theta0 = b_new #bias
+    
+    print(f'\nAfter {loop} loops, theta[bias,slope] = {[theta0,theta1]}')
+
+    return float(theta0), float(theta1)
+    #sympy class return symbolic expression type value, with dtype = '0'
+    # so have to convert to float before returnning for visualization or other task
+
+#-----------------------------------------------------------------------------------------------------------------#
+#----------------------Method 2: Use Pseudo-Inverse matrix numpy.linalg.pinv() -----------------------------------#
+#-----------------------------------------------------------------------------------------------------------------#
+
+ONLY FOR LINEAR REGRESSION LEAST-SQUARE
+
+Instead of repeating x_new = x0 - p.f'(x0) formula, we can use pinv() to calculate the theta matrix that satisfy gradient descent
+
+For x = (x1, x2, x3,... xi)
+we add the 1-column for it, then x_1 = x^ = (1, x1, x2, x3,... xi)
+
+For y = (y1, y2, y3,...yi)
+and for theta = (theta0, theta1, theta2, theta3,... theta_i) where theta0 is bias, and other theta are slopes
+
+===> y_hypothesis = y^ = x^ . theta
+
+To find the theta matrix that satisfy gradient descent, we solve this equation:
+          X^_T . X^ . theta = X^_T . Y
+
+=> theta = inv(X^_T . X^) . X^_T . Y (if X^_T . X^ is invertible)
+
+or theta = pinv(X^_T . X^) . X^_T . Y (if X^_T . X^ is not invertible) in this case we use pinv()
+
+#Fortunately, the numpy.linalg.pinv() will automatically return "true" inverse matrix if the original one is already invertible,
+# else it will return pseudo inverse matrix
+
+###Example:
+
+y = weights
+print(f'Y = {y}')
+Y = [81.64656 97.52228 95.25432 ... 92.98636 86.18248 88.45044]
+
+
+x = heights
+print(f'X = {x}')
+X = [1.8796 1.8796 1.8288 ... 1.905  1.905  1.8542]
+
+x_1 = np.c_[np.ones(x.shape), x]
+print(f'\nX^ = X_1 {x_1.shape} =\n{x_1}')
+
+X^ = X_1 (1015, 2) =
+[[1.     1.8796]
+ [1.     1.8796]
+ [1.     1.8288]
+ ...
+ [1.     1.905 ]
+ [1.     1.905 ]
+ [1.     1.8542]]
+
+Theta = pinv(X^_T . X^) . X^_T . Y = [-68.55285156  85.42051044]
+
+Y_predict = X*85.42051043665613 + (-68.55285156253981)
+
+#----------------------------------------------------------------------------------------------------------#
+#----------------------Method 3: sklearn.linear_model.LinearRegression()-----------------------------------#
+#----------------------------------------------------------------------------------------------------------#
+
+from sklearn import linear_model
+
+y = weights
+print(f'Y = {y}')
+===> Y = [81.64656 97.52228 95.25432 ... 92.98636 86.18248 88.45044]
+
+
+x = heights
+print(f'X = {x}')
+===> X = [1.8796 1.8796 1.8288 ... 1.905  1.905  1.8542]
+
+x_1 = np.c_[np.ones(x.shape), x]
+print(f'\nX^ = X_1 {x_1.shape} =\n{x_1}')
+===> X^ = X_1 (1015, 2) =
+[[1.     1.8796]
+ [1.     1.8796]
+ [1.     1.8288]
+ ...
+ [1.     1.905 ]
+ [1.     1.905 ]
+ [1.     1.8542]]
+
+regr = linear_model.LinearRegression(fit_intercept = False) 
+#Create a regr object from LinearRegression class
+## fit_intercept = False for calculating the bias
+
+regr.fit(x_1, y) #Apply the regr object model to x_1 and y
+
+## Print out the coef_ or theta0 and theta1
+print('Use scikit-learn:', regr.coef_)
+====> Use scikit-learn: [-68.55285156  85.42051044]
+
+Y_predict = X*85.42051043665613 + (-68.55285156253981)

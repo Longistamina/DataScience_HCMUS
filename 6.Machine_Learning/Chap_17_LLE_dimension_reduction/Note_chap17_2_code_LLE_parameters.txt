@@ -1,0 +1,99 @@
+#importing Libraries 
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_swiss_roll
+from sklearn.manifold import LocallyLinearEmbedding
+
+# Code for Generating a synthetic dataset (Swiss Roll)
+n_samples = 1000
+# Define the number of neighbors for LLE
+n_neighbors = 10
+X, _ = make_swiss_roll(n_samples=n_samples)
+
+
+# Including Locally Linear Embedding
+lle = LocallyLinearEmbedding(n_neighbors=5, n_components=10) #n_components=10 means the transformed data will be 10-D
+X_reduced = lle.fit_transform(X)
+
+# Code for Visualizing the original Versus reduced data
+plt.figure(figsize=(12, 6))
+
+plt.subplot(121)
+plt.scatter(X[:, 0], X[:, 1], c=X[:, 2], cmap=plt.cm.Spectral)
+plt.title(&quot;Original Data&quot;)
+plt.xlabel(&quot;Feature 1&quot;)
+plt.ylabel(&quot;Feature 2&quot;)
+
+plt.subplot(122)
+plt.scatter(X_reduced[:, 0], X_reduced[:, 1], c=X[:, 2], cmap=plt.cm.Spectral)
+plt.title(&quot;Reduced Data (LLE)&quot;)
+plt.xlabel(&quot;Component 1&quot;)
+plt.ylabel(&quot;Component 2&quot;)
+
+plt.tight_layout()
+plt.show()
+
+
+#----------------------------------------------------#
+#--------------- Parameters -------------------------#
+#----------------------------------------------------#
+LocallyLinearEmbedding(
+    n_neighbors=5,
+    n_components=2,
+    reg=0.001,
+    eigen_solver='auto',
+    tol=1e-6,
+    max_iter=100,
+    method='standard',
+    hessian_tol=1e-4,
+    modified_tol=1e-12,
+    neighbors_algorithm='auto',
+    random_state=None,
+    n_jobs=None
+)
+
+n_neighbors (int, default=5):
+    Number of neighbors to consider for each point. Local linear approximations depend on this.
+
+n_components (int, default=2):
+    Number of dimensions for the output (lower-dimensional embedding).
+
+reg (float, default=0.001):
+    Regularization constant for least squares problems. Prevents numerical instability.
+
+eigen_solver ({‘auto’, ‘arpack’, ‘dense’}, default=’auto’):
+    Method to solve the eigenproblem:
+    - 'auto': chooses best method based on input
+    - 'arpack': iterative solver (better for large datasets)
+    - 'dense': direct dense matrix solver
+
+tol (float, default=1e-6):
+    Tolerance for convergence of the eigen_solver.
+
+max_iter (int, default=100):
+    Maximum number of iterations for the arpack solver. Ignored for other solvers.
+
+method ({‘standard’, ‘hessian’, ‘modified’, ‘ltsa’}, default=’standard’):
+    Type of LLE algorithm:
+    - 'standard': basic LLE
+    - 'modified': improved robustness
+    - 'hessian': uses Hessian-based constraints
+    - 'ltsa': Local Tangent Space Alignment
+
+hessian_tol (float, default=1e-4):
+    Only used for 'hessian' method. Tolerance for estimating null space of Hessian.
+
+modified_tol (float, default=1e-12):
+    Only used for 'modified' method. Tolerance to detect zero eigenvalues.
+
+neighbors_algorithm ({‘auto’, ‘brute’, ‘kd_tree’, ‘ball_tree’}, default=’auto’):
+    Algorithm to compute nearest neighbors:
+    - 'auto': chooses best based on data
+    - 'kd_tree', 'ball_tree': tree-based methods
+    - 'brute': brute-force search
+
+random_state (int, RandomState instance or None, default=None):
+    Used when eigen_solver='arpack' for reproducibility.
+
+n_jobs (int or None, default=None):
+    Number of parallel jobs to run for neighbors search. -1 uses all processors.

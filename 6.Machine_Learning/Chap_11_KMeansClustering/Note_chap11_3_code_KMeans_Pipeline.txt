@@ -1,0 +1,42 @@
+K Means Clustering: https://www.youtube.com/watch?v=4b5d3muPQmA
+
+#------------------------------------------------------------------------------------#
+#--------------------- K-Means Clustering and Pipeline ------------------------------#
+#------------------------------------------------------------------------------------#
+
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from scipy.spatial.distance import cdist
+from imblearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer
+import math
+
+distortions = []
+k_nums = range(2,10)
+
+for k in k_nums:
+    kmeans_pipe = Pipeline([
+        ('OneHotEncoder', make_column_transformer((OneHotEncoder(drop='first', handle_unknown='ignore'), ['Genre']), remainder='passthrough')),
+        ('MinMaxScaler', MinMaxScaler()),
+        ('KMeansModel', KMeans(n_clusters = k, random_state = 2))
+    ])
+    kmeans_pipe.fit(data)
+    data_scaled = (
+        pd.DataFrame(kmeans_pipe[:-1].transform(data)) #Transform original data with onehotencoder and MinMaxScaler
+        .pipe(lambda df: df.set_axis(kmeans_pipe.named_steps['OneHotEncoder'].get_feature_names_out(), axis =1))
+    )
+     
+    centroids = kmeans_pipe.named_steps['KMeansModel'].cluster_centers_
+    sum_var = sum(np.min(cdist(data_scaled, centroids, 'euclidean'), axis = 1)) / data.shape[0]
+    distortions.append(sum_var)
+    labels = kmeans_pipe.named_steps['KMeansModel'].labels_
+    print(f'Silhouette score for k = {k}: {silhouette_score(data_scaled, labels)}')
+
+plt.plot(k_nums, distortions, 'bx-')
+plt.xlabel('Number of K')
+plt.ylabel('Distortion')
+plt.title('The Elbow Method showing optimal K')
+plt.show())
+
+print('\nChoose K = ....')

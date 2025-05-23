@@ -1,0 +1,86 @@
+#---------------------------------------------#
+#---------------- Install library ------------#
+#---------------------------------------------#
+
+pip3 install sqlite3
+
+
+
+#---------------------------------------------------------------#
+#---------------- connect, cursor, execute, commit  ------------#
+#---------------------------------------------------------------#
+
+import sqlite3
+
+conn = sqlite3.connect('example.db') 
+#If the database does not exist, it will create a new one in the current directory
+
+
+sql_cmd = 'create table pets(id int, name text, age integer);'
+#                        or 'id integer PRIMARY KEY AUTOINCREMENT'
+curs = conn.cursor()
+curs.execute(sql_cmd)
+curs.execute("INSERT INTO pets VALUES(1, 'Dog', 3);")
+
+curs.execute('select * from pets;')
+row = curs.fetchone()
+while row:
+	print(row)
+	row = curs.fetchone()
+
+conn.commit()
+
+conn.close()
+
+
+
+#-----------------------------------------------------------------------#
+#---------------- Pass values into parameters, executemany  ------------#
+#-----------------------------------------------------------------------#
+
+val = ('Dog',)
+curs.execute('select * from pets where name=?', val)
+conn.commit()
+conn.close()
+
+##### with larger list of values: #####
+
+vals_list = [
+	(2, 'Cat', 4),
+	(3, 'Rabit', 5)
+	(4, 'Bird', 1)
+]
+
+curs.executemany('insert in to pets(id, name, age) values (?, ?, ?);', vals_list)
+
+conn.commit()
+conn.close()
+
+
+##### if the id is set as AUTOINCREMENT #####
+
+vals_list = [
+	('Tarantula', 2),
+	('Lizzard', 2)
+]
+
+curs.executemany('insert in to pets(name, age) values (?, ?);', vals_list)
+
+conn.commit()
+conn.close()
+
+
+##### if value list is a dictionary #####
+
+vals_list = [
+	{'name':'Chameleon', 'age':3},
+	{'name':'Scorpion', 'age':4}
+]
+
+curs.executemany('insert in to pets(name, age) values (:name, :age);', vals_list)
+
+conn.commit()
+conn.close()
+
+####
+df.to_dictionary(orient='records')

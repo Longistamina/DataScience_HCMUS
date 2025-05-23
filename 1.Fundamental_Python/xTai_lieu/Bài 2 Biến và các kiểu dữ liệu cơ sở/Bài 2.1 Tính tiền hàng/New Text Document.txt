@@ -1,0 +1,5 @@
+Xây dựng chương trình tính tiền hàng theo công thức: Thành tiền= Số lượng * Đơn giá
+Lưu ý:
+- Số lượng và đơn giá được nhập vào từ bàn phím (Input)
+- Chương trình sẽ tính Thành tiền = Số lượng x Đơn giá
+và in ra thành tiền (Output)

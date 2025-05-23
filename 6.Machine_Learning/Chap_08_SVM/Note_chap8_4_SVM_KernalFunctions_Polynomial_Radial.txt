@@ -1,0 +1,139 @@
+SVM part 1 - Main ideas: https://www.youtube.com/watch?v=efR1C6CvhmE
+SVM part 2 - Polynomial kernel: https://www.youtube.com/watch?v=Toet3EiSFcM
+SVM part 3 - The Radial (RBF) kernel: https://www.youtube.com/watch?v=Qc5IyLW_hns
+
+
+Kernel functions are the function that help project original data into a higher-dimension space
+
+RBF: https://www.youtube.com/watch?v=Q7vT0--5VII
+
+#------------------------------------------------------#
+#------------------ Polynomial Kernel -----------------#
+#------------------------------------------------------#
+
+To apply a polynomial kernel to a dataset in Support Vector Machines (SVMs), you need to understand how the kernel function transforms the data.
+
+The polynomial kernel function is defined as:
+	K(x) = (γ⟨x@y⟩ + r)^d
+Where:
+# x and y are your input vectors
+# γ (gamma) is a scaling parameter
+# r is a constant term (often 0 or 1)
+# d is the degree of the polynomial
+⟨x@y⟩ is the dot product between vectors x and y
+
+(the dataset can have more observations, but here take x and y as 2 symbolized datapoints to form the formula)
+
+For a polynomial kernel of degree d applied to N-dimensional data, the transformed feature space will have a dimensionality of:
+	feature_space_dimension = (N+d)! / (d! * N!)
+
+This represents the number of monomials of degree less than or equal to d with N variables.
+
+
+****************** Example ****************************
+Let's say you have 2-dimensional data points (N=2):
+	x = (x₁, x₂)
+	y = (y₁, y₂)
+
+(the dataset can have more observations, but here take x and y as 2 symbolized datapoints to form the formula)
+
+With a polynomial kernel of degree 2 (d=2), γ=1, r=1:
+	K(x, y) = (⟨x@y⟩ + 1)²
+		= (x₁.y₁ + x₂.y₂ + 1)²
+
+When expanded, this equals:
+	(x₁.y₁ + x₂.y₂ + 1)² 
+	= 1 + x₁²·y₁² + x₂²·y₂² + 2x₁x₂·y₁y₂ + 2x₁·y₁ + 2x₂·y₂
+			     
+	= (1, √2·x₁, √2·x₂, x₁², √2·x₁·x₂, x₂²) @ (1, √2·y₁, √2·y₂, y₁², √2·y₁·y₂, y₂²)  #Split into dot product of 2 vectors
+
+This corresponds to the implicit feature mapping:
+	Φ(x) = (1, √2·x₁, √2·x₂, x₁², √2·x₁·x₂, x₂²) #6 coordinates
+
+feature_space_dimension = (N+d)! / (d! * N!) = (2+2)! / (2! * 2!) = 6
+
+So, first 2-D   space with original features    x = (x₁, x₂)
+now becomes 6-D space with transformed features x = (1, √2·x₁, √2·x₂, x₁², √2·x₁·x₂, x₂²)
+
+Then, apply the SVM to this new transformed features
+
+
+
+#--------------------------------------------------#
+#------------------ Radial Kernal -----------------#
+#--------------------------------------------------#
+
+The Radial Basis Function (RBF) Kernel is one of the most commonly used kernel functions. 
+It allows SVMs to handle complex, non-linear classification problems by transforming the data into a higher-dimensional space (into infinite space)
+
+Formula:
+	K(x, y) = e^(-γ * ∥x-y∥^2) 
+
+# K(x, y) is the kernel function that computes similarity between two data points x and y
+# ∥x-y∥^2 is the squared Euclidean distance between the two data points x and y
+# γ (gamma) > 0 is a hyperparameter that controls the influence of a single training example. A higher 𝛾 means closer points have more influence, 
+while a lower 𝛾 means influence is spread out over a larger area.
+
+=> The exponential function ensures that the result is always between 0 and 1, where 
+# closed to 1 means the points are identical 
+# closed to 0 means the points are very different.
+
+
+**************** Why transforming into INFINITE space? *********************
+Assume our data is 2D:
+	x = (x1, x2)
+	y = (y1, y2)
+	
+We have:
+	K(x, y) = e^(-γ * ∥x-y∥^2)   (Gaussian kernel)
+	
+		= e^(-γ * ∥x-y∥^2)
+		
+		= e^(-γ * (∥x∥^2 -2xy + ∥y∥^2))   #x and y here are vectors, so xy = transpose(x) @ y (a dot product)
+		
+		= e^(-γ * (∥x∥^2 + ∥y∥^2) + γ*2xy)
+		
+		= e^(-γ * (∥x∥^2 + ∥y∥^2)) * e^(γ*2xy)
+
+Let's set γ = 1/2 
+      and e^(-γ * (∥x∥^2 + ∥y∥^2)) = S
+      
+=> K(x, y) = S * e^(xy)
+
+Now let apply Taylor-Maclaurin expansion for e^(xy), we have
+
+	e^(xy) = 1 + xy + [(xy)^2 / 2!] + [(xy)^3 / 3!] + ... + [(xy)^n / n!] + .....
+
+Now let split into dot product:
+	e^(xy) = 1 + xy + [(xy)^2 / 2!] + [(xy)^3 / 3!] + ... + [(xy)^n / n!] + .....
+	       
+	       = (1, x, (x^2)/√2!, (x^3)/√3!,...(x^n)/√n!) @ (1, y, (y^2)/√2!, (y^3)/√3!,...(y^n)/√n!)
+
+
+So, the original x now becomes (1, x, (x^2)/√2!, (x^3)/√3!,...(x^n)/√n!)
+(if n going to infinity, then we have infinite dimension)
+
+
+So, take γ = 0.5
+	 x = (1,2)
+         y = (3,4)
+=> ∥x-y∥^2 = (1-3)^2 + (2-4)^2 = 8
+
+=> K(x,y) = e^(-0.5 * 8) = 0.01831563888 
+
+(0.01831563888 describes the relationship between x and y in the infinite dimension)
+# closed to 1 means the points are identical 
+# closed to 0 means the points are very different.
+
+
+#----------------------------------------------------------------------#
+#------------------ Best thing about kernel functions -----------------#
+#----------------------------------------------------------------------#
+For both polynomial kernel and radial kernel:
+	K(x) = (γ⟨x@y⟩ + r)^d
+	K(x, y) = e^(-γ * ∥x-y∥^2)
+
+SVM only uses these formulas to calculate the relationship between x and y in the higher dimension or infinite dimension,
+without creating a higer-dimeinsion inputs like explaining above (or like Polynomial Regression)
+
+=> Reduce the burden of computing, enhance the training time

@@ -1,0 +1,36 @@
+#--------------------------------------------------------------------------------#
+#--------------------- GMM Clustering and Pipeline ------------------------------#
+#--------------------------------------------------------------------------------#
+
+from sklearn.mixture import GaussianMixture
+from sklearn.metrics import silhouette_score
+from imblearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer
+import math
+
+silh_score = []
+k_nums = range(2,10)
+
+for k in k_nums:
+    gmm_pipe = Pipeline([
+        ('OneHotEncoder', make_column_transformer((OneHotEncoder(drop='first', handle_unknown='ignore'), [categ_feats]), remainder='passthrough')),
+        ('MinMaxScaler', MinMaxScaler()),
+        ('GMM', GaussianMixture(n_components = k, random_state = 1))
+    ])
+    gmm_pipe.fit(data)
+    data_scaled = (
+        pd.DataFrame(gmm_pipe[:-1].transform(data)) #Transform original data with onehotencoder and MinMaxScaler
+        .pipe(lambda df: df.set_axis(gmm_pipe.named_steps['OneHotEncoder'].get_feature_names_out(), axis =1))
+    )
+    labels = gmm_pipe.fit_predict(data)
+    print(f'Silhouette score for k = {k}: {silhouette_score(data_scaled, labels)}')
+    silh_score.append(silhouette_score(inputs, labels))
+
+
+#Plot the Silhouette Score
+plt.plot(k_nums, silh_score, 'bx-')
+plt.xlabel('Number of K')
+plt.ylabel('Silhouette score')
+plt.title('The Silhouette-score Method showing optimal K')
+plt.show()

@@ -1,0 +1,60 @@
+#-----------------------------------------------------------------#
+#---------- Train/Test split validation explain ------------------#
+#-----------------------------------------------------------------#
+
+Train the model many times, each time with different train - test data size:
+# 80 - 20
+# 75 - 25
+# 70 - 30
+...
+
+Until find the optimal train - test ratio, where:
+# the accuracy is the highest
+# the difference between accuracy on train and test sets is the lowest
+
+#-------------------------------------------------------------#
+#---------- K-fold Cross Validation explain ------------------#
+#-------------------------------------------------------------#
+
+In case the dataset is so small, not enough to split into train-test set
+=> Use k-fold cross validation
+
+x = df[['input1', 'input2', 'input3', 'input4',...]]
+y = df['output']
+
+from sklearn.linear_model import LinearRegression
+multi_lr_model = LinearRegression().fit(x, y) #Train with the whole original dataset 
+
+from sklearn.model_selection import cross_val_score, KFold
+kfold = KFold(n_splits = 4)
+
+### Calculate accuracy for each cross validation row
+R_cross = cross_val_score(multi_lr_model, x, y, cv = kfold)
+
+#cv = kfold = 4 means it will cross-validate the model 4 times (4-fold), here how it does:
+# In advance, cross_validation will split the dataset into 4 equal parts (or nearly equal)
+# 1st validate: it use the 1st, 2nd and 3rd parts as train set, and 4th part as test set
+# 2nd validate: it use the 2nd, 3rd and 4th parts as train set, and 1st part as test set
+# 3rd validate: it use the 3rd, 4th and 1st parts as train set, and 2nd part as test set
+# 4th validate: it use the 4th, 1st and 2nd parts as train set, and 3rd part as test set
+# each validation returns an R_score
+# so cross_val_score(multi_lr_model, x, y, cv = kfold) will return an array containing 4 Accuracy scores of 4 validations
+
+Mean of Accuracy scores = R_cross.mean()
+std of Accuracy scores = R_cross.std()
+
+### MSE scores for regressor models
+MSE_cross = cross_val_score(multi_lr_model, x, y, cv = kfold, scoring='neg_mean_squared_error')
+
+MSE_model = MSE_cross.mean()
+
+
+#------------------------------------------------------#
+#---------- Why use Cross Validation ------------------#
+#------------------------------------------------------#
+
+Effective for dataset with small observations
+
+Help examine the stability of the Accuracy Score (by comparing the accuracy of all cross validation row)
+
+Help avoid overfitting and underfitting

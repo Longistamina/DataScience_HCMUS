@@ -1,0 +1,192 @@
+Dataset Imbalance: assume we have a dataset with 4 output labels A, B, C and D. 
+		   But 85% of the data output is A,
+		   while B, C and D each occupy 5%
+		   => Imbalanced ouput classes/labels
+		   => Encounter Accuracy Paradox: the accuracy of model is very high, but only for one specific label, the for others is low
+
+Check the imbalance in each specific feature, not all along the dataset
+
+One of the best way to check for the imbalance is using BAR CHART
+
+Assume a feature have 2 classes / labels:
+	+Balance feature: 50/50 ~ 40/60
+	+Imbalance feature: 70/30 ~ 80/20
+
+Below are some methods to handle imbalanced dataset
+
+#---------------------------------------------------------------------------#
+#-------------------------------Collect more data---------------------------#
+#---------------------------------------------------------------------------#
+
+This is the best method to solve imbalanced dataset, also the most effective way
+
+But it is rarely preferred since it will cost more time and money to collect more data
+
+#------------------------------------------------------------------------------------------------#
+#-------------------------Use Performance metric (instead of Accuracy)---------------------------#
+#------------------------------------------------------------------------------------------------#
+
+It is suggested to use Performance metric to evaluate models trained with imbalanced dataset, rather than Accuracy Score
+
+**************************
+****Confusion Matrix******
+**************************
+
+Confusion Matrix: a matrix whose size depends on the number of labels/classes. If our data have 2 classes,
+then the Confusion Matrix size is 2x2, if 3 classes then Confusion Matrix is 3x3 (and so on). This matrix
+contains following information:
+	+Precision: assume the model predict 100 cases as positive, but only 85 of them are truly positive, Precision = 85%
+	+Recall: assume we have 100 positive cases, but the model predict only 90 positive cases, Recall = 90%
+	+F1 Score (F-Score): 2*precision*recall / (precision + recall), so this is average of precision and recall
+	
+The diagonal cells of confusionmatrix show the correctly predicted case of each label
+The other cells show wrongly predicted case
+
+Accuracy = (correct class1 + correct class2) / all cases
+
+Precision class1 = correct class1 / all predicted as class1 (correct class1 + false positive class1)
+
+Recall class1 = correct class1 / all ground-truth class1 (correct class1 + false positive class2)
+
+When use ConfusionMatrix() function in python, the row must be predicted result, the column is ground-truth
+
+Some problems rely more on Precision, some more on Recall, some more on F1-Score
+
+-------result interpretation-------
+High recall + High precision: the model is perfectly appropriate
+
+Low recall + High precision: the model cannot detect all true cases, but once it detected them, the accuracy is high
+
+High recall + Low precision: the model can detect many true cases, but the accuracy is low
+
+Low recal + Low precision: worst result, model is not appropriate, cannot be used this one, so try to build new model
+
+************************************
+*********** ROC curves - AUC *******
+************************************
+ROC curves: alternative for Precision and Recall, it uses:
+	+Sensitivity (True Positive Rate - TPR) = True Positive / Positive Population
+	+False Positive Rate - FPR = False Positive / Positive Population
+	+Specificity = True Negative / Negative Population
+
+Threshold:
+	+0: surely negative
+	+1: surely positive
+	+PP = Positive population: total number of positive class samples
+	+NP = Negative population: total number of negative class samples
+	+TP = True Positive
+	+FP = False Positive
+	+TN = True Negative
+	+FN = False Negative
+
+ROC Curves:
+	+ X axis: FPR (0-1)
+	+ Y axis: TPR (0-1)
+	+Increase the threshold from 0 to 1 to change the ROC curve, make it go up vertically and then bend horizontally. 
+	+We also need to draw a reference line X = Y (45 degrees)
+	+The more the ROC cureves are distanced from the reference line, the better the model is
+	+Perfect ROC curve: go up along Y axis, then bend and go towards X axis, look ike half square
+
+Sometimes, using ROC Curves to validate the model might be subjectively, there fore use AUC:
+	+AUC = Area under ROC Curve (Area of the region limited by ROC Curve and X axis)
+	+Use integration to calculate this Area
+	+AUC ranges from 0 to 1
+	+The more it is closed to 1, the better the model is
+
+
+	
+#-------------------------------------------------------------------------------------------#
+#-------------------------Resampling Data (not collect more data)---------------------------#
+#-------------------------------------------------------------------------------------------#
+
+This method is not collecting more data
+
+It is meant to use some techniques to add in some duplicate observations of the minority group,
+or eliminate some observations of the majority group
+
+This method is inferior to Collecting new data, but it helps save ressources from collecting new data
+
+Assume we have a datatset with 80% male and 20% female:
+	+Over-sampling: duplicate some female observations to increase female percentage
+	+Under-sampling: eliminate some male observations to decrease male percentage
+
+Should try both methods to see which one is better
+
+
+************************************
+*********** Under-Sampling *********
+************************************
+Use:
+	+imblearn.under_sampling.ClusterCentroids
+	+imblearn.under_sampling.RandomUnderSample
+	+sklearn.utils.resample
+
+x = df[['x1', 'x2']] #input
+y = df['output'] #output
+
+from imblearn.under_sampling import ClusterCentroids
+clust_cent = ClusterCentroids(random_state=0)
+x_resample, y_resample = clust_cent.fit_resample(x, y)
+df_new = pd.DataFrame(x_resample, columns=....)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+from imblearn.under_sampling import RandomUnderSampler
+ra_und_samp = RandomUnderSampler(random_state=0)
+x_resample, y_resample = ra_und_samp.fit_resample(x, y)
+df_new = pd.DataFrame(x_resample, columns=....)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+from sklearn.utils import resample
+df_0 = df[df['target']==0] #shape 14183x3
+df_1 = df[df['target']==1] #shape 817x3
+df_0_resample = resample(df_0, replace=False, n_samples = df_1.shape[0], random_state=0)
+df_new = pd.concat([df_0_resample, df_1], axis=0)
+df_new.shape['output'].values_count()
+
+
+************************************
+*********** Over-Sampling **********
+************************************
+Use:
+	+SMOTE (Synthetic Minority Over-sampling Technique): it uses KNN algorithm to create K data points near original ones (no overlaps)
+	+use imblearn.overer_sampling.SMOTE
+	+Or use imblearn.overer_sampling.RandomOverSampler (this duplicates original data points, so may cause overlaps)
+	+Or use sklearn.utils.resample (also causes overlap)
+
+x = df[['x1', 'x2']] #input
+y = df['output'] #output
+
+from imblearn.overer_sampling import SMOTE
+smote = SMOTE(random_state = 0, k_neighbors=...) #default k_neigbors = 5
+x_resample, y_resample = smote.fit_resample(x, y)
+df_new = pd.DataFrame(x_resample, columns=....)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+from imblearn.overer_sampling import RandomOverSampler
+ra_over_samp = RandomOverSampler(random_state=0)
+x_resample, y_resample = ra_over_samp.fit_resample(x, y)
+df_new['output'] = y_resample
+df_new.shape['output'].values_count()
+
+
+from sklearn.utils import resample
+df_0 = df[df['target']==0] #shape 894x3
+df_1 = df[df['target']==1] #shape 106x3
+df_1_resample = resample(df_1, replace=False, n_samples = df_0.shape[0], random_state=0)
+df_new = pd.concat([df_1_resample, df_0], axis=0)
+df_new.shape['output'].values_count()
+
+#-------------------------------------------------------------------------------------------#
+#-------------------------Visualize data after sampling/balancing---------------------------#
+#-------------------------------------------------------------------------------------------#
+
+sbn.scatter(data=df_new, x='x1', y='x2', hue='output') #2D scatterplot
+
+#3D scatterplot
+from mpl_toolkits.mplot3d import Axes3D
+f = plt.figure(figsize=(8,8))
+ax = f.add_subplot(111, projection='3d')
+ax.scatter(df_new['x1'], df_new['x2'], df_new['output'], c=df_new['output'])
