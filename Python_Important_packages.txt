@@ -4,3 +4,5 @@ matplotlib
 seaborn
 sklearn = pip3 install -U scikit-learn
 imblearn
+xgboost
+hdbscan
