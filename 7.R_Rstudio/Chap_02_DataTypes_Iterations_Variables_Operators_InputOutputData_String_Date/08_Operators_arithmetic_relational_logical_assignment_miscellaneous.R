@@ -25,6 +25,8 @@ print(v%/%t)
 # ^ exponential
 print(v^t)
 
+# %/% dot product (tich vo huong)
+print(v %*% t)
 
 #-----------------------------------------------------#
 #--------------- Relational Operators ----------------#
