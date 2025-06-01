@@ -19,8 +19,8 @@
 # install.packages("tidyverse")
 library(tidyverse)
 
-
 setwd("C:/Users/admin/Documents/Academic/DataScience_HCMUS/7.R_Rstudio/Chap_08_DataFrame_Tidyverse/")
+
 
 #------------------------------------#
 #-------- read pokemon.csv ----------#

@@ -46,6 +46,18 @@ df_pokemon_sub = df_pokemon %>%
 
 head(df_pokemon_sub)
 
+
+####### reorder column using select() ######
+df_pokemon_sub_reorder = df_pokemon %>%
+  select(c("Name", "Type 1", "Total", "Legendary")) %>%
+  select(c(Name, Total, `Type 1`, Legendary)) # Reorder column
+                                              # use `Type 1` because it has space character
+
+head(df_pokemon_sub_reorder)
+  
+
+head(df_pokemon_sub)
+
 #-------------------------------#
 #-------- select_if() ----------#
 #-------------------------------#
