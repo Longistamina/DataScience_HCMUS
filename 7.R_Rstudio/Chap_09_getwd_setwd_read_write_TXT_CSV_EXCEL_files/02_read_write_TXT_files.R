@@ -79,9 +79,9 @@ write(content_to_write, file = file_name) # Write the content_to_write to the wr
                                           # find and open the writtent_text.txt to check
 
 
-#------------------------------------------#
-#------------- use write() ----------------#
-#------------------------------------------#
+#------------------------------------------------#
+#------------- use write.table() ----------------#
+#------------------------------------------------#
 
 # write.table() helps write table-type text into .csv or .tsv (NOT support .xlsx or excel files)
 

@@ -11,7 +11,7 @@ library(readxl) #This has read_excel() to read dataframe from .xlsx or .xls file
 # read_csv("path/to/file.csv")
 # read_excel("path/to/file.xlsx") or .xls
 
-setwd("C:/Users/admin/Documents/Academic/DataScience_HCMUS/7.R_Rstudio/Chap_08_DataFrame_Tidyverse/")
+# setwd("C:/Users/admin/Documents/Academic/DataScience_HCMUS/7.R_Rstudio/Chap_08_DataFrame_Tidyverse/")
 
 df_csv <- read_csv("data_chap_08/baseball.csv")
 print(df_csv)
@@ -29,3 +29,13 @@ print(df_excel)
 ## read_excel()
 ## read_xls()
 ## read_xlsx()
+
+
+#----------------------------------------------------------------#
+#------------ check if the read file is dataframe ---------------#
+#----------------------------------------------------------------#
+
+# check if the read data is dataframe
+print(is.data.frame(df_csv))
+
+print(is.data.frame(df_excel))
