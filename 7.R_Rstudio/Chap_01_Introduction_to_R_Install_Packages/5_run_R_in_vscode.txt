@@ -1,0 +1,26 @@
+Go to vscode, install extensions R, R Debugger and R Syntax
+
+On your terminal, type command "which R" to get the path to R, for example: "/home/longdpt/miniconda3/envs/data/bin/R"
+(Note, the path must be fully explicit, not using "~" for /home......)
+
+On the search box (top of the screen), type this:
+    >Preferences: Open User Settings (JSON)
+
+Then press Enter
+
+Put these lines in that JSON file:
+{"r.rterm.linux":"/home/longdpt/miniconda3/envs/data/bin/R",
+"r.rterm.option": [
+  "--quiet"
+]
+}
+
+# The --quiet to automatically delete the R opening message
+
+Ctrl+S to save that file.
+
+Now you can run R in vscode using Ctrl+Enter
+
+
+########### Terminal: Clear ##################
+File -> Preferences -> Keyboard Shortcut -> search "Terminal: Clear" => set "Cltr + L"
