@@ -1,4 +1,8 @@
-Go to vscode, install extensions R, R Debugger and R Syntax
+Go to vscode, install extensions: 
+  # R 
+  # R Debugger
+  # R Syntax
+  # R Extension Pack (Yuki Ueda)
 
 On your terminal, type command "which R" to get the path to R, for example: "/home/longdpt/miniconda3/envs/data/bin/R"
 (Note, the path must be fully explicit, not using "~" for /home......)
@@ -9,18 +13,27 @@ On the search box (top of the screen), type this:
 Then press Enter
 
 Put these lines in that JSON file:
-{"r.rterm.linux":"/home/longdpt/miniconda3/envs/data/bin/R",
-"r.rterm.option": [
-  "--quiet"
-]
+{
+  "r.rterm.linux": "/home/longdpt/miniconda3/envs/data/bin/R",
+  "r.rterm.options": [
+    "--quiet"
+  ],
+  "r.lsp.diagnostics": false,
+  "[r]": {
+    "editor.semanticHighlighting.enabled": false
+  }
 }
 
+
 # The --quiet to automatically delete the R opening message
+# The "r.lsp.diagnostics" and "editor.semanticHighlighting.enabled" help disable the wavy warning lines
 
 Ctrl+S to save that file.
 
-Now you can run R in vscode using Ctrl+Enter
-
-
 ########### Terminal: Clear ##################
 File -> Preferences -> Keyboard Shortcut -> search "Terminal: Clear" => set "Cltr + L"
+
+
+#### Run selected lines of codes:
+File -> Preferences -> Keyboard Shortcut -> search "R: Run Selection/Line" => set "Ctrl + Shift + Enter"
+(remember to remove the older Ctrl+Enter and Ctrl+Shift+Enter)
