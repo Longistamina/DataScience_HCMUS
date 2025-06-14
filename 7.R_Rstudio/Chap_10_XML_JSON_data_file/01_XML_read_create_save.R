@@ -1,3 +1,6 @@
+
+setwd("/home/longdpt/Documents/Academic/DataScience_HCMUS/7.R_Rstudio/Chap_10_XML_JSON_data_file/")
+
 # XML = eXtensible Markup Language
 # It is designed for facilitating data transfering and storing
 # Main purpose: simplify the data sharing process between systems, especially via Internet 
@@ -55,9 +58,6 @@
 #------------------- read XML file into R dataframe ------------------#
 #---------------------------------------------------------------------#
 
-# install.packages("XML")
-# conda install -c conda-forge r-xml
-
 library("XML")
 library("methods")
 
@@ -111,3 +111,19 @@ cat(
     ),
     file = "data_chap_10/demo_data/cd_usa_xmldoc_from_df.xml"
 )
+
+
+#-----------------------------------------------------------------#
+#------------------- Download XML data from URL ------------------#
+#-----------------------------------------------------------------#
+
+xml_url <- "https://www.w3schools.com/xml/cd_catalog.xml"
+
+# Download xml file using URL and save into destfile path
+download.file(url = xml_url, destfile = "data_chap_10/demo_data/cd_from_url.xml")
+
+# read the downloaded XML file:
+library("XML")
+df_cd_from_url <- xmlToDataFrame("data_chap_10/demo_data/cd_from_url.xml")
+
+head(df_cd_from_url)
