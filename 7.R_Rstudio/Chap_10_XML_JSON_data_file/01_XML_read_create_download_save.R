@@ -67,6 +67,22 @@ head(df_cd)
 print(class(df_cd))
 
 
+#------------------------------------------------------------------------------#
+#------------------- read XML data from internet URL address ------------------#
+#------------------------------------------------------------------------------#
+
+xml_url <- "https://www.w3schools.com/xml/cd_catalog.xml"
+
+# Download xml file using URL and save into destfile path
+download.file(url = xml_url, destfile = "data_chap_10/demo_data/cd_from_url.xml")
+
+# read the downloaded XML file:
+library("XML")
+df_cd_from_url <- xmlToDataFrame("data_chap_10/demo_data/cd_from_url.xml")
+
+head(df_cd_from_url)
+
+
 #----------------------------------------------------------------------#
 #------------------- save R dataframe into .xml file ------------------#
 #----------------------------------------------------------------------#
@@ -111,19 +127,3 @@ cat(
     ),
     file = "data_chap_10/demo_data/cd_usa_xmldoc_from_df.xml"
 )
-
-
-#-----------------------------------------------------------------#
-#------------------- Download XML data from URL ------------------#
-#-----------------------------------------------------------------#
-
-xml_url <- "https://www.w3schools.com/xml/cd_catalog.xml"
-
-# Download xml file using URL and save into destfile path
-download.file(url = xml_url, destfile = "data_chap_10/demo_data/cd_from_url.xml")
-
-# read the downloaded XML file:
-library("XML")
-df_cd_from_url <- xmlToDataFrame("data_chap_10/demo_data/cd_from_url.xml")
-
-head(df_cd_from_url)

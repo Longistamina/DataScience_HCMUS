@@ -80,3 +80,46 @@ df_books <- as.data.frame(books_json_text$Mathematics$book)
 
 head(df_books)
 print(class(df_books))
+
+
+#--------------------------------------------------------------------------#
+#-------------- read JSON data from internet URL address ------------------#
+#--------------------------------------------------------------------------#
+
+library("httr")
+library("jsonlite")
+
+json_url <- "https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json"
+
+# perform a HTTP Get Request with a given json_url address
+# Returns an HTTP response object (class "response").
+get_url <- GET(url = json_url)
+
+# Extract the content from the get_url object
+# Then converts the raw binary data to a character string (long json format string)
+json_string <- rawToChar(get_url$content)
+
+# Parse JSON String
+# Converts the json_string into a R data structure (can be a list, dataframe, ...)
+R_json_object <- fromJSON(json_string)
+                 # class "data.frame"
+
+# convert R_json_object into proper dataframe
+df_json_url <- as.data.frame(R_json_object)
+               # class "data.frame"
+
+print(df_json_url[, 1:3])
+
+
+#------------------------------------------------------------------#
+#-------------- write dataframe into .json files ------------------#
+#------------------------------------------------------------------#
+
+# MUST convert dataframe into to JSON DATA OBJECT using toJSON() before writing a JSON file
+json_books <- toJSON(df_books)
+
+print(json_books)        # check the content of json_books object
+print(class(json_books)) # "json"
+
+# Then, use write() to write this json_books object into a .json file
+write(json_books, file = "data_chap_10/demo_data/books_df_to_json.json")
