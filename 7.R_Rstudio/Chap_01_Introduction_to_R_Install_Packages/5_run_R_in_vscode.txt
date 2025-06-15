@@ -56,7 +56,7 @@ Then open >Preferences: Open User Settings (JSON), and add these configurations
     "r.bracketedPaste": true,
     "r.sessionWatcher": true,
     "r.alwaysUseActiveTerminal": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
 }
 
 Then Ctrl+S to save the JSON settings file

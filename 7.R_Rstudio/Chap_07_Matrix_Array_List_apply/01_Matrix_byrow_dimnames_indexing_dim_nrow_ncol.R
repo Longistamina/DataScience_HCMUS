@@ -33,39 +33,39 @@ print(M3)
 #------------ Define column and row names --------------#
 #-------------------------------------------------------#
 
-rownames = c("row1", "row2", "row3", "row4")
-colnames = c("col1", "col2", "col3")
+rownames <- c("row1", "row2", "row3", "row4")
+colnames <- c("col1", "col2", "col3")
 
 M4 <- matrix(c(1:12), nrow = 4, ncol = 3, dimnames = list(rownames, colnames))
 print(M4)
 
 #       col1 col2 col3
-#row1    1    5    9
-#row2    2    6   10
-#row3    3    7   11
-#row4    4    8   12
+# row1    1    5    9
+# row2    2    6   10
+# row3    3    7   11
+# row4    4    8   12
 
 
 #-------------------------------#
 #--------- indexing ------------#
 #-------------------------------#
 
-rownames = c("row1", "row2", "row3", "row4")
-colnames = c("col1", "col2", "col3")
+rownames <- c("row1", "row2", "row3", "row4")
+colnames <- c("col1", "col2", "col3")
 m <- matrix(c(1:12), nrow = 4, ncol = 3, dimnames = list(rownames, colnames))
 print(m)
 
 # Access element at 1st row and 3rd column
-m[1,3]
+m[1, 3]
 
 # Access all elements of 2nd row
-m[2,]
+m[2, ]
 
 # Access all elements of 3rd column
-m[,3]
+m[, 3]
 
 # Access first 2 rows of 3rd column
-m[1:2,3]
+m[1:2, 3]
 
 
 

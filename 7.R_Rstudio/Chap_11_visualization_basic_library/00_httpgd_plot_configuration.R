@@ -11,7 +11,7 @@
 #     "r.bracketedPaste": true,
 #     "r.sessionWatcher": true,
 #     "r.alwaysUseActiveTerminal": true,
-#     "editor.formatOnSave": true
+#     "editor.formatOnSave": false
 # }
 
 ## Then Ctrl+S to save the JSON settings file
