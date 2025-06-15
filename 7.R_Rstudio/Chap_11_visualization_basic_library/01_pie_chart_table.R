@@ -11,8 +11,10 @@
 ## col:       a vector storing colors hex code, or palette name to use
 ## clockwise: TRUE to draw clockwise, FALSE to draw anti-clockwise (default is FALSE)
 
+###############
+## Example 1 ##
+###############
 
-## Example 1:
 data_1 <- c(46, 37, 35, 53)
 labels_1 <- c("10A1", "10A2", "10A3", "10A4")
 
@@ -26,8 +28,27 @@ pie(
     main = "Number of students in each class"
 )
 
+##############################################################################
+## Example 2: use table() to create frequency table of categorical variable ##
+##############################################################################
 
-## Example 2: draw pie chart with percentage and legends
+data(iris)
+head(iris, n = 3)
+#   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+# 1          5.1         3.5          1.4         0.2  setosa
+# 2          4.9         3.0          1.4         0.2  setosa
+# 3          4.7         3.2          1.3         0.2  setosa
+
+table(iris$Species)
+# setosa versicolor  virginica 
+#     50         50         50 
+
+pie(x = table(iris$Species))
+
+###########################################################
+## Example 3: draw pie chart with percentage and legends ##
+###########################################################
+
 data_2 <- c(45, 46.5, 50, 35, 22)
 data_2_percent <- round((100 * data_2) / sum(data_2), 2)
 
@@ -69,7 +90,9 @@ library("plotrix")
 ## main:      title of the pie chart
 ## col:       a vector storing colors hex code, or palette name to use
 
-## Example 1:
+###############
+## Example 1 ##
+###############
 data_1 <- c(46, 37, 35, 53)
 labels_1 <- c("10A1", "10A2", "10A3", "10A4")
 
@@ -81,8 +104,9 @@ pie3D(
 )
 
 
-## Example 2: draw pie chart with percentage and legends
-data_2 <- c(45, 46.5, 50, 35, 22)
+###########################################################
+## Example 2: draw pie chart with percentage and legends ##
+###########################################################data_2 <- c(45, 46.5, 50, 35, 22)
 data_2_percent <- round((100 * data_2) / sum(data_2), 2)
 
 legend_labels <- c("HP", "Lenovo", "Asus", "Acer")
